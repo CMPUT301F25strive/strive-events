@@ -13,8 +13,8 @@ public class EntrantProfile {
     private String email;
     private String phone;
     private List<Event> historyEvents = new ArrayList<>();
-    private String preferences = ""; //
-    private boolean deleted = false;
+    private String preferences = "";    // unsure
+    private boolean deleted = false;    // unsure
 
     /**
      * This constructor delegates to the full constructor with an empty phone value
@@ -34,7 +34,7 @@ public class EntrantProfile {
     public EntrantProfile(String name, String email, String phone) {
         this.name = name;
         this.phone = phone;
-        // this.deviceId = DeviceIdentityService.getId();
+        // TODO: something like this.deviceId = DeviceIdentityService.getId();
     }
 
     /**
@@ -97,6 +97,7 @@ public class EntrantProfile {
         return preferences;
     }
 
+    // Not sure for delete methods here
     /**
      * This method returns whether this profile is deleted
      * @return true if the profile is deleted, false otherwise
