@@ -16,7 +16,6 @@ public class WaitingListController {
      * @param eventRepository: the repository used to manage the events
      * @param profileRepository: the repository used to manage the profiles
      */
-
     public WaitingListController(EventRepository eventRepository, ProfileRepository profileRepository) {
         this.eventRepository = eventRepository;
         this.profileRepository = profileRepository;
@@ -27,7 +26,7 @@ public class WaitingListController {
      * @param eventID: ID of the event
      * @param entrantID: ID of the entrant
      */
-    public void joinWaitingList(int eventID, String entrantID) {
+//    public void joinWaitingList(int eventID, String entrantID) {
 //        Event event = eventRepository.getEvent(eventID);
 //        EntrantProfile entrant = profileRepository.findEntrantById(entrantID);
 //        WaitingList waitingList = event.getWaitingList(); // might have to add the method getWaitingList() in EventRepository since it shows error without it
@@ -38,7 +37,7 @@ public class WaitingListController {
 //
 //        waitingList.addEntrant(entrant); // might have to add method addEntrant() in ProfileRepository
 //        profileRepository.saveEntrant(entrant);
-    }
+//    }
 
     /**
      * This methods removes entrants based on their entrantID from the waiting list to the event specified by eventID
