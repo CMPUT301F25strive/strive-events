@@ -67,7 +67,8 @@ public class EventListAdapter extends ListAdapter<Event, EventListAdapter.EventV
 
             Date date = new Date(event.getStartTimeMillis());
             binding.eventDate.setText(dateFormat.format(date));
-            binding.eventTime.setText(timeFormat.format(date));
+            String timeCopy = timeFormat.format(date).toLowerCase(Locale.getDefault());
+            binding.eventTime.setText(timeCopy);
             binding.eventVenue.setText(event.getVenue());
             binding.eventStatus.setText(buildStatusCopy(event));
         }
