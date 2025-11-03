@@ -2,13 +2,15 @@ package com.example.eventlottery.model;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
  * event domain model shared across entrant and organizer screens.
  */
-public class Event {
+public class Event implements Serializable {
 
     /**
      * status values for an event registration window.
@@ -30,6 +32,8 @@ public class Event {
     private final Status status;
     @DrawableRes
     private final int posterResId;
+    @Nullable
+    private final String description;
 
     public Event(
             @NonNull String id,
@@ -40,7 +44,8 @@ public class Event {
             int capacity,
             int spotsRemaining,
             @NonNull Status status,
-            @DrawableRes int posterResId
+            @DrawableRes int posterResId,
+            @Nullable String description
     ) {
         this.id = Objects.requireNonNull(id, "id required");
         this.title = Objects.requireNonNull(title, "title required");
@@ -51,6 +56,7 @@ public class Event {
         this.spotsRemaining = spotsRemaining;
         this.status = Objects.requireNonNull(status, "status required");
         this.posterResId = posterResId;
+        this.description = description;
     }
 
     /**
@@ -122,6 +128,11 @@ public class Event {
         return posterResId;
     }
 
+    @Nullable
+    public String getDescription() {
+        return description;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -131,15 +142,16 @@ public class Event {
                 && capacity == event.capacity
                 && spotsRemaining == event.spotsRemaining
                 && posterResId == event.posterResId
-                && id.equals(event.id)
-                && title.equals(event.title)
-                && organizerName.equals(event.organizerName)
-                && venue.equals(event.venue)
-                && status == event.status;
+                && Objects.equals(id, event.id)
+                && Objects.equals(title, event.title)
+                && Objects.equals(organizerName, event.organizerName)
+                && Objects.equals(venue, event.venue)
+                && status == event.status
+                && Objects.equals(description, event.description);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, title, organizerName, startTimeMillis, venue, capacity, spotsRemaining, status, posterResId);
+        return Objects.hash(id, title, organizerName, startTimeMillis, venue, capacity, spotsRemaining, status, posterResId, description);
     }
 }

@@ -7,8 +7,17 @@
     <string name="event_calendar_content_description">event date</string>
     <string name="event_clock_content_description">event time</string>
     <string name="event_location_content_description">event location</string>
+    <string name="event_capacity_content_description">event capacity</string>
+    <string name="event_spots_content_description">spots remaining</string>
     <string name="nav_home">Home</string>
     <string name="nav_my_events">My events</string>
     <string name="nav_profile">Profile</string>
     <string name="no_events_placeholder">no events available right now</string>
+    <string name="event_detail_title">Event detail</string>
+    <string name="event_detail_organizer_format">Organized by %1$s</string>
+    <string name="event_detail_datetime_format">%1$s · %2$s</string>
+    <string name="event_detail_capacity_format">Capacity: %1$d</string>
+    <string name="event_detail_spots_format">Spots left: %1$d</string>
+    <string name="event_detail_description_label">Description</string>
+    <string name="event_detail_description_placeholder">No description provided yet.</string>
 </resources>

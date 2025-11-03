@@ -27,7 +27,10 @@ public class EntrantEventListViewModelTest {
         EntrantEventListViewModel viewModel = new EntrantEventListViewModel(new FakeEventRepository());
         EventListUiState state = TestLiveDataUtil.getOrAwaitValue(viewModel.getState());
         assertFalse(state.loading);
-        assertEquals(4, state.events.size());
+        assertEquals(3, state.events.size());
+        for (com.example.eventlottery.model.Event event : state.events) {
+            assertEquals(com.example.eventlottery.model.Event.Status.REG_OPEN, event.getStatus());
+        }
     }
 
     @Test
@@ -42,7 +45,7 @@ public class EntrantEventListViewModelTest {
             assertTrue(captured.stream().anyMatch(state -> state.loading));
             EventListUiState latest = captured.get(captured.size() - 1);
             assertFalse(latest.loading);
-            assertEquals(4, latest.events.size());
+            assertEquals(3, latest.events.size());
         } finally {
             viewModel.getState().removeObserver(observer);
         }

@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.eventlottery.R;
 import com.example.eventlottery.databinding.FragmentEventListBinding;
@@ -102,6 +103,9 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
 
     @Override
     public void onEventSelected(@NonNull Event event) {
-        Toast.makeText(requireContext(), event.getTitle(), Toast.LENGTH_SHORT).show();
+        Bundle args = new Bundle();
+        args.putSerializable(EventDetailFragment.ARG_EVENT, event);
+        NavHostFragment.findNavController(this)
+                .navigate(R.id.action_entrantEventListFragment_to_eventDetailFragment, args);
     }
 }

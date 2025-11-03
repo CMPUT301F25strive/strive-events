@@ -74,20 +74,13 @@ public class EventListAdapter extends ListAdapter<Event, EventListAdapter.EventV
         }
 
         private String buildStatusCopy(@NonNull Event event) {
-            switch (event.getStatus()) {
-                case REG_OPEN:
-                    if (event.getSpotsRemaining() > 0) {
-                        return String.format(Locale.getDefault(), "registration open · %d spots left", event.getSpotsRemaining());
-                    }
-                    return "registration open";
-                case REG_CLOSED:
-                    return "registration closed";
-                case DRAWN:
-                    return "lottery drawn";
-                case FINALIZED:
-                default:
-                    return "event finalized";
+            if (event.getStatus() == Event.Status.REG_OPEN) {
+                if (event.getSpotsRemaining() > 0) {
+                    return String.format(Locale.getDefault(), "%d spots left", event.getSpotsRemaining());
+                }
+                return "waitlist almost full";
             }
+            return event.getStatus().name();
         }
 
         @Override

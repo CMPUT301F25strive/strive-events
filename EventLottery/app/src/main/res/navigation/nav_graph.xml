@@ -9,5 +9,14 @@
         android:id="@+id/entrantEventListFragment"
         android:name="com.example.eventlottery.entrant.EntrantEventListFragment"
         android:label="@string/home_tab_label"
-        tools:layout="@layout/fragment_event_list" />
+        tools:layout="@layout/fragment_event_list">
+        <action
+            android:id="@+id/action_entrantEventListFragment_to_eventDetailFragment"
+            app:destination="@id/eventDetailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/eventDetailFragment"
+        android:name="com.example.eventlottery.entrant.EventDetailFragment"
+        android:label="@string/event_detail_title"
+        tools:layout="@layout/fragment_event_detail" />
 </navigation>

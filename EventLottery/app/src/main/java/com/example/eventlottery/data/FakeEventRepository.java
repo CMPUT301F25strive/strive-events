@@ -41,49 +41,59 @@ public class FakeEventRepository implements EventRepository {
         List<Event> seed = new ArrayList<>();
         seed.add(new Event(
                 "evt-001",
-                "Communist Manifesto Meeting",
-                "John Lennon",
+                "Community Swim Challenge",
+                "Jane",
                 toMillis(2025, 1, 19, 19, 30),
                 "Community centre",
                 50,
                 12,
                 Status.REG_OPEN,
-                R.drawable.poster_swim
+                R.drawable.poster_swim,
+                "Shake off the winter chill with a friendly swim meet for all skill levels."
         ));
         seed.add(new Event(
                 "evt-002",
-                "Shock Collar Training Session",
-                "HasanAbi",
+                "Puppy Training for beginners",
+                "Jane",
                 toMillis(2025, 1, 19, 19, 30),
                 "Community centre",
                 25,
                 4,
                 Status.REG_OPEN,
-                R.drawable.poster_puppy
+                R.drawable.poster_puppy,
+                "Learn positive reinforcement basics with local trainers and friendly pups."
         ));
         seed.add(new Event(
                 "evt-003",
-                "CS:GO LAN",
+                "Piano Lessons Intermediate",
                 "Jane",
                 toMillis(2025, 1, 19, 19, 30),
                 "Rutherford Library",
                 18,
                 0,
                 Status.REG_CLOSED,
-                R.drawable.poster_piano
+                R.drawable.poster_piano,
+                "Hands-on coaching session for returning students polishing their recital set."
         ));
         seed.add(new Event(
                 "evt-004",
-                "Furry Terrorist Anonymous",
-                "Arnold Schwarzenegger",
+                "Mindful Morning Yoga",
+                "Aisha",
                 toMillis(2025, 1, 20, 9, 0),
-                "CCIS 1-117",
+                "Westside studio",
                 32,
                 9,
                 Status.REG_OPEN,
-                R.drawable.poster_wellness
+                R.drawable.poster_wellness,
+                "Start the week with a gentle flow focused on balance, breath, and reset."
         ));
-        eventsLiveData.setValue(Collections.unmodifiableList(seed));
+        List<Event> openEvents = new ArrayList<>();
+        for (Event event : seed) {
+            if (event.getStatus() == Status.REG_OPEN) {
+                openEvents.add(event);
+            }
+        }
+        eventsLiveData.setValue(Collections.unmodifiableList(openEvents));
     }
 
     private long toMillis(int year, int month, int day, int hour, int minute) {
