@@ -27,9 +27,8 @@ public class EntrantEventListViewModel extends ViewModel {
         stateLiveData.setValue(EventListUiState.loading());
         LiveData<List<Event>> source = repository.observeEvents();
         stateLiveData.addSource(source, events -> {
-            boolean isLoading = Boolean.TRUE.equals(loadingLiveData.getValue());
-            stateLiveData.setValue(new EventListUiState(isLoading, events, null));
             loadingLiveData.setValue(false);
+            stateLiveData.setValue(new EventListUiState(false, events, null));
         });
         refresh();
     }
@@ -41,6 +40,7 @@ public class EntrantEventListViewModel extends ViewModel {
 
     public void refresh() {
         loadingLiveData.setValue(true);
+        stateLiveData.setValue(new EventListUiState(true, getCurrentEvents(), null));
         repository.refresh();
     }
 
