@@ -70,7 +70,8 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
                     ? R.string.nav_my_events
                     : R.string.nav_profile;
             Toast.makeText(requireContext(), messageRes, Toast.LENGTH_SHORT).show();
-            return true;
+            binding.bottomNavigation.setSelectedItemId(R.id.nav_home);
+            return false;
         });
     }
 
