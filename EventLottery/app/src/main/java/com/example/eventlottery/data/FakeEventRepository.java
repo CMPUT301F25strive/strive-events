@@ -41,8 +41,8 @@ public class FakeEventRepository implements EventRepository {
         List<Event> seed = new ArrayList<>();
         seed.add(new Event(
                 "evt-001",
-                "Community Swim Challenge",
-                "Jane",
+                "Communist Manifesto Meeting",
+                "John Lennon",
                 toMillis(2025, 1, 19, 19, 30),
                 "Community centre",
                 50,
@@ -52,8 +52,8 @@ public class FakeEventRepository implements EventRepository {
         ));
         seed.add(new Event(
                 "evt-002",
-                "Puppy Training for beginners",
-                "Jane",
+                "Shock Collar Training Session",
+                "HasanAbi",
                 toMillis(2025, 1, 19, 19, 30),
                 "Community centre",
                 25,
@@ -63,10 +63,10 @@ public class FakeEventRepository implements EventRepository {
         ));
         seed.add(new Event(
                 "evt-003",
-                "Piano lessons intermediate",
+                "CS:GO LAN",
                 "Jane",
                 toMillis(2025, 1, 19, 19, 30),
-                "Community centre",
+                "Rutherford Library",
                 18,
                 0,
                 Status.REG_CLOSED,
@@ -74,10 +74,10 @@ public class FakeEventRepository implements EventRepository {
         ));
         seed.add(new Event(
                 "evt-004",
-                "Mindful Morning Yoga",
-                "Aisha",
+                "Furry Terrorist Anonymous",
+                "Arnold Schwarzenegger",
                 toMillis(2025, 1, 20, 9, 0),
-                "Westside studio",
+                "CCIS 1-117",
                 32,
                 9,
                 Status.REG_OPEN,
