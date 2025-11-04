@@ -66,6 +66,11 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
         binding.bottomNavigation.setOnItemSelectedListener(item -> {
             if (item.getItemId() == R.id.nav_home) {
                 return true;
+            } else if (item.getItemId() == R.id.nav_profile) {
+                NavHostFragment.findNavController(this).navigate(R.id.entrantProfileFragment);
+                return true;
+            } else if (item.getItemId() == R.id.nav_my_events) {
+                // ...
             }
             int messageRes = item.getItemId() == R.id.nav_my_events
                     ? R.string.nav_my_events

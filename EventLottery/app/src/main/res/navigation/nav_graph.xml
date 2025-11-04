@@ -19,4 +19,17 @@
         android:name="com.example.eventlottery.entrant.EventDetailFragment"
         android:label="@string/event_detail_title"
         tools:layout="@layout/fragment_event_detail" />
+    <fragment
+        android:id="@+id/entrantProfileFragment"
+        android:name="com.example.eventlottery.entrant.EntrantProfileFragment"
+        android:label="Entrant Profile"
+        tools:layout="@layout/fragment_profile">
+        <action
+            android:id="@+id/action_entrantProfileFragment_to_editProfileFragment"
+            app:destination="@id/editProfileFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/editProfileFragment"
+        android:name="com.example.eventlottery.entrant.EditProfileFragment"
+        tools:layout="@layout/fragment_edit_profile" />
 </navigation>

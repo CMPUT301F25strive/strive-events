@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 public final class RepositoryProvider {
 
     private static EventRepository eventRepository;
+    private static ProfileRepository profileRepository;
 
     private RepositoryProvider() {
     }
@@ -18,5 +19,13 @@ public final class RepositoryProvider {
             eventRepository = new FakeEventRepository();
         }
         return eventRepository;
+    }
+
+    @NonNull
+    public static synchronized ProfileRepository getProfileRepository() {
+        if (profileRepository == null) {
+            profileRepository = new InMemProfileRepo();
+        }
+        return profileRepository;
     }
 }
