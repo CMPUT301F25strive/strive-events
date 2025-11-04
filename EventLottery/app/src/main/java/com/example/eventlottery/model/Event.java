@@ -4,6 +4,8 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.eventlottery.WaitingList;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -35,6 +37,9 @@ public class Event implements Serializable {
     @Nullable
     private final String description;
 
+    @Nullable
+    private final WaitingList waitList;
+
     public Event(
             @NonNull String id,
             @NonNull String title,
@@ -45,7 +50,8 @@ public class Event implements Serializable {
             int spotsRemaining,
             @NonNull Status status,
             @DrawableRes int posterResId,
-            @Nullable String description
+            @Nullable String description,
+            @Nullable WaitingList waitList
     ) {
         this.id = Objects.requireNonNull(id, "id required");
         this.title = Objects.requireNonNull(title, "title required");
@@ -57,6 +63,7 @@ public class Event implements Serializable {
         this.status = Objects.requireNonNull(status, "status required");
         this.posterResId = posterResId;
         this.description = description;
+        this.waitList = waitList;
     }
 
     /**
@@ -131,6 +138,14 @@ public class Event implements Serializable {
     @Nullable
     public String getDescription() {
         return description;
+    }
+
+    /**
+     * This method gets the waiting list for the event
+     * @return waitList: the waiting list that contains all the entrants who joined
+     */
+    public WaitingList getWaitingList() {
+        return waitList;
     }
 
     @Override

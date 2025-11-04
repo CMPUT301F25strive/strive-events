@@ -1,5 +1,7 @@
 package com.example.eventlottery;
 
+import com.example.eventlottery.model.Event;
+
 import java.time.LocalDateTime;
 
 /**

@@ -1,5 +1,7 @@
 package com.example.eventlottery;
 
+import com.example.eventlottery.model.Event;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,9 +33,9 @@ public class EventRepository {
      * @return Event: the event with the corresponding eventID
      * @throws IllegalArgumentException: if no event is associated with that ID exists
      */
-    public Event getEvent(int eventID) {
+    public Event getEvent(String eventID) {
         for (int i = 0; i < events.size(); i++) {
-            if (eventID == events.get(i).getEventID()) {
+            if (eventID.equals(events.get(i).getId())) {
                 return events.get(i);
             }
         }
@@ -44,9 +46,9 @@ public class EventRepository {
     /**
      * This method removes an Event from the list using the event's ID if it exists in the list
      */
-    public void deleteEvent(int eventID) {
+    public void deleteEvent(String eventID) {
         for (int i = 0; i < events.size(); i++) {
-            if (eventID == events.get(i).getEventID()) {
+            if (eventID.equals(events.get(i).getId())) {
                 events.remove(events.get(i));
             }
         }

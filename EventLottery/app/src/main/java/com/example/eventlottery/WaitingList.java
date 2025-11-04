@@ -7,16 +7,13 @@ import java.util.List;
  * This is a class representing a Waiting List object
  */
 public class WaitingList {
-    private Event event;
     private List<EntrantProfile> waitList = new ArrayList<>();
 
     /**
      * This methods constructs a WaitingList object
-     * @param event: the event that the waiting list is connected
      * @param waitList: the list of entrants that joined the waiting list of the event
      */
-    public WaitingList(Event event, List<EntrantProfile> waitList) {
-        this.event = event;
+    public WaitingList(List<EntrantProfile> waitList) {
         this.waitList= waitList;
     }
 
