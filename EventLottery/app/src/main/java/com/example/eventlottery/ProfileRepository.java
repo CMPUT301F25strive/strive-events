@@ -37,19 +37,18 @@ public interface ProfileRepository {
      */
     void deleteOrganizer(String id);
 
-    // For admin browse and search
-
+    // TODO: For admin browse and search
     /**
      * This searches the desired entrant profiles.
-     * @param query: a SQL query
+     * @param criteria:
      * @return a list of entrant profiles
      */
-    List<EntrantProfile> searchEntrants(String query);
+    //List<EntrantProfile> searchEntrants(String criteria);
 
     /**
      * This searches the desired organizer profiles.
-     * @param query: a SQL query
+     * @param cirteria:
      * @return a list of organizer profiles
      */
-    List<OrganizerProfile> searchOrganizers(String query);
+    //List<OrganizerProfile> searchOrganizers(String criteria);
 }

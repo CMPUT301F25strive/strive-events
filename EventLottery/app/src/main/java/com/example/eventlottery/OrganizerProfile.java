@@ -8,13 +8,13 @@ import java.util.List;
  *
  */
 public class OrganizerProfile {
-    //private String deviceId;
+    private String deviceId;
     private String name;
     private String email;
     private String phone;
-    private List<Event> ownedEvents = new ArrayList<>();
-    private String permissions = "organizer"; //
-    private boolean deleted = false;
+    private List<Event> ownedEvents = new ArrayList<>();    //
+    private String permissions = "organizer";   //
+    private boolean deleted = false;    //
 
     /**
      * This constructor delegates to the full constructor with an empty phone value
@@ -48,6 +48,20 @@ public class OrganizerProfile {
         this.phone = phone;
     }
 
+    public String getDeviceId() {
+        return deviceId;
+    }
 
+    public String getName() {
+        return name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
 }
 
