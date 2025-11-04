@@ -28,16 +28,16 @@ public class WaitingListController {
      * @param entrantID: ID of the entrant
      */
     public void joinWaitingList(int eventID, String entrantID) {
-//        Event event = eventRepository.getEvent(eventID);
-//        EntrantProfile entrant = profileRepository.findEntrantById(entrantID);
-//        WaitingList waitingList = event.getWaitingList(); // might have to add the method getWaitingList() in EventRepository since it shows error without it
-//
-//        if (waitingList.getEntrantCount() >= event.getCapacity()) {
-//            throw new IllegalArgumentException(); //change this exception
-//        }
-//
-//        waitingList.addEntrant(entrant); // might have to add method addEntrant() in ProfileRepository
-//        profileRepository.saveEntrant(entrant);
+        Event event = eventRepository.getEvent(eventID);
+        EntrantProfile entrant = profileRepository.findEntrantById(entrantID);
+        WaitingList waitingList = event.getWaitingList(); // might have to add the method getWaitingList() in EventRepository since it shows error without it
+
+        if (waitingList.getEntrantCount() >= event.getCapacity()) {
+            throw new IllegalArgumentException(); //change this exception
+        }
+
+        waitingList.joinList(entrant);
+        profileRepository.saveEntrant(entrant);
     }
 
     /**
@@ -46,11 +46,11 @@ public class WaitingListController {
      * @param entrantID: ID of the entrant
      */
     public void leaveWaitingList(int eventID, String entrantID) {
-//        Event event = eventRepository.getEvent(eventID);
-//        EntrantProfile entrant = profileRepository.findEntrantById(entrantID);
-//        WaitingList waitingList = event.getWaitingList(); // might have to add in EventRepository
-//
-//        waitingList.deleteEntrant(entrant);
+        Event event = eventRepository.getEvent(eventID);
+        EntrantProfile entrant = profileRepository.findEntrantById(entrantID);
+        WaitingList waitingList = event.getWaitingList();
+
+        waitingList.leaveList(entrant);
     }
 
     /**
@@ -59,9 +59,8 @@ public class WaitingListController {
      * @return int: number of entrants in the waiting list
      */
     public int countEntrants(int eventID) {
-//        Event event = eventRepository.getEvent(eventID);
-//        return event.getWaitingList().getEntrantCount(); // might have to add in EventRepository
-        return 0;
+        Event event = eventRepository.getEvent(eventID);
+        return event.getWaitingList().getEntrantCount();
     }
 
     /**

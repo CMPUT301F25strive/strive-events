@@ -13,6 +13,7 @@ public class Event {
     private int organizerID;
     private int posterID;
     private boolean geoRequired;
+    private WaitingList waitList;
 
 
     /**
@@ -27,7 +28,7 @@ public class Event {
      * @param posterID: the ID of the poster the event uses
      * @param geoRequired: boolean that says if location matters in selection
      */
-    public Event(int eventID, String name, String description, String venue, int capacity, float price, int organizerID, int posterID, boolean geoRequired) {
+    public Event(int eventID, String name, String description, String venue, int capacity, float price, int organizerID, int posterID, boolean geoRequired, WaitingList waitList) {
         this.eventID = eventID;
         this.name = name;
         this.description = description;
@@ -37,6 +38,7 @@ public class Event {
         this.organizerID = organizerID;
         this.posterID = posterID;
         this.geoRequired = geoRequired;
+        this.waitList = waitList;
     }
 
     /**
@@ -109,5 +111,13 @@ public class Event {
      */
     public boolean getGeoRequired() {
         return geoRequired;
+    }
+
+    /**
+     * This method gets the waiting list for the event
+     * @return waitList: the waiting list that contains all the entrants who joined
+     */
+    public WaitingList getWaitingList() {
+        return waitList;
     }
 }

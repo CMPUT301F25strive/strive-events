@@ -16,7 +16,7 @@ public class EventController {
      * @param qrCodeService: class to generates qr code
      * @param imageStorage: class to store images
      */
-    public EventController(EventRepository eventRepository, QRCodeService qrCodeService,  ImageStorage imageStorage,) {
+    public EventController(EventRepository eventRepository, QRCodeService qrCodeService,  ImageStorage imageStorage) {
         this.eventRepository = eventRepository;
         this.qrCodeService = qrCodeService;
         this.imageStorage = imageStorage;
@@ -36,9 +36,9 @@ public class EventController {
      * @return event object itself
      */
     public Event createEvent(int eventID, String name, String description, String venue,
-                             int capacity, float price, int organizerID, int posterID, boolean geoRequired) {
+                             int capacity, float price, int organizerID, int posterID, boolean geoRequired, WaitingList waitList) {
 
-        Event event = new Event(eventID, name, description, venue, capacity, price, organizerID, posterID, geoRequired);
+        Event event = new Event(eventID, name, description, venue, capacity, price, organizerID, posterID, geoRequired, waitList);
         eventRepository.add(event);
         return event;
     }
@@ -53,13 +53,14 @@ public class EventController {
      * @param newPrice:
      * @param newPosterID:
      */
-    public void updateEvent(Event event, String newName, String newDescription, Integer newCapacity, String newVenue, Float newPrice, Integer newPosterID) {
+    public void updateEvent(Event event, String newName, String newDescription, Integer newCapacity, String newVenue, Float newPrice, Integer newPosterID, WaitingList newWaitList) {
         if (newName != null) event.setName(newName);
         if (newDescription != null) event.setDescription(newDescription);
         if (newCapacity != null) event.setCapacity(newCapacity);
         if (newVenue != null) event.setVenue(newVenue);
         if (newPrice != null) event.setPrice(newPrice);
         if (newPosterID != null) event.setPosterID(newPosterID);
+        if (newWaitList != null) event.setWaitingList(newWaitList);
 
         eventRepository.update(event);
     }
@@ -83,4 +84,3 @@ public class EventController {
 
     //place holder for filter events
 }
-
