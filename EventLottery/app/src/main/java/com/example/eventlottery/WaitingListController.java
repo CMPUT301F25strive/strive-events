@@ -1,5 +1,7 @@
 package com.example.eventlottery;
 
+import com.example.eventlottery.model.Event;
+
 import java.util.List;
 
 /**
@@ -27,7 +29,7 @@ public class WaitingListController {
      * @param eventID: ID of the event
      * @param entrantID: ID of the entrant
      */
-    public void joinWaitingList(int eventID, String entrantID) {
+    public void joinWaitingList(String eventID, String entrantID) {
         Event event = eventRepository.getEvent(eventID);
         EntrantProfile entrant = profileRepository.findEntrantById(entrantID);
         WaitingList waitingList = event.getWaitingList(); // might have to add the method getWaitingList() in EventRepository since it shows error without it
@@ -45,7 +47,7 @@ public class WaitingListController {
      * @param eventID: ID of the event
      * @param entrantID: ID of the entrant
      */
-    public void leaveWaitingList(int eventID, String entrantID) {
+    public void leaveWaitingList(String eventID, String entrantID) {
         Event event = eventRepository.getEvent(eventID);
         EntrantProfile entrant = profileRepository.findEntrantById(entrantID);
         WaitingList waitingList = event.getWaitingList();
@@ -58,7 +60,7 @@ public class WaitingListController {
      * @param eventID: ID of the event
      * @return int: number of entrants in the waiting list
      */
-    public int countEntrants(int eventID) {
+    public int countEntrants(String eventID) {
         Event event = eventRepository.getEvent(eventID);
         return event.getWaitingList().getEntrantCount();
     }
@@ -67,7 +69,7 @@ public class WaitingListController {
      * This methods displays the map of the locations of all the entrants in the waiting list
      * @param eventID: ID of the event
      */
-    public void showMapView(int eventID) {
+    public void showMapView(String eventID) {
         Event event = eventRepository.getEvent(eventID);
         //... // will complete after implementation of the GeoService
     }

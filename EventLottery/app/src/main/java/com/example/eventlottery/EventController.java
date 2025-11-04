@@ -1,5 +1,7 @@
 package com.example.eventlottery;
 
+import com.example.eventlottery.model.Event;
+
 import java.util.List;
 
 /**
@@ -33,6 +35,7 @@ public class EventController {
      * @param organizerID:
      * @param posterID:
      * @param geoRequired:
+     * @param waitList:
      * @return event object itself
      */
     public Event createEvent(int eventID, String name, String description, String venue,
