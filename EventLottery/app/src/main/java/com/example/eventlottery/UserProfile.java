@@ -8,7 +8,7 @@ import java.util.List;
  * This holds the functionalities for updating and deleting profile.
  */
 public class UserProfile {
-    private String deviceId;    // unique key
+    private String deviceID;    // unique key
     private String name;
     private String email;
     private String phone;
@@ -35,7 +35,21 @@ public class UserProfile {
     public UserProfile(String name, String email, String phone) {
         this.name = name;
         this.phone = phone;
-        // this.deviceId = DeviceIdentityService.getId();
+        this.email = email;
+    }
+
+    /**
+     * This is the full constructor with necessary personal info for a profile
+     * @param deviceID: the ID of the user's device
+     * @param name: name of user
+     * @param email: email of user
+     * @param phone: phone number of user
+     */
+    public UserProfile(String deviceID, String name, String email, String phone) {
+        this.deviceID = deviceID;
+        this.name = name;
+        this.phone = phone;
+        this.email = email;
     }
 
     /**
@@ -54,8 +68,8 @@ public class UserProfile {
      * This method returns the user's device ID.
      * @return the value of the unique device ID
      */
-    public String getDeviceId() {
-        return deviceId;
+    public String getDeviceID() {
+        return deviceID;
     }
 
     /**
