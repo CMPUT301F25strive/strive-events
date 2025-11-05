@@ -51,6 +51,7 @@ public class ProfileFragment extends Fragment {
             if (profile != null) {
                 binding.profileName.setText(profile.getName());
                 binding.profileEmail.setText(profile.getEmail());
+                binding.profilePhone.setText(profile.getPhone());
             }
 
             if (state.getErrorMessage() != null) {
