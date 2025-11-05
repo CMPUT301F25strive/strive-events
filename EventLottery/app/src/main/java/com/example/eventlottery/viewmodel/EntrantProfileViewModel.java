@@ -9,7 +9,7 @@ import com.example.eventlottery.entrant.ProfileUiState;
 import com.example.eventlottery.model.EntrantProfile;
 
 public class EntrantProfileViewModel extends ViewModel {
-
+    private final String PRESET_PLACE_HOLDER = "NA";
     private final ProfileRepository repository;
     private final MutableLiveData<ProfileUiState> uiState = new MutableLiveData<>(ProfileUiState.loading());
 
@@ -25,7 +25,7 @@ public class EntrantProfileViewModel extends ViewModel {
     public void loadProfile() {
         uiState.setValue(ProfileUiState.loading());
         try {
-            EntrantProfile profile = repository.findEntrantById("PRESET_PLACE_HOLDER");   // preset in InMemProfileRepo
+            EntrantProfile profile = repository.findEntrantById(PRESET_PLACE_HOLDER);   // preset in InMemProfileRepo
             uiState.setValue(ProfileUiState.success(profile));
         } catch (Exception e) {
             uiState.setValue(ProfileUiState.error("Failed to load profile"));

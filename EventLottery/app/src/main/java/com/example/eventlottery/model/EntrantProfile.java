@@ -45,9 +45,16 @@ public class EntrantProfile {
      * @param phone: new phone number
      */
     public void updatePersonalInfo(String name, String email, String phone) {
-        this.name = name;
-        this.email = email;
-        this.phone = phone;
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Name cannot be empty");
+        }
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("Email cannot be empty");
+        }
+
+        this.name = name.trim();
+        this.email = email.trim();
+        this.phone = phone != null ? phone.trim() : null;
     }
 
     /**

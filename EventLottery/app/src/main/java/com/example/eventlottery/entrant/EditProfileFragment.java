@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -16,17 +15,18 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.eventlottery.R;
-import com.example.eventlottery.data.InMemProfileRepo;
 import com.example.eventlottery.data.ProfileRepository;
+import com.example.eventlottery.data.RepositoryProvider;
 import com.example.eventlottery.model.EntrantProfile;
 import com.example.eventlottery.viewmodel.EntrantProfileViewModel;
 import com.example.eventlottery.viewmodel.EntrantProfileViewModelFactory;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.textfield.TextInputEditText;
 
 public class EditProfileFragment extends Fragment {
 
     private EntrantProfileViewModel viewModel;
-    private EditText editTextName, editTextEmail, editTextPhone;
+    private TextInputEditText editTextName, editTextEmail, editTextPhone;
     private Button buttonSave;
     private MaterialToolbar toolbar;
 
@@ -50,11 +50,9 @@ public class EditProfileFragment extends Fragment {
                               @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Shared ViewModel for profile + edit profile (activity scope)
-        ProfileRepository repo = new InMemProfileRepo(); // replace with real repo later
+        ProfileRepository repo = RepositoryProvider.getProfileRepository();
         EntrantProfileViewModelFactory factory = new EntrantProfileViewModelFactory(repo);
-        viewModel = new ViewModelProvider(requireActivity(), factory)
-                .get(EntrantProfileViewModel.class);
+        viewModel = new ViewModelProvider(requireActivity(), factory).get(EntrantProfileViewModel.class);
 
         // Fill fields with current data once
         viewModel.getUiState().observe(getViewLifecycleOwner(), state -> {
@@ -68,10 +66,13 @@ public class EditProfileFragment extends Fragment {
                     editTextPhone.setText(p.getPhone());
                 }
             }
+            if (state != null && state.getErrorMessage() != null) {
+                Toast.makeText(requireContext(), state.getErrorMessage(), Toast.LENGTH_SHORT).show();
+            }
         });
 
-        toolbar.setNavigationOnClickListener(v ->
-                NavHostFragment.findNavController(this).popBackStack(R.id.entrantEventListFragment, false)
+        // Toolbar navigation
+        toolbar.setNavigationOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack()
         );
 
         buttonSave.setOnClickListener(v -> {
@@ -79,16 +80,28 @@ public class EditProfileFragment extends Fragment {
             String email = editTextEmail.getText().toString().trim();
             String phone = editTextPhone.getText().toString().trim();
 
-            // Validation step
-            if (name.isEmpty() || email.isEmpty()) {
-                Toast.makeText(requireContext(), "Name and email cannot be empty", Toast.LENGTH_SHORT).show();
+            // Validation
+            if (name.isEmpty()) {
+                editTextName.setError("Name cannot be empty");
                 return;
-            } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                Toast.makeText(requireContext(), "Invalid email format", Toast.LENGTH_SHORT).show();
+            }
+            if (email.isEmpty()) {
+                editTextEmail.setError("Email cannot be empty");
+                return;
+            }
+            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                editTextEmail.setError("Please enter a valid email format");
                 return;
             }
 
+            // Clear errors
+            editTextName.setError(null);
+            editTextEmail.setError(null);
+
             viewModel.updateProfile(name, email, phone);
+            
+            // Show success message and navigate back
+            Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show();
             NavHostFragment.findNavController(this).popBackStack();
         });
 

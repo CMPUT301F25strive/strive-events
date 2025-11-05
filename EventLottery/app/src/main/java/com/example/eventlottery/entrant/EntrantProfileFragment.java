@@ -13,7 +13,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.eventlottery.R;
-import com.example.eventlottery.data.InMemProfileRepo;
 import com.example.eventlottery.data.ProfileRepository;
 import com.example.eventlottery.data.RepositoryProvider;
 import com.example.eventlottery.databinding.FragmentProfileBinding;
@@ -40,7 +39,6 @@ public class EntrantProfileFragment extends Fragment {
                               @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Shared profile ViewModel (same as EditProfileFragment)
         ProfileRepository repo = RepositoryProvider.getProfileRepository();
         EntrantProfileViewModelFactory factory = new EntrantProfileViewModelFactory(repo);
         viewModel = new ViewModelProvider(requireActivity(), factory).get(EntrantProfileViewModel.class);
@@ -78,13 +76,12 @@ public class EntrantProfileFragment extends Fragment {
                 // already here
                 return true;
             } else if (item.getItemId() == R.id.nav_home) {
-                // go back to home (EntrantEventListFragment)
+                // go to home (EntrantEventListFragment)
                 NavHostFragment.findNavController(this)
                         .popBackStack(R.id.entrantEventListFragment, false);
                 return true;
             } else if (item.getItemId() == R.id.nav_my_events) {
-                // later: navigate to "my events" when you have it
-                Toast.makeText(requireContext(), R.string.nav_my_events, Toast.LENGTH_SHORT).show();
+                // TODO: set up navigation
                 return true;
             }
             return false;
