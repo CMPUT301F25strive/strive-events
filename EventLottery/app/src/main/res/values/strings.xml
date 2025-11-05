@@ -19,5 +19,6 @@
     <string name="event_detail_capacity_format">Capacity: %1$d</string>
     <string name="event_detail_spots_format">Spots left: %1$d</string>
     <string name="event_detail_description_label">Description</string>
+    <string name="profile_picture">Profile picture</string>
     <string name="event_detail_description_placeholder">No description provided yet.</string>
 </resources>

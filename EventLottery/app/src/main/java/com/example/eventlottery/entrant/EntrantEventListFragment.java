@@ -60,22 +60,22 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
         binding.eventRecycler.setAdapter(adapter);
         binding.eventRecycler.setHasFixedSize(true);
     }
-
     private void setupBottomNav() {
         binding.bottomNavigation.setSelectedItemId(R.id.nav_home);
         binding.bottomNavigation.setOnItemSelectedListener(item -> {
-            if (item.getItemId() == R.id.nav_home) {
+            if (item.getItemId() == R.id.nav_home) { return true; }
+            else if (item.getItemId() == R.id.nav_profile) {
+                NavHostFragment.findNavController(this)
+                        .navigate(R.id.action_entrantEventListFragment_to_profileFragment);
                 return true;
             }
-            int messageRes = item.getItemId() == R.id.nav_my_events
-                    ? R.string.nav_my_events
-                    : R.string.nav_profile;
-            Toast.makeText(requireContext(), messageRes, Toast.LENGTH_SHORT).show();
-            binding.bottomNavigation.setSelectedItemId(R.id.nav_home);
+            else if (item.getItemId() == R.id.nav_my_events) {
+                // Navigate to MyEventsFragment if you have one
+                return true;
+            }
             return false;
         });
     }
-
     private void renderState(@NonNull EventListUiState state) {
         binding.loadingIndicator.setVisibility(state.loading ? View.VISIBLE : View.GONE);
         binding.eventRefresh.setRefreshing(false);
