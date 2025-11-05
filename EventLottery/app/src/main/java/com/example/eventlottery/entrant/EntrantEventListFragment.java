@@ -72,6 +72,11 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
             else if (item.getItemId() == R.id.nav_my_events) {
                 // Navigate to MyEventsFragment if you have one
                 return true;
+            } else if (item.getItemId() == R.id.nav_profile) {
+                NavHostFragment.findNavController(this).navigate(R.id.entrantProfileFragment);
+                return true;
+            } else if (item.getItemId() == R.id.nav_my_events) {
+                // ...
             }
             return false;
         });
