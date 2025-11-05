@@ -35,7 +35,7 @@ public class EntrantProfile {
         this.name = name;
         this.email = email;
         this.phone = phone;
-        // TODO: something like this.deviceId = DeviceIdentityService.getId();
+        // prob something like this.deviceId = DeviceIdentityService.getId();
     }
 
     /**

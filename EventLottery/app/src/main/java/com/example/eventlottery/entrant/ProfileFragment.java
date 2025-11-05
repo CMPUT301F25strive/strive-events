@@ -9,44 +9,83 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.eventlottery.R;
+import com.example.eventlottery.data.ProfileRepository;
+import com.example.eventlottery.data.RepositoryProvider;
 import com.example.eventlottery.databinding.FragmentProfileBinding;
+import com.example.eventlottery.model.EntrantProfile;
+import com.example.eventlottery.viewmodel.ProfileViewModel;
+import com.example.eventlottery.viewmodel.ProfileViewModelFactory;
+
 
 public class ProfileFragment extends Fragment {
 
     private FragmentProfileBinding binding;
+    private ProfileViewModel viewModel;
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         binding = FragmentProfileBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+    }
 
-        // highlight current tab
-        binding.bottomNavigation.setSelectedItemId(R.id.nav_profile);
+    @Override
+    public void onViewCreated(@NonNull View view,
+                              @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        // bottom nav clicks
-        binding.bottomNavigation.setOnItemSelectedListener(item -> {
-            if (item.getItemId() == R.id.nav_home) {
-                NavHostFragment.findNavController(this)
-                        .navigate(R.id.action_profileFragment_to_entrantEventListFragment);
-                return true;
-            } else if (item.getItemId() == R.id.nav_my_events) {
-                Toast.makeText(requireContext(), R.string.nav_my_events, Toast.LENGTH_SHORT).show();
-                binding.bottomNavigation.setSelectedItemId(R.id.nav_profile);
-                return false;
+        ProfileRepository repo = RepositoryProvider.getProfileRepository();
+        ProfileViewModelFactory factory = new ProfileViewModelFactory(repo);
+        viewModel = new ViewModelProvider(requireActivity(), factory).get(ProfileViewModel.class);
+
+        // Observe profile state
+        viewModel.getUiState().observe(getViewLifecycleOwner(), state -> {
+            if (state == null) return;
+
+            EntrantProfile profile = state.getProfile();
+            if (profile != null) {
+                binding.profileName.setText(profile.getName());
+                binding.profileEmail.setText(profile.getEmail());
             }
-            return true;
+
+            if (state.getErrorMessage() != null) {
+                Toast.makeText(requireContext(), state.getErrorMessage(), Toast.LENGTH_SHORT).show();
+            }
         });
 
-        // Edit Profile button functional
+        // Edit Profile button
         binding.buttonEditProfile.setOnClickListener(v ->
                 NavHostFragment.findNavController(this)
-                        .navigate(R.id.action_profileFragment_to_editProfileFragment)
+                        .navigate(R.id.action_profileFragment_to_profileEditFragment)
         );
 
-        return binding.getRoot();
+        // Bottom navigation
+        setupBottomNav();
+    }
+
+    private void setupBottomNav() {
+        binding.bottomNavigation.setSelectedItemId(R.id.nav_profile);
+
+        binding.bottomNavigation.setOnItemSelectedListener(item -> {
+            if (item.getItemId() == R.id.nav_profile) {
+                // already here
+                return true;
+            } else if (item.getItemId() == R.id.nav_home) {
+                // go to home (EntrantEventListFragment)
+                NavHostFragment.findNavController(this)
+                        .popBackStack(R.id.entrantEventListFragment, false);
+                return true;
+            } else if (item.getItemId() == R.id.nav_my_events) {
+                // TODO: set up navigation
+                return true;
+            }
+            return false;
+        });
     }
 
     @Override

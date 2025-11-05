@@ -8,12 +8,12 @@ import com.example.eventlottery.data.ProfileRepository;
 import com.example.eventlottery.entrant.ProfileUiState;
 import com.example.eventlottery.model.EntrantProfile;
 
-public class EntrantProfileViewModel extends ViewModel {
+public class ProfileViewModel extends ViewModel {
     private final String PRESET_PLACE_HOLDER = "NA";
     private final ProfileRepository repository;
     private final MutableLiveData<ProfileUiState> uiState = new MutableLiveData<>(ProfileUiState.loading());
 
-    public EntrantProfileViewModel(ProfileRepository repository) {
+    public ProfileViewModel(ProfileRepository repository) {
         this.repository = repository;
         loadProfile();
     }

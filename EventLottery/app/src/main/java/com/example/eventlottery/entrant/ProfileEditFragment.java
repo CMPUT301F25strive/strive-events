@@ -18,14 +18,14 @@ import com.example.eventlottery.R;
 import com.example.eventlottery.data.ProfileRepository;
 import com.example.eventlottery.data.RepositoryProvider;
 import com.example.eventlottery.model.EntrantProfile;
-import com.example.eventlottery.viewmodel.EntrantProfileViewModel;
-import com.example.eventlottery.viewmodel.EntrantProfileViewModelFactory;
+import com.example.eventlottery.viewmodel.ProfileViewModel;
+import com.example.eventlottery.viewmodel.ProfileViewModelFactory;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.textfield.TextInputEditText;
 
-public class EditProfileFragment extends Fragment {
+public class ProfileEditFragment extends Fragment {
 
-    private EntrantProfileViewModel viewModel;
+    private ProfileViewModel viewModel;
     private TextInputEditText editTextName, editTextEmail, editTextPhone;
     private Button buttonSave;
     private MaterialToolbar toolbar;
@@ -51,8 +51,8 @@ public class EditProfileFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         ProfileRepository repo = RepositoryProvider.getProfileRepository();
-        EntrantProfileViewModelFactory factory = new EntrantProfileViewModelFactory(repo);
-        viewModel = new ViewModelProvider(requireActivity(), factory).get(EntrantProfileViewModel.class);
+        ProfileViewModelFactory factory = new ProfileViewModelFactory(repo);
+        viewModel = new ViewModelProvider(requireActivity(), factory).get(ProfileViewModel.class);
 
         // Fill fields with current data once
         viewModel.getUiState().observe(getViewLifecycleOwner(), state -> {

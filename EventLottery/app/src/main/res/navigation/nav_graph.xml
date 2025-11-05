@@ -33,25 +33,16 @@
             app:destination="@id/entrantEventListFragment" />
 
         <action
-            android:id="@+id/action_profileFragment_to_editProfileFragment"
-            app:destination="@id/editProfileFragment" />
+            android:id="@+id/action_profileFragment_to_profileEditFragment"
+            app:destination="@id/profileEditFragment" />
     </fragment>
 
     <!-- Edit Profile Fragment -->
     <fragment
-        android:id="@+id/editProfileFragment"
-        android:name="com.example.eventlottery.entrant.EditProfileFragment"
+        android:id="@+id/profileEditFragment"
+        android:name="com.example.eventlottery.entrant.ProfileEditFragment"
         android:label="Edit Profile"
-        tools:layout="@layout/fragment_edit_profile">
-
-        <action
-            android:id="@+id/action_editProfileFragment_to_profileFragment"
-            app:destination="@id/profileFragment" />
-
-        <action
-            android:id="@+id/action_editProfileFragment_to_entrantEventListFragment"
-            app:destination="@id/entrantEventListFragment" />
-    </fragment>
+        tools:layout="@layout/fragment_edit_profile" />
 
     <!-- Event Detail Fragment -->
     <fragment

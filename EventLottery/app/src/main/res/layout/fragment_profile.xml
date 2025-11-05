@@ -42,10 +42,10 @@
             android:contentDescription="@string/qr_shortcut_content_description"
             android:padding="4dp"
             android:src="@drawable/ic_qr_code_24"
-            android:tint="@color/black"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:tint="@color/black" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- Scrollable profile content -->
@@ -80,7 +80,6 @@
                 android:id="@+id/profileName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="John Doe"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:layout_marginTop="12dp"
@@ -90,7 +89,6 @@
                 android:id="@+id/profileEmail"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="johndoe@email.com"
                 android:textSize="14sp"
                 android:textColor="@color/gray_dark"
                 android:layout_marginTop="4dp"/>
@@ -99,7 +97,6 @@
                 android:id="@+id/profilePhone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="+1 234 567 890"
                 android:textSize="14sp"
                 android:textColor="@color/gray_dark"
                 android:layout_marginTop="2dp"/>
