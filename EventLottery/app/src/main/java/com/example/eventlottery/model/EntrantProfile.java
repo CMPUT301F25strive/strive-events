@@ -14,7 +14,6 @@ public class EntrantProfile {
     private String phone;
     private List<Event> historyEvents = new ArrayList<>();
     private String preferences = "";    // unsure
-    private boolean deleted = false;    // unsure
 
     /**
      * This constructor delegates to the full constructor with an empty phone value
@@ -120,22 +119,5 @@ public class EntrantProfile {
     public String getPreferences() {
         return preferences;
     }
-
-    // Not sure for delete methods here
-    /**
-     * This method returns whether this profile is deleted
-     * @return true if the profile is deleted, false otherwise
-     */
-    public boolean isDeleted() {
-        return deleted;
-    }
-
-    /**
-     * This method notifies the profile repository that the profile is deleted
-     */
-    public void deleteProfile() {
-        this.deleted = true;
-    }
-
 }
 

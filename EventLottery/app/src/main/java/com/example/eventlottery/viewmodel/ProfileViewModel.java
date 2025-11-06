@@ -41,9 +41,22 @@ public class ProfileViewModel extends ViewModel {
 
         try {
             repository.saveEntrant(profile);
-            uiState.setValue(ProfileUiState.success(profile));
+            uiState.setValue(ProfileUiState.success(profile));  // Update the profile state
         } catch (Exception e) {
             uiState.setValue(ProfileUiState.error("Failed to save profile"));
+        }
+    }
+
+    public void deleteProfile() {
+        try {
+            ProfileUiState cur = uiState.getValue();
+            if (cur != null && cur.getProfile() != null) {
+                String deviceId = cur.getProfile().getDeviceId();
+                repository.deleteEntrant(deviceId);
+                uiState.setValue(ProfileUiState.deleted()); // Use the new deleted state
+            }
+        } catch (Exception e) {
+            uiState.setValue(ProfileUiState.error("Failed to delete profile"));
         }
     }
 }
