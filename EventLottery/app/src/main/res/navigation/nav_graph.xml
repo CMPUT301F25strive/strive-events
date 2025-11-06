@@ -3,26 +3,51 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/FirstFragment">
+    app:startDestination="@id/entrantEventListFragment">
 
+    <!-- Entrant Home Feed -->
     <fragment
-        android:id="@+id/FirstFragment"
-        android:name="com.example.eventlottery.MainPage"
-        android:label="@string/first_fragment_label"
-        tools:layout="@layout/fragment_first">
+        android:id="@+id/entrantEventListFragment"
+        android:name="com.example.eventlottery.entrant.EntrantEventListFragment"
+        android:label="Home"
+        tools:layout="@layout/fragment_event_list">
 
         <action
-            android:id="@+id/action_FirstFragment_to_SecondFragment"
-            app:destination="@id/SecondFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/SecondFragment"
-        android:name="com.example.eventlottery.CreateEventPage"
-        android:label="@string/second_fragment_label"
-        tools:layout="@layout/fragment_second">
+            android:id="@+id/action_entrantEventListFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
 
         <action
-            android:id="@+id/action_SecondFragment_to_FirstFragment"
-            app:destination="@id/FirstFragment" />
+            android:id="@+id/action_entrantEventListFragment_to_eventDetailFragment"
+            app:destination="@id/eventDetailFragment" />
     </fragment>
+
+    <!-- Profile Fragment -->
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.eventlottery.entrant.ProfileFragment"
+        android:label="Profile"
+        tools:layout="@layout/fragment_profile">
+
+        <action
+            android:id="@+id/action_profileFragment_to_entrantEventListFragment"
+            app:destination="@id/entrantEventListFragment" />
+
+        <action
+            android:id="@+id/action_profileFragment_to_profileEditFragment"
+            app:destination="@id/profileEditFragment" />
+    </fragment>
+
+    <!-- Edit Profile Fragment -->
+    <fragment
+        android:id="@+id/profileEditFragment"
+        android:name="com.example.eventlottery.entrant.ProfileEditFragment"
+        android:label="Edit Profile"
+        tools:layout="@layout/fragment_edit_profile" />
+
+    <!-- Event Detail Fragment -->
+    <fragment
+        android:id="@+id/eventDetailFragment"
+        android:name="com.example.eventlottery.entrant.EventDetailFragment"
+        android:label="Event Detail"
+        tools:layout="@layout/fragment_event_detail" />
 </navigation>

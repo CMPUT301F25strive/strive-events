@@ -2,4 +2,7 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="primary">#2196F3</color>        <!-- Main blue -->
+    <color name="gray_dark">#666666</color>      <!-- Text gray -->
+    <color name="gray_light">#DDDDDD</color>     <!-- Divider gray -->
 </resources>
