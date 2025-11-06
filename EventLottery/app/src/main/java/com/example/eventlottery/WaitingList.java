@@ -1,28 +1,34 @@
 package com.example.eventlottery;
 
+import com.example.eventlottery.model.Profile;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * This is a class representing a Waiting List object
  */
 public class WaitingList {
-    private List<EntrantProfile> waitList = new ArrayList<>();
+    private List<Profile> waitList = new ArrayList<>();
 
     /**
      * This methods constructs a WaitingList object
-     * @param waitList: the list of entrants that joined the waiting list of the event
      */
-    public WaitingList(List<EntrantProfile> waitList) {
-        this.waitList= waitList;
+    public WaitingList() {
+        this.waitList = new ArrayList<>();
     }
 
     /**
      * This adds an entrant to the waiting list
      * @param entrant: the entrant profile that is joining the list
      */
-    public void joinList(EntrantProfile entrant) {
-        if (!waitList.contains(entrant)){
+    public void joinList(Profile entrant) {
+        if (entrant == null) {
+            throw new IllegalArgumentException("Entrant cannot be null");
+        }
+        
+        // Check if entrant is already in the list
+        if (!contains(entrant)) {
             waitList.add(entrant);
         }
     }
@@ -31,7 +37,8 @@ public class WaitingList {
      * This removes an entrant from the waiting list
      * @param entrant: the entrant profile that is removed from the list
      */
-    public void leaveList(EntrantProfile entrant) {
+    public void leaveList(Profile entrant) {
+        if (entrant == null) return;
         waitList.remove(entrant);
     }
 
@@ -43,4 +50,36 @@ public class WaitingList {
         return waitList.size();
     }
 
+    /**
+     * Gets the current waiting list
+     * @return list of profiles in waiting list
+     */
+    public List<Profile> getWaitList() {
+        return new ArrayList<>(waitList);
+    }
+
+    /**
+     * Checks if an entrant is in the waiting list
+     * @param entrant the entrant to check
+     * @return true if contains, false otherwise
+     */
+    public boolean contains(Profile entrant) {
+        if (entrant == null) return false;
+        return waitList.contains(entrant);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        // Check instance type
+        if (!(o instanceof Profile)) return false;
+        
+        Profile other = (Profile) o;
+        return Objects.equals(this.deviceID, other.deviceID);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(deviceID);
+    }
 }
