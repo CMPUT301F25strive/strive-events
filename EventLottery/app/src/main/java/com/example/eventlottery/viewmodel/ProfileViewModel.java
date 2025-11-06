@@ -1,5 +1,7 @@
 package com.example.eventlottery.viewmodel;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -11,7 +13,7 @@ import com.example.eventlottery.model.Profile;
 public class ProfileViewModel extends ViewModel {
     private final ProfileRepository repository;
     private final MutableLiveData<ProfileUiState> uiState = new MutableLiveData<>(ProfileUiState.loading());
-    private String currentDeviceId;
+    private String currentDeviceID;
 
     public ProfileViewModel(ProfileRepository repository) {
         this.repository = repository;
@@ -21,12 +23,12 @@ public class ProfileViewModel extends ViewModel {
         return uiState;
     }
 
-    public void loadProfile(String deviceId) {
+    public void loadProfile(String deviceID) {
         uiState.setValue(ProfileUiState.loading());
-        this.currentDeviceId = deviceId;
-            
+        this.currentDeviceID = deviceID;
+        Log.d("ProfileViewModel", "Loading profile for deviceId: " + deviceID);
         try {
-            Profile profile = repository.findUserById(deviceId);
+            Profile profile = repository.findUserById(deviceID);
             if (profile != null) {
             uiState.setValue(ProfileUiState.success(profile));
             }

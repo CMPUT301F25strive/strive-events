@@ -50,15 +50,31 @@ public class FirebaseProfileRepository implements ProfileRepository {
                 }
             }
         });
+
+        for (Profile user : users) {
+            Log.d("Users", "Loaded user: " + user.getName());
+        }
+        usersRef.get().addOnSuccessListener(qs -> {
+            Log.d("FirestoreProfiles", "Direct get(): " + qs.size() + " documents");
+            for (var doc : qs) {
+                Log.d("FirestoreProfiles", "Doc: " + doc.getId() + " => " + doc.getData());
+            }
+        }).addOnFailureListener(e -> {
+            Log.e("FirestoreProfiles", "Direct get() failed", e);
+        });
     }
 
     @Override
-    public Profile findUserById(String id) {
-        for (Profile profile : users) {
-            if (id.equals(profile.getDeviceID())) {
-                return profile;
+    public Profile findUserById(String deviceId) {
+        Log.d("ProfileRepository", "Searching for deviceId: " + deviceId);
+        for (Profile user : users) {
+            Log.d("ProfileRepository", "Checking user: " + user.getDeviceID());
+            if (deviceId.equals(user.getDeviceID())) {
+                Log.d("ProfileRepository", "Found user: " + user.getName());
+                return user;
             }
         }
+        Log.d("ProfileRepository", "User not found");
         return null;
     }
 

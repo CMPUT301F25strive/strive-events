@@ -9,8 +9,7 @@ import java.util.List;
  */
 public class Profile {
     public enum Role {
-        ENTRANT,
-        ORGANIZER,
+        USER,
         ADMIN
     }
 
@@ -18,7 +17,7 @@ public class Profile {
     private String name;
     private String email;
     private String phone;
-    private final Role role = Role.ENTRANT;   // default to entrant, we may change the role in Firebase
+    private final Role role = Role.USER;   // default to entrant, we may change the role in Firebase
     private final List<Event> historyEvents = new ArrayList<>();  // for entrants
     private final List<Event> ownedEvents = new ArrayList<>();    // for organizers
     private final String preferences = "";    // unsure
@@ -62,15 +61,6 @@ public class Profile {
         this.name = name.trim();
         this.email = email.trim();
         this.phone = phone != null ? phone.trim() : null;
-    }
-
-    // Role-based methods
-    public boolean isEntrant() {
-        return role == Role.ENTRANT;
-    }
-
-    public boolean isOrganizer() {
-        return role == Role.ORGANIZER;
     }
 
     public boolean isAdmin() {

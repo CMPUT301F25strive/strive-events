@@ -2,10 +2,12 @@ package com.example.eventlottery.entrant;
 
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+import android.provider.Settings.Secure;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -45,8 +47,9 @@ public class ProfileFragment extends Fragment {
         viewModel = new ViewModelProvider(requireActivity(), factory).get(ProfileViewModel.class);
 
         // Todo: Use DeviceIdentityService to get the device ID
-        String deviceId = "NA";
-        viewModel.loadProfile(deviceId);
+        String deviceID = Secure.getString(getContext().getContentResolver(), Secure.ANDROID_ID);
+        Log.d("Device ID", "Direct get(): " + deviceID);
+        viewModel.loadProfile(deviceID);
 
         // Observe profile state
         viewModel.getUiState().observe(getViewLifecycleOwner(), state -> {
