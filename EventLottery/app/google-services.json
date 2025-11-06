@@ -23,44 +23,6 @@
           "other_platform_oauth_client": []
         }
       }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:924102463965:android:30e72fb16146243e49e634",
-        "android_client_info": {
-          "package_name": "com.example.eventlottery.data"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyD7T8AYwYC4Yj1fTXO91lhuDdE9SLT0Luk"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:924102463965:android:2e3e6e568d17c50f49e634",
-        "android_client_info": {
-          "package_name": "com.example.eventlottery.hj"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyD7T8AYwYC4Yj1fTXO91lhuDdE9SLT0Luk"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
     }
   ],
   "configuration_version": "1"

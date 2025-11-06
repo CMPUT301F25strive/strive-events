@@ -17,7 +17,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.example.eventlottery.R;
 import com.example.eventlottery.data.ProfileRepository;
 import com.example.eventlottery.data.RepositoryProvider;
-import com.example.eventlottery.model.EntrantProfile;
+import com.example.eventlottery.model.Profile;
 import com.example.eventlottery.viewmodel.ProfileViewModel;
 import com.example.eventlottery.viewmodel.ProfileViewModelFactory;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -57,7 +57,7 @@ public class ProfileEditFragment extends Fragment {
         // Fill fields with current data once
         viewModel.getUiState().observe(getViewLifecycleOwner(), state -> {
             if (state != null && state.getProfile() != null) {
-                EntrantProfile p = state.getProfile();
+                Profile p = state.getProfile();
                 if (editTextName.getText().length() == 0
                         && editTextEmail.getText().length() == 0
                         && editTextPhone.getText().length() == 0) {

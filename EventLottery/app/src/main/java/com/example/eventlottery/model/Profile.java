@@ -4,15 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class stores information for the profile of an entrant.
+ * This class stores information for the profile of a user.
  * This holds the functionalities for updating and deleting profile.
  */
-public class EntrantProfile {
-    private String deviceId;    // unique key
+public class Profile {
+    private String deviceID;    // unique key
     private String name;
     private String email;
     private String phone;
     private List<Event> historyEvents = new ArrayList<>();
+    private List<Event> ownedEvents = new ArrayList<>();
     private String preferences = "";    // unsure
     private boolean deleted = false;    // unsure
 
@@ -21,8 +22,8 @@ public class EntrantProfile {
      * @param name: name of user
      * @param email: email of user
      */
-    public EntrantProfile(String name, String email) {
-        this(name, email, null); // delegate to full constructor
+    public Profile(String deviceID, String name, String email) {
+        this(deviceID, name, email, null); // delegate to full constructor
     }
 
     /**
@@ -31,7 +32,8 @@ public class EntrantProfile {
      * @param email: email of user
      * @param phone: phone number of user
      */
-    public EntrantProfile(String name, String email, String phone) {
+    public Profile(String deviceID, String name, String email, String phone) {
+        this.deviceID = deviceID;
         this.name = name;
         this.email = email;
         this.phone = phone;
@@ -61,12 +63,12 @@ public class EntrantProfile {
      * This method returns the user's device ID.
      * @return the value of the unique device ID
      */
-    public String getDeviceId() {
-        return deviceId;
+    public String getDeviceID() {
+        return deviceID;
     }
 
-    public void setDeviceId(String deviceId) {
-        this.deviceId = deviceId;
+    public void setDeviceID(String deviceID) {
+        this.deviceID = deviceID;
     }
 
     /**
