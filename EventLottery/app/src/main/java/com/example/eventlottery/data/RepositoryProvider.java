@@ -24,7 +24,7 @@ public final class RepositoryProvider {
     @NonNull
     public static synchronized ProfileRepository getProfileRepository() {
         if (profileRepository == null) {
-            profileRepository = new InMemProfileRepo();
+            profileRepository = new ProfileRepository();
         }
         return profileRepository;
     }

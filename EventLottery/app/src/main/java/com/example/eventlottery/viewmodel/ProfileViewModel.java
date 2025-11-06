@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.eventlottery.data.ProfileRepository;
 import com.example.eventlottery.entrant.ProfileUiState;
-import com.example.eventlottery.model.EntrantProfile;
+import com.example.eventlottery.model.Profile;
 
 public class ProfileViewModel extends ViewModel {
     private final String PRESET_PLACE_HOLDER = "NA";
@@ -25,7 +25,7 @@ public class ProfileViewModel extends ViewModel {
     public void loadProfile() {
         uiState.setValue(ProfileUiState.loading());
         try {
-            EntrantProfile profile = repository.findEntrantById(PRESET_PLACE_HOLDER);   // preset in InMemProfileRepo
+            Profile profile = repository.getUser(PRESET_PLACE_HOLDER);   // preset in InMemProfileRepo
             uiState.setValue(ProfileUiState.success(profile));
         } catch (Exception e) {
             uiState.setValue(ProfileUiState.error("Failed to load profile"));
@@ -36,11 +36,11 @@ public class ProfileViewModel extends ViewModel {
         ProfileUiState cur = uiState.getValue();
         if (cur == null || cur.getProfile() == null) return;
 
-        EntrantProfile profile = cur.getProfile();
+        Profile profile = cur.getProfile();
         profile.updatePersonalInfo(name, email, phone);
 
         try {
-            repository.saveEntrant(profile);
+            repository.saveProfile(profile);
             uiState.setValue(ProfileUiState.success(profile));
         } catch (Exception e) {
             uiState.setValue(ProfileUiState.error("Failed to save profile"));

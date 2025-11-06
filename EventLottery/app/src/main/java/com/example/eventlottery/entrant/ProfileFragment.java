@@ -16,7 +16,7 @@ import com.example.eventlottery.R;
 import com.example.eventlottery.data.ProfileRepository;
 import com.example.eventlottery.data.RepositoryProvider;
 import com.example.eventlottery.databinding.FragmentProfileBinding;
-import com.example.eventlottery.model.EntrantProfile;
+import com.example.eventlottery.model.Profile;
 import com.example.eventlottery.viewmodel.ProfileViewModel;
 import com.example.eventlottery.viewmodel.ProfileViewModelFactory;
 
@@ -47,7 +47,7 @@ public class ProfileFragment extends Fragment {
         viewModel.getUiState().observe(getViewLifecycleOwner(), state -> {
             if (state == null) return;
 
-            EntrantProfile profile = state.getProfile();
+            Profile profile = state.getProfile();
             if (profile != null) {
                 binding.profileName.setText(profile.getName());
                 binding.profileEmail.setText(profile.getEmail());
