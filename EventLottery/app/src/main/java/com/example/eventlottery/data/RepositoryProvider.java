@@ -16,7 +16,8 @@ public final class RepositoryProvider {
     @NonNull
     public static synchronized EventRepository getEventRepository() {
         if (eventRepository == null) {
-            eventRepository = new FakeEventRepository();
+            //eventRepository = new FakeEventRepository();
+            eventRepository = new FirebaseEventRepository();
         }
         return eventRepository;
     }
