@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.eventlottery.R;
+import com.example.eventlottery.WaitingList;
 import com.example.eventlottery.model.Event;
 import com.example.eventlottery.model.Event.Status;
 
@@ -49,7 +50,8 @@ public class FakeEventRepository implements EventRepository {
                 12,
                 Status.REG_OPEN,
                 R.drawable.poster_swim,
-                "Shake off the winter chill with a friendly swim meet for all skill levels."
+                "Shake off the winter chill with a friendly swim meet for all skill levels.",
+                new WaitingList(null)
         ));
         seed.add(new Event(
                 "evt-002",
@@ -61,7 +63,8 @@ public class FakeEventRepository implements EventRepository {
                 4,
                 Status.REG_OPEN,
                 R.drawable.poster_puppy,
-                "Learn positive reinforcement basics with local trainers and friendly pups."
+                "Learn positive reinforcement basics with local trainers and friendly pups.",
+                new WaitingList(null)
         ));
         seed.add(new Event(
                 "evt-003",
@@ -73,7 +76,8 @@ public class FakeEventRepository implements EventRepository {
                 0,
                 Status.REG_CLOSED,
                 R.drawable.poster_piano,
-                "Hands-on coaching session for returning students polishing their recital set."
+                "Hands-on coaching session for returning students polishing their recital set.",
+                new WaitingList(null)
         ));
         seed.add(new Event(
                 "evt-004",
@@ -85,7 +89,8 @@ public class FakeEventRepository implements EventRepository {
                 9,
                 Status.REG_OPEN,
                 R.drawable.poster_wellness,
-                "Start the week with a gentle flow focused on balance, breath, and reset."
+                "Start the week with a gentle flow focused on balance, breath, and reset.",
+                new WaitingList(null)
         ));
         List<Event> openEvents = new ArrayList<>();
         for (Event event : seed) {
