@@ -5,17 +5,23 @@ import java.util.List;
 
 /**
  * This class stores information for the profile of a user.
- * This holds the functionalities for updating and deleting profile.
+ * This holds the functionalities for updating the profile.
  */
 public class Profile {
-    private String deviceID;    // unique key
+    public enum Role {
+        ENTRANT,
+        ORGANIZER,
+        ADMIN
+    }
+
+    private String deviceID;
     private String name;
     private String email;
     private String phone;
-    private List<Event> historyEvents = new ArrayList<>();
-    private List<Event> ownedEvents = new ArrayList<>();
-    private String preferences = "";    // unsure
-    private boolean deleted = false;    // unsure
+    private final Role role = Role.ENTRANT;   // default to entrant, we may change the role in Firebase
+    private final List<Event> historyEvents = new ArrayList<>();  // for entrants
+    private final List<Event> ownedEvents = new ArrayList<>();    // for organizers
+    private final String preferences = "";    // unsure
 
     /**
      * This constructor delegates to the full constructor with an empty phone value
@@ -33,11 +39,10 @@ public class Profile {
      * @param phone: phone number of user
      */
     public Profile(String deviceID, String name, String email, String phone) {
-        this.deviceID = deviceID;
+        this.deviceID = deviceID;   // From DeviceIdentityService
         this.name = name;
         this.email = email;
         this.phone = phone;
-        // prob something like this.deviceId = DeviceIdentityService.getId();
     }
 
     /**
@@ -57,6 +62,19 @@ public class Profile {
         this.name = name.trim();
         this.email = email.trim();
         this.phone = phone != null ? phone.trim() : null;
+    }
+
+    // Role-based methods
+    public boolean isEntrant() {
+        return role == Role.ENTRANT;
+    }
+
+    public boolean isOrganizer() {
+        return role == Role.ORGANIZER;
+    }
+
+    public boolean isAdmin() {
+        return role == Role.ADMIN;
     }
 
     /**
@@ -123,21 +141,6 @@ public class Profile {
         return preferences;
     }
 
-    // Not sure for delete methods here
-    /**
-     * This method returns whether this profile is deleted
-     * @return true if the profile is deleted, false otherwise
-     */
-    public boolean isDeleted() {
-        return deleted;
-    }
-
-    /**
-     * This method notifies the profile repository that the profile is deleted
-     */
-    public void deleteProfile() {
-        this.deleted = true;
-    }
-
+    public Role getRole() { return role; }
 }
 

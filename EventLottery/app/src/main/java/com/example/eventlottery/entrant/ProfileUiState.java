@@ -8,11 +8,13 @@ public class ProfileUiState {
     private final boolean loading;
     private final Profile profile;
     private final String errorMessage;
+    private boolean deleted;
 
-    public ProfileUiState(boolean loading, Profile profile, String errorMessage) {
+    public ProfileUiState(boolean loading, Profile profile, String errorMessage, boolean deleted) {
         this.loading = loading;
         this.profile = profile;
         this.errorMessage = errorMessage;
+        this.deleted = deleted;
     }
 
     public boolean isLoading() { return loading; }
@@ -21,14 +23,24 @@ public class ProfileUiState {
 
     @NonNull
     public static ProfileUiState loading() {
-        return new ProfileUiState(true, null, null);
+        return new ProfileUiState(true, null, null, false);
     }
 
     public static ProfileUiState success(Profile profile) {
-        return new ProfileUiState(false, profile, null);
+        return new ProfileUiState(false, profile, null, false);
     }
 
     public static ProfileUiState error(String msg) {
-        return new ProfileUiState(false, null, msg);
+        return new ProfileUiState(false, null, msg, false);
     }
+
+    public static ProfileUiState deleted() {
+        return new ProfileUiState(false, null, "Profile deleted successfully", true);
+    }
+
+    /**
+     * This method returns whether this profile is deleted
+     * @return true if the profile is deleted, false otherwise
+     */
+    public boolean isDeleted() { return deleted; }
 }
