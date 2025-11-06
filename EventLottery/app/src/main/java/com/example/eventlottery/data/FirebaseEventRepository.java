@@ -7,6 +7,7 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.eventlottery.model.Profile;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -85,6 +86,20 @@ public class FirebaseEventRepository implements EventRepository {
                 }
             }
         });
+    }
+
+    @Override
+    public Event findEventById(String eventID) {
+        Log.d("EventRepository", "Searching for eventID: " + eventID);
+        for (Event event : events) {
+            Log.d("EventRepository", "Checking events: " + event.getId());
+            if (eventID.equals(event.getId())) {
+                Log.d("EventRepository", "Found event: " + event.getTitle());
+                return event;
+            }
+        }
+        Log.d("EventRepository", "Event not found");
+        return null;
     }
 
     @NonNull

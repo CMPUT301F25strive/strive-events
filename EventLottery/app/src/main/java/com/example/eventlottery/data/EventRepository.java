@@ -22,4 +22,8 @@ public interface EventRepository {
      * trigger background refresh using the current data source.
      */
     void refresh();
+
+    Event findEventById(String id);
+
+
 }

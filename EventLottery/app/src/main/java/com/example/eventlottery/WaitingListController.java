@@ -1,6 +1,9 @@
 package com.example.eventlottery;
 
+import com.example.eventlottery.data.EventRepository;
+import com.example.eventlottery.data.ProfileRepository;
 import com.example.eventlottery.model.Event;
+import com.example.eventlottery.model.WaitingList;
 
 import java.util.List;
 
@@ -27,9 +30,9 @@ public class WaitingListController {
     /**
      * This methods adds entrants based on their entrantID to the waiting list to the event specified by eventID
      * @param eventID: ID of the event
-     * @param entrantID: ID of the entrant
+     * @param deviceID: ID of the user's device
      */
-    public void joinWaitingList(String eventID, String entrantID) {
+    public void joinWaitingList(String eventID, String deviceID) {
         Event event = eventRepository.getEvent(eventID);
         EntrantProfile entrant = profileRepository.findEntrantById(entrantID);
         WaitingList waitingList = event.getWaitingList(); // might have to add the method getWaitingList() in EventRepository since it shows error without it

@@ -45,7 +45,7 @@ public class WaitingList {
      * This returns the number of entrants that joined the waiting list
      * @return waitList.size(): the amount of entrants in the waiting list
      */
-    public int getEntrantCount() {
+    public int getProfileCount() {
         return waitList.size();
     }
 
