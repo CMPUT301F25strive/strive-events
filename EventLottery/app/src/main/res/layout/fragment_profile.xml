@@ -130,7 +130,7 @@
                 android:id="@+id/menuGuidelines"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Guidelines"
+                android:text="@string/profile_menu_guidelines"
                 android:padding="12dp"
                 android:textSize="16sp"
                 android:textColor="@color/black"

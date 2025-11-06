@@ -5,10 +5,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
-import androidx.lifecycle.Observer;
 
 import com.example.eventlottery.TestLiveDataUtil;
-import com.example.eventlottery.data.FakeEventRepository;
 import com.example.eventlottery.entrant.EventListUiState;
 
 import org.junit.Rule;
