@@ -6,7 +6,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.eventlottery.R;
-import com.example.eventlottery.WaitingList;
+import com.example.eventlottery.model.WaitingList;
 import com.example.eventlottery.model.Event;
 import com.example.eventlottery.model.Event.Status;
 

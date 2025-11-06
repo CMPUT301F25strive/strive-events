@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.example.eventlottery.model.Event;
+import com.example.eventlottery.model.WaitingList;
 
 import org.junit.Test;
 

@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
 import com.example.eventlottery.model.Event;
+import com.example.eventlottery.model.WaitingList;
 
 import org.junit.Test;
 

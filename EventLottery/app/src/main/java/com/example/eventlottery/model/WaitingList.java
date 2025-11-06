@@ -1,6 +1,5 @@
-package com.example.eventlottery;
+package com.example.eventlottery.model;
 
-import com.example.eventlottery.model.Profile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -51,6 +50,7 @@ public class WaitingList {
     }
 
     /**
+     *
      * Gets the current waiting list
      * @return list of profiles in waiting list
      */

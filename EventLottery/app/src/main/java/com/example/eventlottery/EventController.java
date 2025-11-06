@@ -1,6 +1,7 @@
 package com.example.eventlottery;
 
 import com.example.eventlottery.model.Event;
+import com.example.eventlottery.model.WaitingList;
 
 import java.util.List;
 

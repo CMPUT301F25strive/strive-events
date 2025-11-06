@@ -4,8 +4,6 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.example.eventlottery.WaitingList;
-
 import java.io.Serializable;
 import java.util.Objects;
 
