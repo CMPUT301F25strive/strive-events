@@ -179,6 +179,9 @@ public class FirebaseProfileRepository implements ProfileRepository {
         return result;
     }
 
+    /**
+     * @return profilesLiveData
+     */
     @Override
     public LiveData<List<Profile>> observeProfiles() {
         return profilesLiveData;
@@ -221,6 +224,10 @@ public class FirebaseProfileRepository implements ProfileRepository {
                 .addOnFailureListener(e -> callback.onResult(false, e.getMessage()));
     }
 
+    /**
+     * This methods checks and assigns a role to the user
+     * @param roleString: the role of the user
+     */
     private Profile.Role parseRole(String roleString) {
         if (roleString == null) {
             return Profile.Role.USER;
@@ -232,6 +239,12 @@ public class FirebaseProfileRepository implements ProfileRepository {
         }
     }
 
+    /**
+     * This methods registers a user
+     * @param email : the email of the user
+     * @param phone : the phone of the user
+     * @param deviceID : device ID of the user
+     */
     @Override
     public void register(String email, String phone, String name, String deviceID, RegisterCallback callback) {
         userExists(email, exists -> {
@@ -254,6 +267,11 @@ public class FirebaseProfileRepository implements ProfileRepository {
         });
     }
 
+    /**
+     * This methods build a hash for a user profile
+     * @param profile : the profile of the user
+     * @return : the hash of the profile
+     */
     private Map<String, Object> buildProfileData(Profile profile) {
         Map<String, Object> data = new HashMap<>();
         data.put("deviceID", profile.getDeviceID());
