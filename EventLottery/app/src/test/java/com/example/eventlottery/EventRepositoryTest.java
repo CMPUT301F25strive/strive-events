@@ -8,6 +8,9 @@ import com.example.eventlottery.model.Event;
 
 import org.junit.Test;
 
+/**
+ * This is a test class for the event repository
+ */
 public class EventRepositoryTest {
 
     private Event mockEvent() {
