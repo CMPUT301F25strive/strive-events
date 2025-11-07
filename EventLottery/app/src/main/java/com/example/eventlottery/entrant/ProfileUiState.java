@@ -1,14 +1,13 @@
 package com.example.eventlottery.entrant;
 
 import androidx.annotation.NonNull;
-
 import com.example.eventlottery.model.Profile;
 
 public class ProfileUiState {
     private final boolean loading;
     private final Profile profile;
     private final String errorMessage;
-    private boolean deleted;
+    private final boolean deleted;
 
     public ProfileUiState(boolean loading, Profile profile, String errorMessage, boolean deleted) {
         this.loading = loading;
@@ -17,9 +16,21 @@ public class ProfileUiState {
         this.deleted = deleted;
     }
 
-    public boolean isLoading() { return loading; }
-    public Profile getProfile() { return profile; }
-    public String getErrorMessage() { return errorMessage; }
+    public boolean isLoading() {
+        return loading;
+    }
+
+    public Profile getProfile() {
+        return profile;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
 
     @NonNull
     public static ProfileUiState loading() {
@@ -37,10 +48,4 @@ public class ProfileUiState {
     public static ProfileUiState deleted() {
         return new ProfileUiState(false, null, "Profile deleted successfully", true);
     }
-
-    /**
-     * This method returns whether this profile is deleted
-     * @return true if the profile is deleted, false otherwise
-     */
-    public boolean isDeleted() { return deleted; }
 }

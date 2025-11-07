@@ -137,6 +137,17 @@
                 android:background="?android:attr/selectableItemBackground"/>
 
             <TextView
+                android:id="@+id/menuLogout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Logout"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:padding="12dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:layout_marginTop="8dp"/>
+
+            <TextView
                 android:id="@+id/menuDeleteAccount"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -144,7 +155,8 @@
                 android:textColor="@android:color/holo_red_dark"
                 android:textSize="16sp"
                 android:padding="12dp"
-                android:background="?android:attr/selectableItemBackground"/>
+                android:background="?android:attr/selectableItemBackground"
+                android:layout_marginTop="8dp"/>
         </LinearLayout>
     </ScrollView>
 

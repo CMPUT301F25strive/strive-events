@@ -1,61 +1,128 @@
-//package com.example.eventlottery.entrant;
-//
-//import android.content.SharedPreferences;
-//import android.os.Bundle;
-//import android.view.LayoutInflater;
-//import android.view.View;
-//import android.view.ViewGroup;
-//import android.widget.EditText;
-//import android.widget.Toast;
-//
-//import androidx.annotation.NonNull;
-//import androidx.annotation.Nullable;
-//import androidx.fragment.app.Fragment;
-//import androidx.navigation.fragment.NavHostFragment;
-//
-//import com.example.eventlottery.R;
-//
-//public class WelcomeFragment extends Fragment {
-//
-//    private EditText usernameInput;
-//    private EditText emailInput;
-//
-//    private static final String PREFS = "app_prefs";
-//    private static final String KEY_USERNAME = "username";
-//    private static final String KEY_EMAIL = "email";
-//
-//    @Nullable
-//    @Override
-//    public View onCreateView(@NonNull LayoutInflater inflater,
-//                             @Nullable ViewGroup container,
-//                             @Nullable Bundle savedInstanceState) {
-//        return inflater.inflate(R.layout.fragment_welcome, container, false);
-//    }
-//
-//    @Override
-//    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-//        usernameInput = view.findViewById(R.id.usernameInput);
-//        emailInput = view.findViewById(R.id.emailInput);
-//
-//        view.findViewById(R.id.buttonGetStarted).setOnClickListener(v -> {
-//            String name = usernameInput.getText().toString().trim();
-//            String email = emailInput.getText().toString().trim();
-//
-//            if (name.isEmpty() || email.isEmpty()) {
-//                Toast.makeText(requireContext(), "Please fill out all fields", Toast.LENGTH_SHORT).show();
-//                return;
-//            }
-//
-//            // Save to SharedPreferences (simple "signed in" flag + data)
-//            SharedPreferences prefs = requireActivity().getSharedPreferences(PREFS, 0);
-//            prefs.edit()
-//                    .putString(KEY_USERNAME, name)
-//                    .putString(KEY_EMAIL, email)
-//                    .apply();
-//
-//            // Navigate to home (EntrantEventListFragment)
-//            NavHostFragment.findNavController(this)
-//                    .navigate(R.id.action_welcomeFragment_to_entrantEventListFragment);
-//        });
-//    }
-//}
+package com.example.eventlottery;
+
+import android.os.Bundle;
+import android.provider.Settings;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
+
+import com.example.eventlottery.data.ProfileRepository;
+
+public class WelcomeFragment extends Fragment {
+
+    private EditText etEmail, etPassword, etPhone, etName;
+    private Button btnMainAction;
+    private TextView tvSwitchMode;
+    private ProgressBar progressBar;
+    private ProfileRepository profileRepo;
+
+    private boolean isLoginMode = true; // toggle between login and registration
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_welcome, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // Bind UI elements
+        etEmail = view.findViewById(R.id.etEmail);
+        etPassword = view.findViewById(R.id.etPassword);
+        etPhone = view.findViewById(R.id.etPhone);
+        etName = view.findViewById(R.id.etName);
+        btnMainAction = view.findViewById(R.id.btnMainAction);
+        tvSwitchMode = view.findViewById(R.id.tvSwitchMode);
+        progressBar = view.findViewById(R.id.progressBar);
+
+        profileRepo = com.example.eventlottery.data.RepositoryProvider.getProfileRepository();
+
+        // Main action button click
+        btnMainAction.setOnClickListener(v -> {
+            String email = etEmail.getText().toString().trim();
+            String password = etPassword.getText().toString().trim();
+            String phone = etPhone.getText().toString().trim();
+            String name = etName.getText().toString().trim();
+
+            if (email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(getContext(), "Email and password required", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            progressBar.setVisibility(View.VISIBLE);
+
+            if (isLoginMode) {
+                // LOGIN
+                profileRepo.login(email, password, (success, message) -> {
+                    progressBar.setVisibility(View.GONE);
+                    if (success) {
+                        Toast.makeText(getContext(), "Welcome back!", Toast.LENGTH_SHORT).show();
+                        Navigation.findNavController(view)
+                                .navigate(R.id.action_welcomeFragment_to_entrantEventListFragment);
+                    } else {
+                        Toast.makeText(getContext(), "Login failed: " + message, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } else {
+                // REGISTER
+                if (name.isEmpty()) {
+                    progressBar.setVisibility(View.GONE);
+                    Toast.makeText(getContext(), "Please enter your full name", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                String deviceID = getDeviceId(); // Get unique device ID
+
+                profileRepo.register(email, password, phone, name, deviceID, (success, message) -> {
+                    progressBar.setVisibility(View.GONE);
+                    Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                    if (success) {
+                        Navigation.findNavController(view)
+                                .navigate(R.id.action_welcomeFragment_to_entrantEventListFragment);
+                    }
+                });
+            }
+        });
+
+        // Toggle between login and registration modes
+        tvSwitchMode.setOnClickListener(v -> toggleMode());
+    }
+
+    private void toggleMode() {
+        if (isLoginMode) {
+            // Switch to registration
+            isLoginMode = false;
+            etPhone.setVisibility(View.VISIBLE);
+            etName.setVisibility(View.VISIBLE);
+            btnMainAction.setText("Register");
+            tvSwitchMode.setText("Already a user? Login");
+        } else {
+            // Switch to login
+            isLoginMode = true;
+            etPhone.setVisibility(View.GONE);
+            etName.setVisibility(View.GONE);
+            btnMainAction.setText("Login");
+            tvSwitchMode.setText("Not a user? Register");
+        }
+    }
+
+    /**
+     * Returns a unique device ID for this Android device
+     */
+    private String getDeviceId() {
+        return Settings.Secure.getString(requireContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+    }
+}

@@ -5,7 +5,7 @@ import java.util.List;
 
 /**
  * This class stores information for the profile of a user.
- * This holds the functionalities for updating the profile.
+ * Holds functionalities for updating the profile and storing unique device ID.
  */
 public class Profile {
     public enum Role {
@@ -13,42 +13,41 @@ public class Profile {
         ADMIN
     }
 
-    private String deviceID;
+    private String deviceID;                     // Unique Device ID
     private String name;
     private String email;
     private String phone;
-    private final Role role = Role.USER;   // default to entrant, we may change the role in Firebase
-    private final List<Event> historyEvents = new ArrayList<>();  // for entrants
-    private final List<Event> ownedEvents = new ArrayList<>();    // for organizers
-    private final String preferences = "";    // unsure
+    private final Role role = Role.USER;        // Default role is USER
+    private final List<Event> historyEvents = new ArrayList<>(); // For entrants
+    private final List<Event> ownedEvents = new ArrayList<>();   // For organizers
+    private final String preferences = "";      // Placeholder for user preferences
 
     /**
-     * This constructor delegates to the full constructor with an empty phone value
-     * @param name: name of user
-     * @param email: email of user
+     * Constructor for minimal profile
+     * @param deviceID unique device ID
+     * @param name user name
+     * @param email user email
      */
     public Profile(String deviceID, String name, String email) {
-        this(deviceID, name, email, null); // delegate to full constructor
+        this(deviceID, name, email, null);
     }
 
     /**
-     * This is the full constructor with necessary personal info for a profile
-     * @param name: name of user
-     * @param email: email of user
-     * @param phone: phone number of user
+     * Full constructor with phone
+     * @param deviceID unique device ID
+     * @param name user name
+     * @param email user email
+     * @param phone user phone
      */
     public Profile(String deviceID, String name, String email, String phone) {
-        this.deviceID = deviceID;   // From DeviceIdentityService
+        this.deviceID = deviceID;
         this.name = name;
         this.email = email;
         this.phone = phone;
     }
 
     /**
-     * This method updates the current profile with given parameter values.
-     * @param name: new name
-     * @param email: new email
-     * @param phone: new phone number
+     * Updates the profile's personal info
      */
     public void updatePersonalInfo(String name, String email, String phone) {
         if (name == null || name.trim().isEmpty()) {
@@ -67,10 +66,7 @@ public class Profile {
         return role == Role.ADMIN;
     }
 
-    /**
-     * This method returns the user's device ID.
-     * @return the value of the unique device ID
-     */
+    // ===== Device ID =====
     public String getDeviceID() {
         return deviceID;
     }
@@ -79,10 +75,7 @@ public class Profile {
         this.deviceID = deviceID;
     }
 
-    /**
-     * This method returns user's name
-     * @return the value of name
-     */
+    // ===== Other getters and setters =====
     public String getName() {
         return name;
     }
@@ -91,10 +84,6 @@ public class Profile {
         this.name = name;
     }
 
-    /**
-     * This method returns the user's email
-     * @return the value of email
-     */
     public String getEmail() {
         return email;
     }
@@ -103,10 +92,6 @@ public class Profile {
         this.email = email;
     }
 
-    /**
-     * This method returns the user's phone number
-     * @return the value of phone
-     */
     public String getPhone() {
         return phone;
     }
@@ -115,22 +100,19 @@ public class Profile {
         this.phone = phone;
     }
 
-    /**
-     * This method returns the list of history events from user
-     * @return the list of event references
-     */
     public List<Event> getHistoryEvents() {
         return historyEvents;
     }
 
-    /**
-     * This method returns the preferences of the user
-     * @return the value of preference
-     */
+    public List<Event> getOwnedEvents() {
+        return ownedEvents;
+    }
+
     public String getPreferences() {
         return preferences;
     }
 
-    public Role getRole() { return role; }
+    public Role getRole() {
+        return role;
+    }
 }
-
