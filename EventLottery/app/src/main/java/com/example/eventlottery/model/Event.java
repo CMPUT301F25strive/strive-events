@@ -207,7 +207,7 @@ public class Event implements Serializable {
      * @return boolean returns true if user is on the waiting list, false otherwise
      */
     public boolean isOnWaitingList(String deviceId) {
-        return attendeesList.contains(deviceId);
+        return waitingList.contains(deviceId);
     }
 
     public void joinAttendeesList(String deviceId) {
