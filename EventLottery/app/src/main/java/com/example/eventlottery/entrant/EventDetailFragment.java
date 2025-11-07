@@ -111,7 +111,7 @@ public class EventDetailFragment extends Fragment {
         binding.eventDetailDate.setText(getString(R.string.event_detail_datetime_format, dateCopy, timeCopy));
         binding.eventDetailVenue.setText(event.getVenue());
         binding.eventDetailCapacity.setText(getString(R.string.event_detail_capacity_format, event.getCapacity()));
-        binding.eventDetailSpots.setText(getString(R.string.event_detail_spots_format, Math.max(event.getSpotsRemaining(), 0)));
+        binding.eventDetailWaitingListCount.setText(getString(R.string.event_detail_waiting_list_count_format, event.getWaitingListSize()));
         if (!TextUtils.isEmpty(event.getDescription())) {
             binding.eventDetailDescription.setText(event.getDescription());
         } else {

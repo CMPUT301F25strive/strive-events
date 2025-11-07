@@ -143,19 +143,20 @@
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:contentDescription="@string/event_spots_content_description"
-                        android:src="@drawable/ic_nav_bookmark"
+                        android:contentDescription="@string/event_waiting_list_content_description"
+                        android:src="@android:drawable/ic_menu_view"
                         app:tint="?attr/colorOnSurfaceVariant" />
 
                     <TextView
-                        android:id="@+id/eventDetailSpots"
+                        android:id="@+id/eventDetailWaitingListCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:textAppearance="?attr/textAppearanceBodyMedium"
                         android:textColor="?attr/colorOnSurface"
-                        tools:text="Spots left: 12" />
+                        tools:text="On waitlist: 3" />
                 </LinearLayout>
+
             </LinearLayout>
 
             <TextView
