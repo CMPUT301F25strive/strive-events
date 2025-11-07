@@ -79,7 +79,7 @@
                         android:layout_height="20dp"
                         android:contentDescription="@string/event_calendar_content_description"
                         android:src="@drawable/ic_calendar_24"
-                        android:tint="?attr/colorOnSurfaceVariant" />
+                        app:tint="?attr/colorOnSurfaceVariant" />
 
                     <TextView
                         android:id="@+id/eventDetailDate"
@@ -101,7 +101,7 @@
                         android:layout_height="20dp"
                         android:contentDescription="@string/event_location_content_description"
                         android:src="@drawable/ic_location_24"
-                        android:tint="?attr/colorOnSurfaceVariant" />
+                        app:tint="?attr/colorOnSurfaceVariant" />
 
                     <TextView
                         android:id="@+id/eventDetailVenue"
@@ -123,7 +123,7 @@
                         android:layout_height="20dp"
                         android:contentDescription="@string/event_capacity_content_description"
                         android:src="@drawable/ic_group_24"
-                        android:tint="?attr/colorOnSurfaceVariant" />
+                        app:tint="?attr/colorOnSurfaceVariant" />
 
                     <TextView
                         android:id="@+id/eventDetailCapacity"
@@ -145,7 +145,7 @@
                         android:layout_height="20dp"
                         android:contentDescription="@string/event_spots_content_description"
                         android:src="@drawable/ic_nav_bookmark"
-                        android:tint="?attr/colorOnSurfaceVariant" />
+                        app:tint="?attr/colorOnSurfaceVariant" />
 
                     <TextView
                         android:id="@+id/eventDetailSpots"
@@ -175,14 +175,25 @@
                 android:textColor="?attr/colorOnSurfaceVariant"
                 tools:text="Bring your swimsuit and positive vibes for a relaxed community challenge." />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/joinEventButton"
-                android:layout_width="wrap_content"
+            <!-- Button Container -->
+            <LinearLayout
+                android:id="@+id/buttonContainer"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="end"
                 android:layout_marginTop="16dp"
-                android:text="join_event" />
+                android:orientation="horizontal"
+                android:gravity="end"
+                android:visibility="visible">  <!-- show only if REG_OPEN -->
 
+                <!-- Main Action Button (Join/Leave Waitlist) -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/joinEventButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/join_waiting_list"
+                    style="@style/Widget.Material3.Button" />
+
+            </LinearLayout>
         </LinearLayout>
     </ScrollView>
 
