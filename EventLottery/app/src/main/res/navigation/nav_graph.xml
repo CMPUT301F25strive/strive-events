@@ -55,6 +55,10 @@
             app:destination="@id/welcomeFragment"
             app:popUpTo="@id/profileFragment"
             app:popUpToInclusive="true"/>
+
+        <action
+            android:id="@+id/action_profileFragment_to_profileGuidelinesFragment"
+            app:destination="@id/profileGuidelinesFragment" />
     </fragment>
 
     <!-- Edit Profile Fragment -->
