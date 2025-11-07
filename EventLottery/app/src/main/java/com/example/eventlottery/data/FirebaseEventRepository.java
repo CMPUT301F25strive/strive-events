@@ -18,6 +18,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import com.example.eventlottery.model.Event;
@@ -205,5 +206,18 @@ public class FirebaseEventRepository implements EventRepository {
      */
     public int getSize() {
         return events.size();
+    }
+
+    @Override
+    public void updateWaitingList(String eventId, List<String> waitingList) {
+        Map<String, Object> updateData = new HashMap<>();
+        updateData.put("waitingList", waitingList);
+
+        eventsRef.document(eventId)
+                .update(updateData)
+                .addOnSuccessListener(aVoid ->
+                        Log.d("Firestore", "Waiting list updated for event: " + eventId))
+                .addOnFailureListener(e ->
+                        Log.e("Firestore", "Error updating waiting list", e));
     }
 }
