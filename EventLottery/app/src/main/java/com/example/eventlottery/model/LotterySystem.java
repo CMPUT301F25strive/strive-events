@@ -24,5 +24,25 @@ public class LotterySystem {
         }
         return winners;
     }
+    public static List<String> drawReplacement(List<String> waitingList, List<String> currentWinners, String declinedWinner) {
+        List<String> updatedWinners = new ArrayList<>(currentWinners);
+        updatedWinners.remove(declinedWinner);
+
+        List<String> availableEntrants = new ArrayList<>(waitingList);
+        availableEntrants.removeAll(updatedWinners);
+        availableEntrants.remove(declinedWinner);
+
+        if (availableEntrants.isEmpty()) {
+            System.out.println("No available entrants.");
+            return updatedWinners;
+        }
+
+        Random random = new Random();
+        String replacement = availableEntrants.get(random.nextInt(availableEntrants.size()));
+
+        updatedWinners.add(replacement);
+
+        return updatedWinners;
+    }
 
 }
