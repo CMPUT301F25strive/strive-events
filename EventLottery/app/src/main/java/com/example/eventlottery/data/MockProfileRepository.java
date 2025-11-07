@@ -1,6 +1,5 @@
 package com.example.eventlottery.data;
 
-import com.example.eventlottery.model.Event;
 import com.example.eventlottery.model.Profile;
 
 import java.util.ArrayList;
@@ -9,7 +8,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * A mock version of FirebaseEventRepository for local unit testing.
+ * A mock version of FirebaseRepository Repository for local unit testing.
  * It keeps data in memory and does not use Firebase.
  */
 public class MockProfileRepository implements ProfileRepository {
@@ -18,8 +17,9 @@ public class MockProfileRepository implements ProfileRepository {
 
 
     /**
-     * @param deviceId
-     * @return
+     * This method finds the user's profile based on their unique device id
+     * @param deviceId: unique device id specific to user
+     * @return u: user that matches the inputted device id
      */
     @Override
     public Profile findUserById(String deviceId) {
@@ -32,7 +32,8 @@ public class MockProfileRepository implements ProfileRepository {
     }
 
     /**
-     * @param profile
+     * This methods saves the user's profile into the firebase repository for profiles
+     * @param profile: profile that is desired to be saved in the firebase repository
      */
     @Override
     public void saveUser(Profile profile) {
@@ -40,7 +41,8 @@ public class MockProfileRepository implements ProfileRepository {
     }
 
     /**
-     * @param id
+     * This method deletes the user's profile from the firebase repository
+     * @param id: ID of the profile that is to be deleted
      */
     @Override
     public void deleteUser(String id) {
@@ -48,8 +50,9 @@ public class MockProfileRepository implements ProfileRepository {
     }
 
     /**
+     * This methods filters the user's profile based off their roles
      * @param role: the role of the user
-     * @return
+     * @return list: list of all the profiles that have the desired roll
      */
     @Override
     public List<Profile> findUsersByRole(Profile.Role role) {

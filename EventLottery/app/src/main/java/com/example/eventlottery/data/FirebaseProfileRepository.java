@@ -26,6 +26,9 @@ public class FirebaseProfileRepository implements ProfileRepository {
     private FirebaseFirestore db;
     private CollectionReference usersRef;
 
+    /**
+     * This is full constructor of FirebaseProfileRepository that has all necessary initialization for the firebase implementation
+     */
     public FirebaseProfileRepository() {
         db = FirebaseFirestore.getInstance();
         usersRef = db.collection("users");  // Single collection for all roles
@@ -44,8 +47,12 @@ public class FirebaseProfileRepository implements ProfileRepository {
                         String name = doc.getString("name");
                         String email = doc.getString("email");
                         String phone = doc.getString("phone");
-                        
-                        if (users != null) { users.add(new Profile(userID, name, email, phone)); }
+                        String roleString = doc.getString("role");
+                        Profile.Role role = parseRole(roleString);
+
+                        if (users != null) {
+                            users.add(new Profile(userID, name, email, phone, role));
+                        }
                     }
                 }
             }
@@ -64,6 +71,11 @@ public class FirebaseProfileRepository implements ProfileRepository {
         });
     }
 
+    /**
+     * This method finds the user's profile based on their unique device id
+     * @param deviceId: unique device id specific to user
+     * @return u: user that matches the inputted device id
+     */
     @Override
     public Profile findUserById(String deviceId) {
         Log.d("ProfileRepository", "Searching for deviceId: " + deviceId);
@@ -78,6 +90,10 @@ public class FirebaseProfileRepository implements ProfileRepository {
         return null;
     }
 
+    /**
+     * This methods saves the user's profile into the firebase repository for profiles
+     * @param profile: profile that is desired to be saved in the firebase repository
+     */
     @Override
     public void saveUser(Profile profile) {
         boolean found = false;
@@ -97,6 +113,7 @@ public class FirebaseProfileRepository implements ProfileRepository {
         data.put("name", profile.getName());
         data.put("email", profile.getEmail());
         data.put("phone", profile.getPhone());
+        data.put("role", profile.getRole().name());
 
         usersRef.document(profile.getDeviceID())
             .set(data)
@@ -104,6 +121,10 @@ public class FirebaseProfileRepository implements ProfileRepository {
             .addOnFailureListener(e -> Log.e("Firestore", "Save failed", e));
     }
 
+    /**
+     * This method deletes the user's profile from the firebase repository
+     * @param id: ID of the profile that is to be deleted
+     */
     @Override
     public void deleteUser(String id) {
         users.removeIf(profile -> id.equals(profile.getDeviceID()));
@@ -113,7 +134,11 @@ public class FirebaseProfileRepository implements ProfileRepository {
             .addOnFailureListener(e -> Log.e("Firestore", "Delete failed", e));
     }
 
-    // For admin controller
+    /**
+     * This methods filters the user's profile based off their roles
+     * @param role: the role of the user
+     * @return result: list of all the profiles that have the desired roll
+     */
     @Override
     public List<Profile> findUsersByRole(Profile.Role role) {
         List<Profile> result = new ArrayList<>();
@@ -123,5 +148,16 @@ public class FirebaseProfileRepository implements ProfileRepository {
             }
         }
         return result;
+    }
+
+    private Profile.Role parseRole(String roleString) {
+        if (roleString == null) {
+            return Profile.Role.USER;
+        }
+        try {
+            return Profile.Role.valueOf(roleString.toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            return Profile.Role.USER;
+        }
     }
 }

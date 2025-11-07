@@ -28,7 +28,6 @@ public class EventListAdapter extends ListAdapter<Event, EventListAdapter.EventV
     private final Listener listener;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMM d yyyy", Locale.getDefault());
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
-
     public EventListAdapter(@NonNull Listener listener) {
         super(DIFF_CALLBACK);
         this.listener = listener;
