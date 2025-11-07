@@ -25,4 +25,9 @@
     <string name="guidelines_title">Lottery Guidelines</string>
     <string name="guidelines_body">Lottery slots are distributed as fairly as possible:\n\n- Sign up for a waiting list during the entry window. ONE entry per event. \n- When the window closes, the system randomly selects the available spots. \n- Winners will be notified and must confirm. If someone declines or times out, the system draws again. </string>
     <string name="guidelines_back_content_description">Go back to profile</string>
+    <string name="delete_event">Delete event</string>
+    <string name="delete_event_confirm_title">Delete this event?</string>
+    <string name="delete_event_confirm_body">This removes the event for all entrants. This action cannot be undone.</string>
+    <string name="delete_event_success">Event deleted</string>
+    <string name="delete_event_failure">Failed to delete event</string>
 </resources>

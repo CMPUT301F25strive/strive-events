@@ -189,6 +189,7 @@ public class FirebaseEventRepository implements EventRepository {
         }
     }
     // Overload
+    @Override
     public void deleteEvent(String eventID) {
         for (int i = 0; i < events.size(); i++) {
             if (Objects.equals(eventID, events.get(i).getId())) {
