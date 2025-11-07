@@ -1,6 +1,9 @@
 package com.example.eventlottery.data;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.example.eventlottery.model.Profile;
 import com.google.firebase.firestore.CollectionReference;
@@ -29,7 +32,40 @@ public class FirebaseProfileRepository implements ProfileRepository {
      */
     public FirebaseProfileRepository() {
         db = FirebaseFirestore.getInstance();
-        usersRef = db.collection("users");
+        usersRef = db.collection("users");  // Single collection for all roles
+
+        usersRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot querySnapshots, @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    Log.e("Firestore", error.toString());
+                    return;
+                }
+                if (querySnapshots != null) {
+                    users.clear();
+                    for (QueryDocumentSnapshot doc : querySnapshots) {
+                        String userID = doc.getId();
+                        String name = doc.getString("name");
+                        String email = doc.getString("email");
+                        String phone = doc.getString("phone");
+
+                        if (users != null) { users.add(new Profile(userID, name, email, phone)); }
+                    }
+                }
+            }
+        });
+
+        for (Profile user : users) {
+            Log.d("Users", "Loaded user: " + user.getName());
+        }
+        usersRef.get().addOnSuccessListener(qs -> {
+            Log.d("FirestoreProfiles", "Direct get(): " + qs.size() + " documents");
+            for (var doc : qs) {
+                Log.d("FirestoreProfiles", "Doc: " + doc.getId() + " => " + doc.getData());
+            }
+        }).addOnFailureListener(e -> {
+            Log.e("FirestoreProfiles", "Direct get() failed", e);
+        });
     }
 
     // ===== Firestore operations =====

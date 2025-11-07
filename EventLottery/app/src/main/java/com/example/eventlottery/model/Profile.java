@@ -17,7 +17,7 @@ public class Profile {
     private String name;
     private String email;
     private String phone;
-    private final Role role = Role.USER;        // Default role is USER
+    private Role role = Role.USER;        // Default role is USER
     private final List<Event> historyEvents = new ArrayList<>(); // For entrants
     private final List<Event> ownedEvents = new ArrayList<>();   // For organizers
     private final String preferences = "";      // Placeholder for user preferences
