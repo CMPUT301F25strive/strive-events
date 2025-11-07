@@ -1,6 +1,7 @@
 package com.example.eventlottery.entrant;
 
 import android.os.Bundle;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,6 +35,9 @@ public class EventDetailFragment extends Fragment {
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMM d yyyy", Locale.getDefault());
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
 
+    private String currentUserDeviceId;
+    private EventRepository eventRepository;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -44,6 +48,13 @@ public class EventDetailFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        // Probably we should get the device ID from DeviceIdentityService class
+        // Get device ID
+        currentUserDeviceId = Settings.Secure.getString(requireContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+        // Get event repository
+        eventRepository = RepositoryProvider.getEventRepository();
+
         binding.eventDetailToolbar.setNavigationOnClickListener(v ->
                 NavHostFragment.findNavController(EventDetailFragment.this).popBackStack());
 
@@ -62,7 +73,15 @@ public class EventDetailFragment extends Fragment {
         currentEvent = event;
         //isAdmin = AdminGate.isAdmin(requireContext());
         configAdminButton();
+
+        // Get the latest event
+        Event latestEvent = eventRepository.findEventById(event.getId());
+        if (latestEvent != null) {
+            event = latestEvent;
+        }
+
         bindEvent(event);
+        setupActionButtons(event, currentUserDeviceId);
     }
 
     private void bindEvent(@NonNull Event event) {
@@ -112,6 +131,50 @@ public class EventDetailFragment extends Fragment {
             NavHostFragment.findNavController(this).popBackStack();
         } catch (Exception e) {
             Toast.makeText(requireContext(), R.string.delete_event_failure, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void setupActionButtons(@NonNull Event event, String userID) {
+        // Only show buttons if registration is open
+        if (event.getStatus() == Event.Status.REG_OPEN) {
+            binding.buttonContainer.setVisibility(View.VISIBLE);
+
+            // Set up join/leave button
+            setupButton(event, userID);
+        } else {
+            // Hide entire button container for closed events
+            binding.buttonContainer.setVisibility(View.GONE);
+        }
+    }
+
+    private void setupButton(@NonNull Event event, String userID) {
+        // Check if user is already on waitlist
+        boolean isOnWaitlist = event.isOnWaitingList(userID);
+
+        if (isOnWaitlist) {
+            binding.joinEventButton.setText(R.string.leave_waiting_list);
+            binding.joinEventButton.setOnClickListener(v -> {
+                // Leave
+                event.leaveWaitingList(userID);
+                eventRepository.updateWaitingList(event.getId(), event.getWaitingList());
+
+                // Update UI to show join button again
+                setupButton(event, userID);
+
+                Toast.makeText(requireContext(), "Left waiting list", Toast.LENGTH_SHORT).show();
+            });
+        } else {
+            binding.joinEventButton.setText(R.string.join_waiting_list);
+            binding.joinEventButton.setOnClickListener(v -> {
+                // Join
+                event.joinWaitingList(userID);
+                eventRepository.updateWaitingList(event.getId(), event.getWaitingList());
+
+                // Update UI to show leave button
+                setupButton(event, userID);
+
+                Toast.makeText(requireContext(), "Joined waiting list", Toast.LENGTH_SHORT).show();
+            });
         }
     }
 
