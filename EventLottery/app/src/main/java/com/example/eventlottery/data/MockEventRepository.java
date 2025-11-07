@@ -26,6 +26,10 @@ public class MockEventRepository implements EventRepository {
         return null;
     }
 
+    @Override
+    public void updateWaitingList(String eventID, List<String> waitingList) {
+    }
+
     public void add(Event e) {
         events.add(e);
     }
@@ -53,7 +57,6 @@ public class MockEventRepository implements EventRepository {
 
     @Override
     public androidx.lifecycle.LiveData<List<Event>> observeEvents() {
-        // not needed for this test; could return null or MutableLiveData
         return null;
     }
 }
