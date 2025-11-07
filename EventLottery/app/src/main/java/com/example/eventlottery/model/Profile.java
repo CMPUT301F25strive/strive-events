@@ -43,6 +43,14 @@ public class Profile {
         this(deviceID, name, email, phone, Role.USER);
     }
 
+    /**
+     * Constructor with role
+     * @param deviceID unique device ID
+     * @param name user name
+     * @param email user email
+     * @param phone user phone
+     * @param role the role of the user
+     */
     public Profile(String deviceID, String name, String email, String phone, Role role) {
         this.deviceID = deviceID;   // From DeviceIdentityService
         this.name = name;
@@ -82,6 +90,10 @@ public class Profile {
         return deviceID;
     }
 
+    /**
+     * This method sets user's device ID.
+     * @param deviceID  the value of the unique device ID
+     */
     public void setDeviceID(String deviceID) {
         this.deviceID = deviceID;
     }
@@ -94,6 +106,10 @@ public class Profile {
         return name;
     }
 
+    /**
+     * This method sets user's name
+     * @param name  the value of name
+     */
     public void setName(String name) {
         this.name = name;
     }
@@ -106,6 +122,10 @@ public class Profile {
         return email;
     }
 
+    /**
+     * This method sets the user's email
+     * @param email  the value of email
+     */
     public void setEmail(String email) {
         this.email = email;
     }
@@ -118,6 +138,10 @@ public class Profile {
         return phone;
     }
 
+    /**
+     * This method sets the user's phone number
+     * @param phone  the value of phone
+     */
     public void setPhone(String phone) {
         this.phone = phone;
     }
@@ -138,8 +162,16 @@ public class Profile {
         return preferences;
     }
 
+    /**
+     * This method returns the role of the user
+     * @return role of user
+     */
     public Role getRole() { return role; }
 
+    /**
+     * This method sets the role of the user
+     * @param role : role of user
+     */
     public void setRole(Role role) {
         this.role = role != null ? role : Role.USER;
     }

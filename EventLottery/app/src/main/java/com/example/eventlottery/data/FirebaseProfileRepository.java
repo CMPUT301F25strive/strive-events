@@ -126,6 +126,11 @@ public class FirebaseProfileRepository implements ProfileRepository {
                 .addOnFailureListener(e -> callback.onError(e.getMessage()));
     }
 
+    /**
+     * This methods deletes a user's profile from the firebase repository for profiles
+     * @param deviceID: the device ID of the user whose profile will be deleted
+     * @param callback : ensures deletion of user's profile
+     */
     @Override
     public void deleteUser(String deviceID, @NonNull ProfileCallback callback) {
         usersRef.document(deviceID)
@@ -134,12 +139,20 @@ public class FirebaseProfileRepository implements ProfileRepository {
                 .addOnFailureListener(e -> callback.onError(e.getMessage()));
     }
 
+    /**
+     * This methods saves the user's profile into the firebase repository for profiles
+     * @param profile: profile that is desired to be saved in the firebase repository
+     */
     @Override
     public void saveUser(Profile profile) {
         usersRef.document(profile.getDeviceID())
                 .set(buildProfileData(profile));
     }
 
+    /**
+     * This methods deletes a user's profile from the firebase repository for profiles
+     * @param id: the device ID of the user whose profile will be deleted
+     */
     @Override
     public void deleteUser(String id) {
         usersRef.document(id).delete();
@@ -168,6 +181,10 @@ public class FirebaseProfileRepository implements ProfileRepository {
 
     // ===== DeviceID-based Auth operations =====
 
+    /**
+     * This methods checks if a user exists
+     * @param email: the email of the user
+     */
     @Override
     public void userExists(String email, UserExistsCallback callback) {
         usersRef.whereEqualTo("email", email).get()
@@ -176,6 +193,11 @@ public class FirebaseProfileRepository implements ProfileRepository {
                 .addOnFailureListener(e -> callback.onResult(false));
     }
 
+    /**
+     * This methods logs a user in
+     * @param email: the email of the user
+     * @param deviceID: the device ID of the user
+     */
     @Override
     public void login(String email, String deviceID, LoginCallback callback) {
         usersRef.whereEqualTo("email", email).get()
