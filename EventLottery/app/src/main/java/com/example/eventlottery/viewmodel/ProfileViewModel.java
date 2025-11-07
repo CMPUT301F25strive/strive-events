@@ -11,6 +11,7 @@ import com.example.eventlottery.entrant.ProfileUiState;
 import com.example.eventlottery.model.Profile;
 
 public class ProfileViewModel extends ViewModel {
+
     private final ProfileRepository repository;
     private final MutableLiveData<ProfileUiState> uiState = new MutableLiveData<>(ProfileUiState.loading());
     private String currentDeviceID;
@@ -27,14 +28,23 @@ public class ProfileViewModel extends ViewModel {
         uiState.setValue(ProfileUiState.loading());
         this.currentDeviceID = deviceID;
         Log.d("ProfileViewModel", "Loading profile for deviceId: " + deviceID);
-        try {
-            Profile profile = repository.findUserById(deviceID);
-            if (profile != null) {
-            uiState.setValue(ProfileUiState.success(profile));
+
+        repository.findUserById(deviceID, new ProfileRepository.ProfileCallback() {
+            @Override
+            public void onSuccess(Profile profile) {
+                uiState.postValue(ProfileUiState.success(profile));
             }
-        } catch (Exception e) {
-            uiState.setValue(ProfileUiState.error("Failed to load profile"));
-        }
+
+            @Override
+            public void onDeleted() {
+                // Not used in load
+            }
+
+            @Override
+            public void onError(String error) {
+                uiState.postValue(ProfileUiState.error(error));
+            }
+        });
     }
 
     public void updateProfile(String name, String email, String phone) {
@@ -44,26 +54,48 @@ public class ProfileViewModel extends ViewModel {
         Profile profile = cur.getProfile();
         profile.updatePersonalInfo(name, email, phone);
 
-        try {
-            repository.saveUser(profile);
-            uiState.setValue(ProfileUiState.success(profile));
-        } catch (Exception e) {
-            uiState.setValue(ProfileUiState.error("Failed to save profile"));
-        }
-    }
-    public void deleteProfile() {
-        try {
-            ProfileUiState cur = uiState.getValue();
-            if (cur != null && cur.getProfile() != null) {
-                String deviceId = cur.getProfile().getDeviceID();
-
-                if (deviceId != null) {
-                    repository.deleteUser(deviceId);
-                    uiState.setValue(ProfileUiState.deleted()); // Use the new deleted state
-                }
+        repository.saveUser(profile, new ProfileRepository.ProfileCallback() {
+            @Override
+            public void onSuccess(Profile profile) {
+                uiState.postValue(ProfileUiState.success(profile));
             }
-        } catch (Exception e) {
-            uiState.setValue(ProfileUiState.error("Failed to delete profile"));
+
+            @Override
+            public void onDeleted() {
+                // Not used in save
+            }
+
+            @Override
+            public void onError(String message) {
+                uiState.postValue(ProfileUiState.error(message));
+            }
+        });
+    }
+
+    public void deleteProfile() {
+        ProfileUiState cur = uiState.getValue();
+        if (cur == null || cur.getProfile() == null) return;
+
+        String deviceId = cur.getProfile().getDeviceID();
+        if (deviceId != null) {
+            repository.deleteUser(deviceId, new ProfileRepository.ProfileCallback() {
+                @Override
+                public void onSuccess(Profile profile) {
+                    // Not used in delete
+                }
+
+                @Override
+                public void onDeleted() {
+                    uiState.postValue(ProfileUiState.deleted());
+                }
+
+                @Override
+                public void onError(String message) {
+                    uiState.postValue(ProfileUiState.error(message));
+                }
+            });
+        } else {
+            uiState.setValue(ProfileUiState.error("Device ID is null"));
         }
     }
 }

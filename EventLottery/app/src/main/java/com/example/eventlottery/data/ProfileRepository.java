@@ -1,25 +1,53 @@
 package com.example.eventlottery.data;
 
 import com.example.eventlottery.model.Profile;
-
 import java.util.List;
 
 /**
- * This class holds CRUD for entrant and organizer profiles.
- * This provides search/browse for admin.
+ * Repository interface for managing user profiles and authentication.
+ * Login/registration is based solely on deviceID for auto-detected authentication.
  */
 public interface ProfileRepository {
-    // Unified methods
-    Profile findUserById(String id);
-    void saveUser(Profile profile);
-    void deleteUser(String id);
 
-    // TODO: For admin browse and search
+    // ===== Firestore operations =====
+    void findUserById(String deviceID, ProfileCallback callback);
+    void saveUser(Profile profile, ProfileCallback callback);
+    void deleteUser(String deviceID, ProfileCallback callback);
+    List<Profile> findUsersByRole(Profile.Role role);
+
+    // ===== DeviceID-based Auth operations =====
+    /**
+     * Checks if a user with this email already exists.
+     */
+    void userExists(String email, UserExistsCallback callback);
 
     /**
-     * This searches the desired users
-     * @param role: the role of the user
-     * @return: a list of users categorized by their role
+     * Attempts to log in a user using email + deviceID.
+     * Fails if deviceID does not match the stored deviceID for that email.
      */
-    List<Profile> findUsersByRole(Profile.Role role);
+    void login(String email, String deviceID, LoginCallback callback);
+
+    /**
+     * Registers a new user with email, name, phone, and deviceID.
+     */
+    void register(String email, String phone, String name, String deviceID, RegisterCallback callback);
+
+    // ===== Callback Interfaces =====
+    interface ProfileCallback {
+        void onSuccess(Profile profile);
+        void onDeleted();
+        void onError(String message);
     }
+
+    interface UserExistsCallback {
+        void onResult(boolean exists);
+    }
+
+    interface LoginCallback {
+        void onResult(boolean success, String message);
+    }
+
+    interface RegisterCallback {
+        void onResult(boolean success, String message);
+    }
+}

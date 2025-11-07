@@ -26,7 +26,13 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
     private FragmentEventListBinding binding;
     private EntrantEventListViewModel viewModel;
     private EventListAdapter adapter;
-
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (binding != null) {
+            binding.bottomNavigation.setSelectedItemId(R.id.nav_home);
+        }
+    }
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {

@@ -3,7 +3,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/entrantEventListFragment">
+    app:startDestination="@id/welcomeFragment">
+
+    <!-- Welcome/Login/Register -->
+    <fragment
+        android:id="@+id/welcomeFragment"
+        android:name="com.example.eventlottery.WelcomeFragment"
+        android:label="Welcome"
+        tools:layout="@layout/fragment_welcome">
+
+        <!-- Navigate to main event list after login or registration -->
+        <action
+            android:id="@+id/action_welcomeFragment_to_entrantEventListFragment"
+            app:destination="@id/entrantEventListFragment"
+            app:popUpTo="@id/welcomeFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
 
     <!-- Entrant Home Feed -->
     <fragment
@@ -21,7 +36,6 @@
             app:destination="@id/eventDetailFragment" />
     </fragment>
 
-    <!-- Profile Fragment -->
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.example.eventlottery.entrant.ProfileFragment"
@@ -37,8 +51,10 @@
             app:destination="@id/profileEditFragment" />
 
         <action
-            android:id="@+id/action_profileFragment_to_profileGuidelinesFragment"
-            app:destination="@id/profileGuidelinesFragment" />
+            android:id="@+id/action_profileFragment_to_welcomeFragment"
+            app:destination="@id/welcomeFragment"
+            app:popUpTo="@id/profileFragment"
+            app:popUpToInclusive="true"/>
     </fragment>
 
     <!-- Edit Profile Fragment -->
@@ -54,11 +70,4 @@
         android:name="com.example.eventlottery.entrant.EventDetailFragment"
         android:label="Event Detail"
         tools:layout="@layout/fragment_event_detail" />
-
-    <!-- Lottery Guidelines Fragment -->
-    <fragment
-        android:id="@+id/profileGuidelinesFragment"
-        android:name="com.example.eventlottery.entrant.ProfileGuidelinesFragment"
-        android:label="Lottery Guidelines"
-        tools:layout="@layout/fragment_profile_guidelines" />
 </navigation>
