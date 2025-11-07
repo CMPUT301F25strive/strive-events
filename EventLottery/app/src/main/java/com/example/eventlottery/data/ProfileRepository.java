@@ -13,6 +13,7 @@ public interface ProfileRepository {
     void findUserById(String deviceID, ProfileCallback callback);
     void saveUser(Profile profile, ProfileCallback callback);
     void deleteUser(String deviceID, ProfileCallback callback);
+
     List<Profile> findUsersByRole(Profile.Role role);
 
     // ===== DeviceID-based Auth operations =====
