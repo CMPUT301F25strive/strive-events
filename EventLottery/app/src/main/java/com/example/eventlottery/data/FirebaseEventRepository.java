@@ -126,17 +126,16 @@ public class FirebaseEventRepository implements EventRepository {
         data.put("description", e.getDescription());
         data.put("venue", e.getVenue());
         data.put("capacity", e.getCapacity());
-        //data.put("price", e.getPrice());  // I don't think we need a price
         data.put("organizerName", e.getOrganizerName());
         data.put("startTimeMillis", e.getStartTimeMillis());
         data.put("spotsRemaining", e.getSpotsRemaining());
         data.put("status", e.getStatus().name());
         data.put("posterResId", e.getPosterResId());
-
+        data.put("waitingList", e.getWaitingList());
+        data.put("waitingListSize", e.getWaitingListSize());
         //data.put("organizerID", e.getOrganizerID());
         //data.put("posterID", e.getPosterID());
         //data.put("geoRequired", e.getGeoRequired());
-        //eventsRef.document(String.valueOf(e.getEventID())).set(data);
         eventsRef.document(e.getId()).set(data);
     }
 
