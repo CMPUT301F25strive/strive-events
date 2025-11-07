@@ -70,4 +70,12 @@
         android:name="com.example.eventlottery.entrant.EventDetailFragment"
         android:label="Event Detail"
         tools:layout="@layout/fragment_event_detail" />
+
+
+    <!-- Lottery Guidelines Fragment -->
+    <fragment
+        android:id="@+id/profileGuidelinesFragment"
+        android:name="com.example.eventlottery.entrant.ProfileGuidelinesFragment"
+        android:label="Lottery Guidelines"
+        tools:layout="@layout/fragment_profile_guidelines" />
 </navigation>
