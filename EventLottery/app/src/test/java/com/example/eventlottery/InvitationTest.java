@@ -18,16 +18,34 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-public class InvitationTest {
+/**
+ * This is a test class for the Invitation
+ */
 
+public class InvitationTest {
+    /**
+     * It create a mock profile for test
+     * @param id device id
+     * @param name name
+     * @param email email
+     * @param phone phone number
+     * @return a profile object
+     */
     private Profile mockProfile(String id, String name, String email, String phone) {
         return new Profile(id, name, email, "");
     }
 
+    /**
+     * This creates a mock event for further testing.
+     * @return a object event.
+     */
     private Event mockEvent() {
         return new Event("1", "Valorant", "Tenz", 0,"Home", 200, 200, Event.Status.REG_OPEN, 1, "Tournament");
     }
 
+    /**
+     * This tests that invitation is successfully sent to people that wins the lottery.
+     */
     @Test
     public void testSendInvitations() {
         MockProfileRepository profileRepo = new MockProfileRepository();
@@ -43,6 +61,9 @@ public class InvitationTest {
         System.out.println("Invitations sent successfully to all winners.");
     }
 
+    /**
+     * This tests ensures that notification will rise exception if the invitation is sent to a non-exist user. (the user id is not in the profile repo)
+     */
     @Test
     public void testSendInvitationsException() {
         MockProfileRepository profileRepo = new MockProfileRepository();
@@ -59,6 +80,9 @@ public class InvitationTest {
         System.out.println("Exception thrown correctly for missing winner.");
     }
 
+    /**
+     * Test when a user accept the invitation, it will be added to the attendess list
+     */
     @Test
     public void testAcceptInvitation() {
         MockProfileRepository profileRepo = new MockProfileRepository();
@@ -71,6 +95,9 @@ public class InvitationTest {
         assertEquals(1, event1.getAttendeesListSize());
     }
 
+    /**
+     * When a user declines an invitation, it will be removed from the waiting list, it will also not be drawn for replacement.
+     */
     @Test
     public void testDeclineInvitation() {
         MockProfileRepository profileRepo = new MockProfileRepository();
