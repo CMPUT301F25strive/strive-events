@@ -17,33 +17,6 @@ public class MockProfileRepository implements ProfileRepository {
 
 
     /**
-     * @param deviceID
-     * @param callback
-     */
-    @Override
-    public void findUserById(String deviceID, ProfileCallback callback) {
-
-    }
-
-    /**
-     * @param profile
-     * @param callback
-     */
-    @Override
-    public void saveUser(Profile profile, ProfileCallback callback) {
-
-    }
-
-    /**
-     * @param deviceID
-     * @param callback
-     */
-    @Override
-    public void deleteUser(String deviceID, ProfileCallback callback) {
-
-    }
-
-    /**
      * This method finds the user's profile based on their unique device id
      * @param deviceId: unique device id specific to user
      * @return u: user that matches the inputted device id
@@ -56,6 +29,20 @@ public class MockProfileRepository implements ProfileRepository {
             }
         }
         return null;
+    }
+
+    public void findUserById(String deviceID, ProfileCallback callback) {}
+    public void saveUser(Profile profile, ProfileCallback callback) {}
+    public void deleteUser(String deviceID, ProfileCallback callback) {}
+    public void userExists(String email, UserExistsCallback callback) {}
+
+    @Override
+    public void login(String email, String deviceID, LoginCallback callback) {
+    }
+
+    @Override
+    public void register(String email, String phone, String name, String deviceID, RegisterCallback callback) {
+
     }
 
     /**
@@ -84,37 +71,6 @@ public class MockProfileRepository implements ProfileRepository {
     @Override
     public List<Profile> findUsersByRole(Profile.Role role) {
         return Collections.emptyList();
-    }
-
-    /**
-     * @param email
-     * @param callback
-     */
-    @Override
-    public void userExists(String email, UserExistsCallback callback) {
-
-    }
-
-    /**
-     * @param email
-     * @param deviceID
-     * @param callback
-     */
-    @Override
-    public void login(String email, String deviceID, LoginCallback callback) {
-
-    }
-
-    /**
-     * @param email
-     * @param phone
-     * @param name
-     * @param deviceID
-     * @param callback
-     */
-    @Override
-    public void register(String email, String phone, String name, String deviceID, RegisterCallback callback) {
-
     }
 }
 
