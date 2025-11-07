@@ -29,10 +29,6 @@ public class WaitingListTest {
         assertTrue(event.isOnWaitingList(userProfile.getDeviceID()));
     }
 
-    @Test
-    public void testGetWaitingList(){
-
-    }
 
     @Test
     public void testLeaveWaitingList(){
