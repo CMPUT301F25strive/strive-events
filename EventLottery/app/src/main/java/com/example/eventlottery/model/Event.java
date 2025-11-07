@@ -10,12 +10,12 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * event domain model shared across entrant and organizer screens.
+ * Event domain model shared across entrant and organizer screens.
  */
 public class Event implements Serializable {
 
     /**
-     * status values for an event registration window.
+     * Status values for an event registration window.
      */
     public enum Status {
         REG_OPEN,
@@ -39,19 +39,6 @@ public class Event implements Serializable {
     @Nullable
     private final String description;
 
-
-    /**
-     * Event constructor
-     * @param id unique device ID
-     * @param title event title
-     * @param organizerName name of organizer
-     * @param startTimeMillis time the event was created
-     * @param venue location of the evetn
-     * @param spotsRemaining how many spots are left in the waiting list if specified
-     * @param status the status of the event ie open, closed, drawn of finalized
-     * @param posterResId unique poster ID
-     * @param description a description of the event
-     */
     public Event(
             @NonNull String id,
             @NonNull String title,
@@ -74,12 +61,11 @@ public class Event implements Serializable {
         this.status = Objects.requireNonNull(status, "status required");
         this.posterResId = posterResId;
         this.description = description;
-        this.waitingList = new ArrayList<>();
         this.attendeesList = new ArrayList<>();
+        this.waitingList = waitingList != null ? waitingList : new ArrayList<>();
     }
 
     /**
-     * Gets the unique ID of the event
      * @return unique identifier for this event.
      */
     @NonNull
@@ -88,7 +74,6 @@ public class Event implements Serializable {
     }
 
     /**
-     * Gets the title of the event
      * @return display title.
      */
     @NonNull
@@ -97,7 +82,6 @@ public class Event implements Serializable {
     }
 
     /**
-     * Gets the organizer's name
      * @return organizer display name.
      */
     @NonNull
@@ -106,7 +90,6 @@ public class Event implements Serializable {
     }
 
     /**
-     * Gets the time created in milliseconds
      * @return event start timestamp in utc millis.
      */
     public long getStartTimeMillis() {
@@ -114,7 +97,6 @@ public class Event implements Serializable {
     }
 
     /**
-     * Gets the name of the venue
      * @return venue description
      */
     @NonNull
@@ -123,7 +105,6 @@ public class Event implements Serializable {
     }
 
     /**
-     * Gets the amount of space the event has
      * @return total capacity configured by the organizer
      */
     public int getCapacity() {
@@ -131,7 +112,6 @@ public class Event implements Serializable {
     }
 
     /**
-     * Gets the amount of spots left in the waiting list
      * @return current remaining entries on the waiting list.
      */
     public int getSpotsRemaining() {
@@ -154,60 +134,35 @@ public class Event implements Serializable {
         return posterResId;
     }
 
-    /**
-     * @return description the description of the event
-     */
     @Nullable
     public String getDescription() {
         return description;
     }
 
-    /**
-     * @return waitingList the waiting list of the event
-     */
     public List<String> getWaitingList() {
         return waitingList;
     }
 
-    /**
-     * Sets the waiting list of the event
-     * @param waitingList the waiting list of the event
-     */
     public void setWaitingList(List<String> waitingList) {
         this.waitingList = waitingList;
     }
 
-    /**
-     * adds a user to the waiting list of the event
-     * @param deviceId the device ID of the user to be added to the waiting list
-     */
     public void joinWaitingList(String deviceId) {
         if (!waitingList.contains(deviceId)) {
             waitingList.add(deviceId);
         }
     }
 
-    /**
-     * removes a user from the waiting list of the event
-     * @param deviceId the device ID of the user to leave the waiting list
-     */
     public void leaveWaitingList(String deviceId) {
         waitingList.remove(deviceId);
     }
 
-    /**
-     * @return size: the amount of people in the waiting list of the event
-     */
     public int getWaitingListSize() {
         return waitingList.size();
     }
 
-    /**
-     * @param deviceId the device ID of the user
-     * @return boolean returns true if user is on the waiting list, false otherwise
-     */
     public boolean isOnWaitingList(String deviceId) {
-        return waitingList.contains(deviceId);
+        return attendeesList.contains(deviceId);
     }
 
     public void joinAttendeesList(String deviceId) {
@@ -238,11 +193,12 @@ public class Event implements Serializable {
                 && Objects.equals(organizerName, event.organizerName)
                 && Objects.equals(venue, event.venue)
                 && status == event.status
-                && Objects.equals(description, event.description);
+                && Objects.equals(description, event.description)
+                && Objects.equals(waitingList, event.waitingList);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, title, organizerName, startTimeMillis, venue, capacity, spotsRemaining, status, posterResId, description);
+        return Objects.hash(id, title, organizerName, startTimeMillis, venue, capacity, spotsRemaining, status, posterResId, description, waitingList);
     }
 }
