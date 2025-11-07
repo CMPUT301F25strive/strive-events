@@ -14,10 +14,12 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.eventlottery.R;
+//import com.example.eventlottery.admin.AdminGate;
 import com.example.eventlottery.data.EventRepository;
 import com.example.eventlottery.data.RepositoryProvider;
 import com.example.eventlottery.databinding.FragmentEventDetailBinding;
 import com.example.eventlottery.model.Event;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -28,12 +30,14 @@ public class EventDetailFragment extends Fragment {
     public static final String ARG_EVENT = "event";
 
     private FragmentEventDetailBinding binding;
+    private Event currentEvent;
+    private boolean isAdmin;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMM d yyyy", Locale.getDefault());
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
 
     private String currentUserDeviceId;
     private EventRepository eventRepository;
-    
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -50,7 +54,7 @@ public class EventDetailFragment extends Fragment {
         currentUserDeviceId = Settings.Secure.getString(requireContext().getContentResolver(), Settings.Secure.ANDROID_ID);
         // Get event repository
         eventRepository = RepositoryProvider.getEventRepository();
-        
+
         binding.eventDetailToolbar.setNavigationOnClickListener(v ->
                 NavHostFragment.findNavController(EventDetailFragment.this).popBackStack());
 
@@ -66,12 +70,16 @@ public class EventDetailFragment extends Fragment {
             return;
         }
 
+        currentEvent = event;
+        //isAdmin = AdminGate.isAdmin(requireContext());
+        configAdminButton();
+
         // Get the latest event
         Event latestEvent = eventRepository.findEventById(event.getId());
         if (latestEvent != null) {
             event = latestEvent;
         }
-    
+
         bindEvent(event);
         setupActionButtons(event, currentUserDeviceId);
     }
@@ -95,11 +103,42 @@ public class EventDetailFragment extends Fragment {
         }
     }
 
+    private void configAdminButton() {
+        if (!isAdmin || binding == null) {
+            binding.adminDeleteButton.setVisibility(View.GONE);
+            return;
+        }
+        binding.adminDeleteButton.setVisibility(View.VISIBLE);
+        binding.adminDeleteButton.setOnClickListener(v -> {
+            if (currentEvent == null) {
+                return;
+            }
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(R.string.delete_event_confirm_title)
+                    .setMessage(R.string.delete_event_confirm_body)
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .setPositiveButton(R.string.delete_event, (dialog, which) -> performDelete())
+                    .show();
+        });
+    }
+
+    private void performDelete() {
+        EventRepository repository = RepositoryProvider.getEventRepository();
+        if (currentEvent == null) return;
+        try {
+            repository.deleteEvent(currentEvent.getId());
+            Toast.makeText(requireContext(), R.string.delete_event_success, Toast.LENGTH_SHORT).show();
+            NavHostFragment.findNavController(this).popBackStack();
+        } catch (Exception e) {
+            Toast.makeText(requireContext(), R.string.delete_event_failure, Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private void setupActionButtons(@NonNull Event event, String userID) {
         // Only show buttons if registration is open
         if (event.getStatus() == Event.Status.REG_OPEN) {
             binding.buttonContainer.setVisibility(View.VISIBLE);
-            
+
             // Set up join/leave button
             setupButton(event, userID);
         } else {

@@ -27,4 +27,9 @@
     <string name="guidelines_back_content_description">Go back to profile</string>
     <string name="join_waiting_list">Join the waiting list</string>
     <string name="leave_waiting_list">Leave the waiting list</string>
+    <string name="delete_event">Delete event</string>
+    <string name="delete_event_confirm_title">Delete this event?</string>
+    <string name="delete_event_confirm_body">This removes the event for all entrants. This action cannot be undone.</string>
+    <string name="delete_event_success">Event deleted</string>
+    <string name="delete_event_failure">Failed to delete event</string>
 </resources>

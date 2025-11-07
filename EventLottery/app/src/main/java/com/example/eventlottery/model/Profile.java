@@ -13,35 +13,42 @@ public class Profile {
         ADMIN
     }
 
-    private String deviceID;
+    private String deviceID;                     // Unique Device ID
     private String name;
     private String email;
     private String phone;
-    private final Role role = Role.USER;   // default to entrant, we may change the role in Firebase
-    private final List<Event> historyEvents = new ArrayList<>();  // for entrants
-    private final List<Event> ownedEvents = new ArrayList<>();    // for organizers
-    private final String preferences = "";    // unsure
+    private Role role = Role.USER;        // Default role is USER
+    private final List<Event> historyEvents = new ArrayList<>(); // For entrants
+    private final List<Event> ownedEvents = new ArrayList<>();   // For organizers
+    private final String preferences = "";      // Placeholder for user preferences
 
     /**
-     * This constructor delegates to the full constructor with an empty phone value
-     * @param name: name of user
-     * @param email: email of user
+     * Constructor for minimal profile
+     * @param deviceID unique device ID
+     * @param name user name
+     * @param email user email
      */
     public Profile(String deviceID, String name, String email) {
         this(deviceID, name, email, null); // delegate to full constructor
     }
 
     /**
-     * This is the full constructor with necessary personal info for a profile
-     * @param name: name of user
-     * @param email: email of user
-     * @param phone: phone number of user
+     * Full constructor with phone
+     * @param deviceID unique device ID
+     * @param name user name
+     * @param email user email
+     * @param phone user phone
      */
     public Profile(String deviceID, String name, String email, String phone) {
+        this(deviceID, name, email, phone, Role.USER);
+    }
+
+    public Profile(String deviceID, String name, String email, String phone, Role role) {
         this.deviceID = deviceID;   // From DeviceIdentityService
         this.name = name;
         this.email = email;
         this.phone = phone;
+        setRole(role);
     }
 
     /**
@@ -132,5 +139,9 @@ public class Profile {
     }
 
     public Role getRole() { return role; }
+
+    public void setRole(Role role) {
+        this.role = role != null ? role : Role.USER;
+    }
 }
 

@@ -1,13 +1,15 @@
 package com.example.eventlottery.entrant;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
-import android.provider.Settings;
+import android.provider.Settings.Secure;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.Toast;
-import android.provider.Settings.Secure;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,11 +25,11 @@ import com.example.eventlottery.model.Profile;
 import com.example.eventlottery.viewmodel.ProfileViewModel;
 import com.example.eventlottery.viewmodel.ProfileViewModelFactory;
 
-
 public class ProfileFragment extends Fragment {
 
     private FragmentProfileBinding binding;
     private ProfileViewModel viewModel;
+    private Switch notificationSwitch; // new switch reference
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -46,9 +48,10 @@ public class ProfileFragment extends Fragment {
         ProfileViewModelFactory factory = new ProfileViewModelFactory(repo);
         viewModel = new ViewModelProvider(requireActivity(), factory).get(ProfileViewModel.class);
 
-        // Todo: Use DeviceIdentityService to get the device ID
-        String deviceID = Secure.getString(getContext().getContentResolver(), Secure.ANDROID_ID);
+        // Get device ID
+        String deviceID = Secure.getString(requireContext().getContentResolver(), Secure.ANDROID_ID);
         Log.d("Device ID", "Direct get(): " + deviceID);
+
         viewModel.loadProfile(deviceID);
 
         // Observe profile state
@@ -58,7 +61,9 @@ public class ProfileFragment extends Fragment {
             // Check deletion
             if (state.isDeleted()) {
                 Toast.makeText(requireContext(), state.getErrorMessage(), Toast.LENGTH_SHORT).show();
-                // TODO: Set navigation to welcome page.
+                NavHostFragment.findNavController(this)
+                        .navigate(R.id.action_profileFragment_to_welcomeFragment);
+                return;
             }
 
             // Normal profile display
@@ -70,7 +75,7 @@ public class ProfileFragment extends Fragment {
             }
 
             // Other potential errors
-            if (state.getErrorMessage() != null) {
+            if (state.getErrorMessage() != null && !state.isDeleted()) {
                 Toast.makeText(requireContext(), state.getErrorMessage(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -81,11 +86,24 @@ public class ProfileFragment extends Fragment {
                         .navigate(R.id.action_profileFragment_to_profileEditFragment)
         );
 
-        // Delete Profile menu
-        binding.menuDeleteAccount.setOnClickListener(v ->
-                // TODO: add a confirmation dialog
-                viewModel.deleteProfile()
-        );
+        // Delete Profile menu with confirmation dialog
+        binding.menuDeleteAccount.setOnClickListener(v -> {
+            new AlertDialog.Builder(requireContext())
+                    .setTitle("Delete Account")
+                    .setMessage("Are you sure you want to delete your account? This action cannot be undone.")
+                    .setPositiveButton("Delete", (dialog, which) -> viewModel.deleteProfile())
+                    .setNegativeButton("Cancel", null)
+                    .show();
+        });
+
+        // Notification switch (just UI toggle)
+        notificationSwitch = binding.notificationSwitch; // connect switch from XML
+        notificationSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            Toast.makeText(getContext(),
+                    "Notifications " + (isChecked ? "ON" : "OFF"),
+                    Toast.LENGTH_SHORT).show();
+            // Currently no functional behavior; just toggle UI state
+        });
 
         binding.menuGuidelines.setOnClickListener(v ->
                 NavHostFragment.findNavController(this)
@@ -101,10 +119,8 @@ public class ProfileFragment extends Fragment {
 
         binding.bottomNavigation.setOnItemSelectedListener(item -> {
             if (item.getItemId() == R.id.nav_profile) {
-                // already here
-                return true;
+                return true; // already here
             } else if (item.getItemId() == R.id.nav_home) {
-                // go to home (EntrantEventListFragment)
                 NavHostFragment.findNavController(this)
                         .popBackStack(R.id.entrantEventListFragment, false);
                 return true;

@@ -26,10 +26,6 @@ public class MockEventRepository implements EventRepository {
         return null;
     }
 
-    @Override
-    public void updateWaitingList(String eventID, List<String> waitingList) {
-    }
-
     public void add(Event e) {
         events.add(e);
     }
