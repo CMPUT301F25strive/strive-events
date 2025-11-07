@@ -4,22 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-/**
- * This is a class representing as the lottery System. It has 2 functions.
- * 1. draw the initial lottery winners
- * 2. draw replacement lottery when a user declines the invitation.
- */
 
 public class LotterySystem {
+
     /**
-     * This is the drawRounds function. It randomly select the winners from the waiting list.
-     * @param waitingList the waiting list containing a list of deviceID.
-     * @param capacity the number to be drawn from the pool
-     * @return a list of deviceID that wins the lottery.
+     * Draws winners from an event's waiting list based on the event's capacity
+     * @param waitingList: the waiting list of the event
+     * @param capacity: total space the event has
+     * @return list of winners from the waiting list with the size of the capacity
      */
     public  static List<String> drawRounds(List<String> waitingList, int capacity){
-
-        // If the number of capacity is larger than the number of waiting list, all the people in the waiting list will be selected.
         if (waitingList.size() <= capacity){
             return waitingList;
         }
@@ -39,11 +33,11 @@ public class LotterySystem {
     }
 
     /**
-     * This is the class that draws a replacement when an entrant on the winners list declined, so one spot will open up for another user.
-     * @param waitingList the waiting list of the event.
-     * @param currentWinners the winners from the first draw.
-     * @param declinedWinner the user that declines the invitation
-     * @return a list of new winners list, with the declined user removed, and new entrants added.
+     * Draw an additional winner from an event's waiting after a user declines after initially winning
+     * @param waitingList: the waiting list of the event
+     * @param currentWinners: the list of winners with declined winner
+     * @param declinedWinner : the deviceId of the user that declined
+     * @return list of winners with declined winner removed and new winner added
      */
     public static List<String> drawReplacement(List<String> waitingList, List<String> currentWinners, String declinedWinner) {
         List<String> updatedWinners = new ArrayList<>(currentWinners);
