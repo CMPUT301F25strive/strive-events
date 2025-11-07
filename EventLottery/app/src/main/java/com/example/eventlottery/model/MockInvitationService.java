@@ -16,7 +16,7 @@ public class MockInvitationService {
     private MockNotificationService notificationService;
 
     /**
-     * This is a constructor of InvitationService with the given Profile Repository
+     * This is a constructor of MockInvitationService with the given Profile Repository for testing
      * @param profileRepository: the repository used to manage the profiles
      */
     public MockInvitationService(EventRepository eventRepository, ProfileRepository profileRepository, Context context) {
