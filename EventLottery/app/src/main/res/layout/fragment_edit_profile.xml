@@ -101,6 +101,16 @@
                 android:layout_marginTop="24dp"
                 android:backgroundTint="@color/primary"
                 android:textColor="@color/white"/>
+
+            <Button
+                android:id="@+id/adminDeleteButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/admin_profile_actions_delete"
+                android:layout_marginTop="12dp"
+                android:backgroundTint="@android:color/holo_red_dark"
+                android:textColor="@color/white"
+                android:visibility="gone"/>
         </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

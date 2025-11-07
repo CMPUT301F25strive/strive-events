@@ -1,5 +1,8 @@
 package com.example.eventlottery.data;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+
 import com.example.eventlottery.model.Profile;
 
 import java.util.ArrayList;
@@ -14,7 +17,7 @@ import java.util.Objects;
 public class MockProfileRepository implements ProfileRepository {
 
     private final List<Profile> users = new ArrayList<>();
-
+    private final MutableLiveData<List<Profile>> profilesLiveData = new MutableLiveData<>(new ArrayList<>());
 
     /**
      * This method finds the user's profile based on their unique device id
@@ -52,6 +55,7 @@ public class MockProfileRepository implements ProfileRepository {
     @Override
     public void saveUser(Profile profile) {
         users.add(profile);
+        notifyProfilesChanged();
     }
 
     /**
@@ -61,6 +65,7 @@ public class MockProfileRepository implements ProfileRepository {
     @Override
     public void deleteUser(String id) {
         users.removeIf(profile -> id.equals(profile.getDeviceID()));
+        notifyProfilesChanged();
     }
 
     /**
@@ -70,7 +75,21 @@ public class MockProfileRepository implements ProfileRepository {
      */
     @Override
     public List<Profile> findUsersByRole(Profile.Role role) {
-        return Collections.emptyList();
+        List<Profile> filtered = new ArrayList<>();
+        for (Profile profile : users) {
+            if (profile.getRole() == role) {
+                filtered.add(profile);
+            }
+        }
+        return filtered;
+    }
+
+    @Override
+    public LiveData<List<Profile>> observeProfiles() {
+        return profilesLiveData;
+    }
+
+    private void notifyProfilesChanged() {
+        profilesLiveData.setValue(new ArrayList<>(users));
     }
 }
-

@@ -1,5 +1,7 @@
 package com.example.eventlottery.data;
 
+import androidx.lifecycle.LiveData;
+
 import com.example.eventlottery.model.Profile;
 import java.util.List;
 
@@ -20,6 +22,8 @@ public interface ProfileRepository {
     void deleteUser(String id);
 
     List<Profile> findUsersByRole(Profile.Role role);
+
+    LiveData<List<Profile>> observeProfiles();
 
     // ===== DeviceID-based Auth operations =====
     /**

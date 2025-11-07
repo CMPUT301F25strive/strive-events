@@ -19,6 +19,7 @@ import androidx.navigation.Navigation;
 import com.example.eventlottery.data.ProfileRepository;
 import com.example.eventlottery.data.RepositoryProvider;
 import com.example.eventlottery.model.Profile;
+import com.google.android.material.snackbar.Snackbar;
 
 public class WelcomeFragment extends Fragment {
 
@@ -58,8 +59,7 @@ public class WelcomeFragment extends Fragment {
             public void onSuccess(Profile profile) {
                 // DeviceID exists → auto-login
                 progressBar.setVisibility(View.GONE);
-                Navigation.findNavController(view)
-                        .navigate(R.id.action_welcomeFragment_to_entrantEventListFragment);
+                handleAdminEntry(view, profile);
             }
 
             @Override
@@ -91,8 +91,7 @@ public class WelcomeFragment extends Fragment {
                     public void onSuccess(Profile profile) {
                         progressBar.setVisibility(View.GONE);
                         // DeviceID exists → login successful
-                        Navigation.findNavController(view)
-                                .navigate(R.id.action_welcomeFragment_to_entrantEventListFragment);
+                        handleAdminEntry(view, profile);
                     }
 
                     @Override
@@ -117,8 +116,7 @@ public class WelcomeFragment extends Fragment {
                     public void onSuccess(Profile profile) {
                         progressBar.setVisibility(View.GONE);
                         Toast.makeText(getContext(), "Registration successful", Toast.LENGTH_SHORT).show();
-                        Navigation.findNavController(view)
-                                .navigate(R.id.action_welcomeFragment_to_entrantEventListFragment);
+                        handleAdminEntry(view, profile);
                     }
 
                     @Override
@@ -157,5 +155,18 @@ public class WelcomeFragment extends Fragment {
 
     private String getDeviceId() {
         return Settings.Secure.getString(requireContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+    }
+
+    private void handleAdminEntry(@NonNull View view, @Nullable Profile profile) {
+        boolean isAdmin = profile != null && profile.isAdmin();
+        if (isAdmin) {
+            Snackbar.make(view, R.string.admin_welcome_snackbar, Snackbar.LENGTH_LONG).show();
+        }
+        navigateToDashboard(view);
+    }
+
+    private void navigateToDashboard(@NonNull View view) {
+        Navigation.findNavController(view)
+                .navigate(R.id.action_welcomeFragment_to_entrantEventListFragment);
     }
 }
