@@ -72,10 +72,9 @@ public class FirebaseProfileRepository implements ProfileRepository {
 
     /**
      * This method finds the user's profile based on their unique device id
-     * @param deviceId: unique device id specific to user
+     * @param deviceID: unique device id specific to user
      * @return u: user that matches the inputted device id
      */
-    @Override
     public void findUserById(String deviceID, @NonNull ProfileCallback callback) {
         usersRef.document(deviceID).get()
                 .addOnSuccessListener(doc -> {
@@ -92,6 +91,20 @@ public class FirebaseProfileRepository implements ProfileRepository {
                     }
                 })
                 .addOnFailureListener(e -> callback.onError(e.getMessage()));
+    }
+
+    /**
+     * This method finds the user's profile based on their unique device id
+     * @param deviceID: unique device id specific to user
+     * @return user: user that matches the inputted device id
+     */
+    public Profile findUserById(String deviceID) {
+        for (Profile user : users) {
+            if (user.getDeviceID().equals(deviceID)) {
+                return user;
+            }
+        }
+        return null;
     }
 
     /**
@@ -118,6 +131,16 @@ public class FirebaseProfileRepository implements ProfileRepository {
                 .delete()
                 .addOnSuccessListener(aVoid -> callback.onDeleted())
                 .addOnFailureListener(e -> callback.onError(e.getMessage()));
+    }
+
+    @Override
+    public void saveUser(Profile profile) {
+
+    }
+
+    @Override
+    public void deleteUser(String id) {
+
     }
 
     /**

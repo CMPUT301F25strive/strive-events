@@ -11,8 +11,14 @@ public interface ProfileRepository {
 
     // ===== Firestore operations =====
     void findUserById(String deviceID, ProfileCallback callback);
+    Profile findUserById(String deviceID);
     void saveUser(Profile profile, ProfileCallback callback);
     void deleteUser(String deviceID, ProfileCallback callback);
+
+    void saveUser(Profile profile);
+
+    void deleteUser(String id);
+
     List<Profile> findUsersByRole(Profile.Role role);
 
     // ===== DeviceID-based Auth operations =====
