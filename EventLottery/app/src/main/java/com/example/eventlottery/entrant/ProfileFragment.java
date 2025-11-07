@@ -7,6 +7,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -22,12 +24,12 @@ import com.example.eventlottery.databinding.FragmentProfileBinding;
 import com.example.eventlottery.model.Profile;
 import com.example.eventlottery.viewmodel.ProfileViewModel;
 import com.example.eventlottery.viewmodel.ProfileViewModelFactory;
-import com.google.firebase.auth.FirebaseAuth;
 
 public class ProfileFragment extends Fragment {
 
     private FragmentProfileBinding binding;
     private ProfileViewModel viewModel;
+    private Switch notificationSwitch; // new switch reference
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -84,9 +86,6 @@ public class ProfileFragment extends Fragment {
                         .navigate(R.id.action_profileFragment_to_profileEditFragment)
         );
 
-        // Logout menu
-        binding.menuLogout.setOnClickListener(v -> logout());
-
         // Delete Profile menu with confirmation dialog
         binding.menuDeleteAccount.setOnClickListener(v -> {
             new AlertDialog.Builder(requireContext())
@@ -97,15 +96,17 @@ public class ProfileFragment extends Fragment {
                     .show();
         });
 
+        // Notification switch (just UI toggle)
+        notificationSwitch = binding.notificationSwitch; // connect switch from XML
+        notificationSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            Toast.makeText(getContext(),
+                    "Notifications " + (isChecked ? "ON" : "OFF"),
+                    Toast.LENGTH_SHORT).show();
+            // Currently no functional behavior; just toggle UI state
+        });
+
         // Bottom navigation
         setupBottomNav();
-    }
-
-    private void logout() {
-        FirebaseAuth.getInstance().signOut();
-        Toast.makeText(requireContext(), "Logged out successfully", Toast.LENGTH_SHORT).show();
-        NavHostFragment.findNavController(this)
-                .navigate(R.id.action_profileFragment_to_welcomeFragment);
     }
 
     private void setupBottomNav() {

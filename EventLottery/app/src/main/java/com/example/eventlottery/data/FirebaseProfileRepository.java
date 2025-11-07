@@ -1,30 +1,33 @@
 package com.example.eventlottery.data;
 
 import androidx.annotation.NonNull;
+
 import com.example.eventlottery.model.Profile;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * FirebaseProfileRepository manages user profiles in Firestore.
+ * Uses deviceID as the login key (no password/email authentication needed).
+ */
 public class FirebaseProfileRepository implements ProfileRepository {
 
     private final FirebaseFirestore db;
     private final CollectionReference usersRef;
-    private final FirebaseAuth auth;
 
     public FirebaseProfileRepository() {
         db = FirebaseFirestore.getInstance();
         usersRef = db.collection("users");
-        auth = FirebaseAuth.getInstance();
     }
 
     // ===== Firestore operations =====
+
     @Override
     public void findUserById(String deviceID, @NonNull ProfileCallback callback) {
         usersRef.document(deviceID).get()
@@ -62,17 +65,7 @@ public class FirebaseProfileRepository implements ProfileRepository {
     public void deleteUser(String deviceID, @NonNull ProfileCallback callback) {
         usersRef.document(deviceID)
                 .delete()
-                .addOnSuccessListener(aVoid -> {
-                    FirebaseUser currentUser = auth.getCurrentUser();
-                    if (currentUser != null) {
-                        currentUser.delete()
-                                .addOnSuccessListener(unused -> callback.onDeleted())
-                                .addOnFailureListener(e ->
-                                        callback.onError("Firestore deleted but Auth user not deleted: " + e.getMessage()));
-                    } else {
-                        callback.onDeleted();
-                    }
-                })
+                .addOnSuccessListener(aVoid -> callback.onDeleted())
                 .addOnFailureListener(e -> callback.onError(e.getMessage()));
     }
 
@@ -81,66 +74,54 @@ public class FirebaseProfileRepository implements ProfileRepository {
         return new ArrayList<>();
     }
 
-    // ===== Firebase Authentication =====
+    // ===== DeviceID-based Auth operations =====
+
     @Override
     public void userExists(String email, UserExistsCallback callback) {
-        auth.fetchSignInMethodsForEmail(email)
-                .addOnSuccessListener(result ->
-                        callback.onResult(result.getSignInMethods() != null &&
-                                !result.getSignInMethods().isEmpty()))
+        usersRef.whereEqualTo("email", email).get()
+                .addOnSuccessListener(querySnapshot ->
+                        callback.onResult(!querySnapshot.isEmpty()))
                 .addOnFailureListener(e -> callback.onResult(false));
     }
 
     @Override
-    public void login(String email, String password, LoginCallback callback) {
-        auth.signInWithEmailAndPassword(email, password)
-                .addOnSuccessListener(authResult -> {
-                    FirebaseUser user = authResult.getUser();
-                    if (user != null) {
+    public void login(String email, String deviceID, LoginCallback callback) {
+        usersRef.whereEqualTo("email", email).get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (querySnapshot.isEmpty()) {
+                        callback.onResult(false, "Email not registered");
+                        return;
+                    }
+
+                    String storedDeviceID = querySnapshot.getDocuments().get(0).getString("deviceID");
+                    if (deviceID.equals(storedDeviceID)) {
                         callback.onResult(true, "Login successful");
                     } else {
-                        callback.onResult(false, "User not found");
+                        callback.onResult(false, "Device ID does not match");
                     }
                 })
                 .addOnFailureListener(e -> callback.onResult(false, e.getMessage()));
     }
 
     @Override
-    public void register(String email, String password, String phone, String name, String deviceID, RegisterCallback callback) {
+    public void register(String email, String phone, String name, String deviceID, RegisterCallback callback) {
         userExists(email, exists -> {
             if (exists) {
                 callback.onResult(false, "User already exists");
-            } else {
-                auth.createUserWithEmailAndPassword(email, password)
-                        .addOnSuccessListener(authResult -> {
-                            FirebaseUser user = authResult.getUser();
-                            if (user == null) {
-                                callback.onResult(false, "Registration failed: no user created");
-                                return;
-                            }
-
-                            // Save profile under deviceID
-                            Profile profile = new Profile(deviceID, name, email, phone);
-                            Map<String, Object> data = new HashMap<>();
-                            data.put("deviceID", deviceID);
-                            data.put("name", name);
-                            data.put("email", email);
-                            data.put("phone", phone);
-
-                            usersRef.document(deviceID)
-                                    .set(data)
-                                    .addOnSuccessListener(aVoid ->
-                                            callback.onResult(true, "Registration successful"))
-                                    .addOnFailureListener(e ->
-                                            callback.onResult(false, e.getMessage()));
-                        })
-                        .addOnFailureListener(e -> callback.onResult(false, e.getMessage()));
+                return;
             }
-        });
-    }
 
-    // ===== Helper =====
-    public FirebaseUser getCurrentUser() {
-        return auth.getCurrentUser();
+            Profile profile = new Profile(deviceID, name, email, phone);
+            Map<String, Object> data = new HashMap<>();
+            data.put("deviceID", deviceID);
+            data.put("name", name);
+            data.put("email", email);
+            data.put("phone", phone);
+
+            usersRef.document(deviceID)
+                    .set(data)
+                    .addOnSuccessListener(aVoid -> callback.onResult(true, "Registration successful"))
+                    .addOnFailureListener(e -> callback.onResult(false, e.getMessage()));
+        });
     }
 }

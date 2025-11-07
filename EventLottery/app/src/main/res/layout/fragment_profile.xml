@@ -116,15 +116,35 @@
                 android:layout_marginVertical="16dp"
                 android:background="@color/gray_light"/>
 
-            <TextView
-                android:id="@+id/menuNotifications"
+            <!-- Notifications row with switch -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/menuNotificationsLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Notifications"
                 android:padding="12dp"
-                android:textSize="16sp"
-                android:textColor="@color/black"
-                android:background="?android:attr/selectableItemBackground"/>
+                android:background="?android:attr/selectableItemBackground">
+
+                <TextView
+                    android:id="@+id/menuNotifications"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="Notifications"
+                    android:textSize="16sp"
+                    android:textColor="@color/black"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/notificationSwitch"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+
+                <Switch
+                    android:id="@+id/notificationSwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <TextView
                 android:id="@+id/menuGuidelines"
@@ -135,17 +155,6 @@
                 android:textSize="16sp"
                 android:textColor="@color/black"
                 android:background="?android:attr/selectableItemBackground"/>
-
-            <TextView
-                android:id="@+id/menuLogout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Logout"
-                android:textColor="@color/black"
-                android:textSize="16sp"
-                android:padding="12dp"
-                android:background="?android:attr/selectableItemBackground"
-                android:layout_marginTop="8dp"/>
 
             <TextView
                 android:id="@+id/menuDeleteAccount"
