@@ -27,5 +27,10 @@ public interface EventRepository {
 
     void updateWaitingList(String eventID, List<String> waitingList);
 
+    /**
+     * Remove an event from the catalogue.
+     */
+    void deleteEvent(String eventId);
+
 
 }
