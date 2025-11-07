@@ -59,4 +59,8 @@ public class MockEventRepository implements EventRepository {
     public androidx.lifecycle.LiveData<List<Event>> observeEvents() {
         return null;
     }
+
+    @Override
+    public void updateWaitingList(String eventID, List<String> waitingList) {
+    }
 }
