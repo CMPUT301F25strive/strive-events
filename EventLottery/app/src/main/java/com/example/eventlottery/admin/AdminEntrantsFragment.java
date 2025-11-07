@@ -18,7 +18,9 @@ import com.example.eventlottery.databinding.FragmentAdminEntrantsBinding;
 import com.example.eventlottery.model.Profile;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Admin-only screen that lists all entrant profiles for moderation.
@@ -51,13 +53,9 @@ public class AdminEntrantsFragment extends Fragment implements AdminEntrantAdapt
         );
 
         profileRepository.observeProfiles().observe(getViewLifecycleOwner(), profiles -> {
-            if (profiles == null || profiles.isEmpty()) {
-                adapter.submitList(Collections.emptyList());
-                binding.emptyView.setVisibility(View.VISIBLE);
-            } else {
-                adapter.submitList(profiles);
-                binding.emptyView.setVisibility(View.GONE);
-            }
+            List<Profile> entrants = filterEntrants(profiles);
+            adapter.submitList(entrants);
+            binding.emptyView.setVisibility(entrants.isEmpty() ? View.VISIBLE : View.GONE);
         });
     }
 
@@ -73,5 +71,20 @@ public class AdminEntrantsFragment extends Fragment implements AdminEntrantAdapt
         args.putString(AdminEditProfileFragment.ARG_PROFILE_ID, profile.getDeviceID());
         NavHostFragment.findNavController(this)
                 .navigate(R.id.action_adminEntrantsFragment_to_adminEditProfileFragment, args);
+    }
+
+    // Only show entrant accounts; admins/organizers will live on their own tabs.
+    private List<Profile> filterEntrants(@Nullable List<Profile> profiles) {
+        if (profiles == null || profiles.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Profile> entrantsOnly = new ArrayList<>();
+        for (Profile profile : profiles) {
+            if (profile != null && profile.getRole() == Profile.Role.USER) {
+                entrantsOnly.add(profile);
+            }
+        }
+        return entrantsOnly;
     }
 }
