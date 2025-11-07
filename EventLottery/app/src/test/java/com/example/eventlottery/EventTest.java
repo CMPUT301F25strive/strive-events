@@ -1,19 +1,15 @@
 package com.example.eventlottery;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.example.eventlottery.model.Event;
-import com.example.eventlottery.model.WaitingList;
 
 import org.junit.Test;
 
 public class EventTest {
     @Test
     public void testEventCreation() {
-        Event event = new Event("1", "Valorant Tournament", "Tenz", 0, "Los Angeles", 200, 200, Event.Status.REG_OPEN, 1, "A Valorant Tournament hosted by Tenz for a prize of $1000", new WaitingList(null)
-        );
+        Event event = new Event("1", "Valorant Tournament", "Tenz", 0, "Los Angeles", 200, 200, Event.Status.REG_OPEN, 1, "A Valorant Tournament hosted by Tenz for a prize of $1000");
         assertEquals("1", event.getId());
         assertEquals("Valorant Tournament", event.getTitle());
         assertEquals("A Valorant Tournament hosted by Tenz for a prize of $1000", event.getDescription());

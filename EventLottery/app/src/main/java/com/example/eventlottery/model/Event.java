@@ -5,6 +5,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -30,6 +32,7 @@ public class Event implements Serializable {
     private final int capacity;
     private final int spotsRemaining;
     private final Status status;
+    private List<String> waitingList;
     @DrawableRes
     private final int posterResId;
     @Nullable
@@ -57,6 +60,7 @@ public class Event implements Serializable {
         this.status = Objects.requireNonNull(status, "status required");
         this.posterResId = posterResId;
         this.description = description;
+        this.waitingList = new ArrayList<>();
     }
 
     /**
@@ -131,6 +135,32 @@ public class Event implements Serializable {
     @Nullable
     public String getDescription() {
         return description;
+    }
+
+    public List<String> getWaitingList() {
+        return waitingList;
+    }
+
+    public void setWaitingList(List<String> waitingList) {
+        this.waitingList = waitingList;
+    }
+
+    public void joinWaitingList(String deviceId) {
+        if (!waitingList.contains(deviceId)) {
+            waitingList.add(deviceId);
+        }
+    }
+
+    public void leaveWaitingList(String deviceId) {
+        waitingList.remove(deviceId);
+    }
+
+    public int getWaitingListSize() {
+        return waitingList.size();
+    }
+
+    public boolean isOnWaitingList(String deviceId) {
+        return waitingList.contains(deviceId);
     }
 
     @Override

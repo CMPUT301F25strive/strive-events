@@ -25,5 +25,7 @@ public interface EventRepository {
 
     Event findEventById(String id);
 
+    void updateWaitingList(String eventID, List<String> waitingList);
+
 
 }
