@@ -10,7 +10,6 @@ import com.example.eventlottery.data.EventRepository;
 import com.example.eventlottery.data.ProfileRepository;
 import com.example.eventlottery.data.RepositoryProvider;
 import com.example.eventlottery.databinding.ActivityMainBinding;
-import com.google.firebase.auth.FirebaseAuth;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -21,16 +20,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // ✅ Force logout to clear any cached Firebase user
-        FirebaseAuth.getInstance().signOut();
-
-        // Populate the repositories
+        //Populate the repositories
         ProfileRepository profileRepo = RepositoryProvider.getProfileRepository();
         EventRepository eventRepo = RepositoryProvider.getEventRepository();
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
         NavHostFragment navHostFragment =
                 (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_content_main);
         if (navHostFragment != null) {

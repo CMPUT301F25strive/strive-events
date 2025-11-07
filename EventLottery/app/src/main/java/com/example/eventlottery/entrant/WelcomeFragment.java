@@ -26,7 +26,7 @@ public class WelcomeFragment extends Fragment {
     private ProgressBar progressBar;
     private ProfileRepository profileRepo;
 
-    private boolean isLoginMode = true; // toggle between login and registration
+    private boolean isLoginMode = true;
 
     @Nullable
     @Override
@@ -39,7 +39,6 @@ public class WelcomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Bind UI elements
         etEmail = view.findViewById(R.id.etEmail);
         etPassword = view.findViewById(R.id.etPassword);
         etPhone = view.findViewById(R.id.etPhone);
@@ -50,12 +49,12 @@ public class WelcomeFragment extends Fragment {
 
         profileRepo = com.example.eventlottery.data.RepositoryProvider.getProfileRepository();
 
-        // Main action button click
         btnMainAction.setOnClickListener(v -> {
             String email = etEmail.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
             String phone = etPhone.getText().toString().trim();
             String name = etName.getText().toString().trim();
+            String deviceID = getDeviceId();
 
             if (email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(getContext(), "Email and password required", Toast.LENGTH_SHORT).show();
@@ -65,7 +64,6 @@ public class WelcomeFragment extends Fragment {
             progressBar.setVisibility(View.VISIBLE);
 
             if (isLoginMode) {
-                // LOGIN
                 profileRepo.login(email, password, (success, message) -> {
                     progressBar.setVisibility(View.GONE);
                     if (success) {
@@ -77,14 +75,11 @@ public class WelcomeFragment extends Fragment {
                     }
                 });
             } else {
-                // REGISTER
                 if (name.isEmpty()) {
                     progressBar.setVisibility(View.GONE);
                     Toast.makeText(getContext(), "Please enter your full name", Toast.LENGTH_SHORT).show();
                     return;
                 }
-
-                String deviceID = getDeviceId(); // Get unique device ID
 
                 profileRepo.register(email, password, phone, name, deviceID, (success, message) -> {
                     progressBar.setVisibility(View.GONE);
@@ -97,20 +92,17 @@ public class WelcomeFragment extends Fragment {
             }
         });
 
-        // Toggle between login and registration modes
         tvSwitchMode.setOnClickListener(v -> toggleMode());
     }
 
     private void toggleMode() {
         if (isLoginMode) {
-            // Switch to registration
             isLoginMode = false;
             etPhone.setVisibility(View.VISIBLE);
             etName.setVisibility(View.VISIBLE);
             btnMainAction.setText("Register");
             tvSwitchMode.setText("Already a user? Login");
         } else {
-            // Switch to login
             isLoginMode = true;
             etPhone.setVisibility(View.GONE);
             etName.setVisibility(View.GONE);
@@ -119,9 +111,6 @@ public class WelcomeFragment extends Fragment {
         }
     }
 
-    /**
-     * Returns a unique device ID for this Android device
-     */
     private String getDeviceId() {
         return Settings.Secure.getString(requireContext().getContentResolver(), Settings.Secure.ANDROID_ID);
     }

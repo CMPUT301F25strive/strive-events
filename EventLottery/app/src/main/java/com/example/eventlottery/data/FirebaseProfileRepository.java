@@ -25,9 +25,10 @@ public class FirebaseProfileRepository implements ProfileRepository {
         auth = FirebaseAuth.getInstance();
     }
 
+    // ===== Firestore operations =====
     @Override
-    public void findUserById(String id, @NonNull ProfileCallback callback) {
-        usersRef.document(id).get()
+    public void findUserById(String deviceID, @NonNull ProfileCallback callback) {
+        usersRef.document(deviceID).get()
                 .addOnSuccessListener(doc -> {
                     if (doc.exists()) {
                         Profile profile = new Profile(
@@ -59,19 +60,32 @@ public class FirebaseProfileRepository implements ProfileRepository {
     }
 
     @Override
-    public void deleteUser(String id, @NonNull ProfileCallback callback) {
-        usersRef.document(id)
-                .delete()
-                .addOnSuccessListener(aVoid -> {
-                    FirebaseUser currentUser = auth.getCurrentUser();
-                    if (currentUser != null && currentUser.getUid().equals(id)) {
-                        currentUser.delete()
-                                .addOnSuccessListener(unused -> callback.onDeleted())
-                                .addOnFailureListener(e ->
-                                        callback.onError("Firestore deleted but Auth user not deleted: " + e.getMessage()));
-                    } else {
-                        callback.onDeleted();
+    public void deleteUser(String deviceID, @NonNull ProfileCallback callback) {
+        // First, get the profile to retrieve email for Auth deletion
+        usersRef.document(deviceID).get()
+                .addOnSuccessListener(doc -> {
+                    if (!doc.exists()) {
+                        callback.onError("User not found in Firestore");
+                        return;
                     }
+
+                    String email = doc.getString("email");
+
+                    // Delete Firestore document
+                    usersRef.document(deviceID).delete()
+                            .addOnSuccessListener(aVoid -> {
+                                FirebaseUser currentUser = auth.getCurrentUser();
+                                if (currentUser != null && email.equals(currentUser.getEmail())) {
+                                    // Delete the Auth user
+                                    currentUser.delete()
+                                            .addOnSuccessListener(unused -> callback.onDeleted())
+                                            .addOnFailureListener(e ->
+                                                    callback.onError("Firestore deleted but Auth user not deleted: " + e.getMessage()));
+                                } else {
+                                    callback.onDeleted(); // Firestore deleted, Auth user not logged in
+                                }
+                            })
+                            .addOnFailureListener(e -> callback.onError(e.getMessage()));
                 })
                 .addOnFailureListener(e -> callback.onError(e.getMessage()));
     }
@@ -82,7 +96,6 @@ public class FirebaseProfileRepository implements ProfileRepository {
     }
 
     // ===== Firebase Authentication Integration =====
-
     @Override
     public void userExists(String email, UserExistsCallback callback) {
         auth.fetchSignInMethodsForEmail(email)
@@ -120,16 +133,15 @@ public class FirebaseProfileRepository implements ProfileRepository {
                                 return;
                             }
 
-                            String uid = user.getUid();
+                            // Save profile under deviceID
                             Profile profile = new Profile(deviceID, name, email, phone);
-
                             Map<String, Object> data = new HashMap<>();
                             data.put("deviceID", deviceID);
                             data.put("name", name);
                             data.put("email", email);
                             data.put("phone", phone);
 
-                            usersRef.document(uid)
+                            usersRef.document(deviceID)
                                     .set(data)
                                     .addOnSuccessListener(aVoid ->
                                             callback.onResult(true, "Registration successful"))
@@ -139,5 +151,10 @@ public class FirebaseProfileRepository implements ProfileRepository {
                         .addOnFailureListener(e -> callback.onResult(false, e.getMessage()));
             }
         });
+    }
+
+    // ===== Helper =====
+    public FirebaseUser getCurrentUser() {
+        return auth.getCurrentUser();
     }
 }
