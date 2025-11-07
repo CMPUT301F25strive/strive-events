@@ -32,10 +32,6 @@ public class FirebaseEventRepository implements EventRepository {
     private CollectionReference eventsRef;
     private final MutableLiveData<List<Event>> eventsLiveData = new MutableLiveData<>();
 
-
-    /**
-     * FirebaseEventRepository constructor
-     */
     public FirebaseEventRepository() {
         db = FirebaseFirestore.getInstance();
         eventsRef = db.collection("events");
@@ -214,11 +210,6 @@ public class FirebaseEventRepository implements EventRepository {
         }
     }
     // Overload
-
-    /**
-     * This method removes an Event from the list using the event's ID if it exists in the list
-     * @param eventID : ID of the event to be deleted
-     */
     @Override
     public void deleteEvent(String eventID) {
         for (int i = 0; i < events.size(); i++) {

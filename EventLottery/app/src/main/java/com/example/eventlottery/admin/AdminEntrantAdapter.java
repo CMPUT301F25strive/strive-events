@@ -59,14 +59,9 @@ public class AdminEntrantAdapter extends ListAdapter<Profile, AdminEntrantAdapte
             boundProfile = profile;
             binding.adminEntrantName.setText(profile.getName());
             binding.adminEntrantEmail.setText(profile.getEmail());
-            if (profile.getRole() == Profile.Role.USER) {
-                binding.adminEntrantRole.setVisibility(View.GONE);
-            } else {
-                binding.adminEntrantRole.setVisibility(View.VISIBLE);
-                String roleCopy = binding.getRoot().getResources()
-                        .getString(R.string.admin_entrant_role_format, profile.getRole().name());
-                binding.adminEntrantRole.setText(roleCopy);
-            }
+            String roleCopy = binding.getRoot().getResources()
+                    .getString(R.string.admin_entrant_role_format, profile.getRole().name());
+            binding.adminEntrantRole.setText(roleCopy);
         }
 
         @Override

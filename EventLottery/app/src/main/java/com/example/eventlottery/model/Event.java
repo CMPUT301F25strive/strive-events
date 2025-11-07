@@ -10,12 +10,12 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * event domain model shared across entrant and organizer screens.
+ * Event domain model shared across entrant and organizer screens.
  */
 public class Event implements Serializable {
 
     /**
-     * status values for an event registration window.
+     * Status values for an event registration window.
      */
     public enum Status {
         REG_OPEN,
@@ -74,8 +74,8 @@ public class Event implements Serializable {
         this.status = Objects.requireNonNull(status, "status required");
         this.posterResId = posterResId;
         this.description = description;
-        this.waitingList = new ArrayList<>();
         this.attendeesList = new ArrayList<>();
+        this.waitingList = waitingList != null ? waitingList : new ArrayList<>();
     }
 
     /**
@@ -238,11 +238,12 @@ public class Event implements Serializable {
                 && Objects.equals(organizerName, event.organizerName)
                 && Objects.equals(venue, event.venue)
                 && status == event.status
-                && Objects.equals(description, event.description);
+                && Objects.equals(description, event.description)
+                && Objects.equals(waitingList, event.waitingList);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, title, organizerName, startTimeMillis, venue, capacity, spotsRemaining, status, posterResId, description);
+        return Objects.hash(id, title, organizerName, startTimeMillis, venue, capacity, spotsRemaining, status, posterResId, description, waitingList);
     }
 }

@@ -82,6 +82,11 @@ public class FirebaseProfileRepository implements ProfileRepository {
      * @return u: user that matches the inputted device id
      */
     public void findUserById(String deviceID, @NonNull ProfileCallback callback) {
+        if (deviceID == null || deviceID.isEmpty()) {
+            callback.onError("DeviceID is null or empty");
+            return;
+        }
+
         usersRef.document(deviceID).get()
                 .addOnSuccessListener(doc -> {
                     if (doc.exists()) {
@@ -191,8 +196,7 @@ public class FirebaseProfileRepository implements ProfileRepository {
     @Override
     public void userExists(String email, UserExistsCallback callback) {
         usersRef.whereEqualTo("email", email).get()
-                .addOnSuccessListener(querySnapshot ->
-                        callback.onResult(!querySnapshot.isEmpty()))
+                .addOnSuccessListener(querySnapshot -> callback.onResult(!querySnapshot.isEmpty()))
                 .addOnFailureListener(e -> callback.onResult(false));
     }
 
@@ -250,7 +254,11 @@ public class FirebaseProfileRepository implements ProfileRepository {
             }
 
             Profile profile = new Profile(deviceID, name, email, phone);
-            Map<String, Object> data = buildProfileData(profile);
+            Map<String, Object> data = new HashMap<>();
+            data.put("deviceID", deviceID);
+            data.put("name", name);
+            data.put("email", email);
+            data.put("phone", phone);
 
             usersRef.document(deviceID)
                     .set(data)

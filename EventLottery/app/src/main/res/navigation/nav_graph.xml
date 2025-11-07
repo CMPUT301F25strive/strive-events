@@ -34,8 +34,14 @@
         <action
             android:id="@+id/action_entrantEventListFragment_to_eventDetailFragment"
             app:destination="@id/eventDetailFragment" />
+
+        <!-- Fixed: Add action to MyEventsFragment here -->
+        <action
+            android:id="@+id/action_entrantEventListFragment_to_myEventsFragment"
+            app:destination="@id/myEventsFragment" />
     </fragment>
 
+    <!-- Profile Fragment -->
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.example.eventlottery.entrant.ProfileFragment"
@@ -79,6 +85,25 @@
         android:label="Event Detail"
         tools:layout="@layout/fragment_event_detail" />
 
+    <!-- My Events Fragment -->
+    <fragment
+        android:id="@+id/myEventsFragment"
+        android:name="com.example.eventlottery.entrant.MyEventsFragment"
+        android:label="My Events"
+        tools:layout="@layout/fragment_event_list">
+
+        <action
+            android:id="@+id/action_myEventsFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
+
+        <action
+            android:id="@+id/action_myEventsFragment_to_entrantEventListFragment"
+            app:destination="@id/entrantEventListFragment" />
+
+        <action
+            android:id="@+id/action_myEventsFragment_to_eventDetailFragment"
+            app:destination="@id/eventDetailFragment" />
+    </fragment>
 
     <!-- Lottery Guidelines Fragment -->
     <fragment
