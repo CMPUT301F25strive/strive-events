@@ -87,6 +87,11 @@ public class ProfileFragment extends Fragment {
                 viewModel.deleteProfile()
         );
 
+        binding.menuGuidelines.setOnClickListener(v ->
+                NavHostFragment.findNavController(this)
+                        .navigate(R.id.action_profileFragment_to_profileGuidelinesFragment)
+        );
+
         // Bottom navigation
         setupBottomNav();
     }
