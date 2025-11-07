@@ -1,9 +1,13 @@
+
 package com.example.eventlottery;
 
 import com.example.eventlottery.data.EventRepository;
 import com.example.eventlottery.data.ProfileRepository;
 import com.example.eventlottery.model.Event;
 
+import org.checkerframework.common.returnsreceiver.qual.This;
+
+import java.util.List;
 
 /**
  * This class handles the joining and leaving of entrants regarding the waiting list
@@ -16,24 +20,19 @@ public class WaitingListController {
 
     /**
      * This is a constructor of WaitingListController with the given Profile and Event Repository
-     *
-     * @param eventRepository:   the repository used to manage the events
+     * @param eventRepository: the repository used to manage the events
      * @param profileRepository: the repository used to manage the profiles
      */
-
     public WaitingListController(EventRepository eventRepository, ProfileRepository profileRepository) {
         this.eventRepository = eventRepository;
         this.profileRepository = profileRepository;
     }
 
-
     /**
      * This methods adds entrants based on their entrantID to the waiting list to the event specified by eventID
-     *
      * @param eventID: ID of the event
-     * @param userID:  ID of the user's device
+     * @param userID: ID of the user's device
      */
-
     public void joinWaitingList(String eventID, String userID) {
         Event event = eventRepository.findEventById(eventID);
         if (event == null) {
@@ -53,14 +52,11 @@ public class WaitingListController {
         }
     }
 
-
     /**
      * This methods removes entrants based on their entrantID from the waiting list to the event specified by eventID
-     *
      * @param eventID: the unique key for events
-     * @param userID:  the unique key for users
+     * @param userID: the unique key for users
      */
-
     public void leaveWaitingList(String eventID, String userID) {
         Event event = eventRepository.findEventById(eventID);
         if (event == null) {
@@ -76,11 +72,9 @@ public class WaitingListController {
 
     /**
      * This methods the number of entrants on the waiting list
-     *
      * @param eventID: ID of the event
      * @return the number of entrants on the list
      */
-
     public int getWaitingListCount(String eventID) {
         Event event = eventRepository.findEventById(eventID);
         if (event == null) {
@@ -89,7 +83,7 @@ public class WaitingListController {
         return event.getWaitingListSize();
     }
 
-/**
+    /**
      * This methods displays the map of the locations of all the entrants in the waiting list
      * @param eventID: ID of the event
      * @param userID: ID of the user
@@ -99,7 +93,4 @@ public class WaitingListController {
         if (event == null) return false;
         return event.isOnWaitingList(userID);
     }
-
-
 }
-

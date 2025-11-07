@@ -15,6 +15,7 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.eventlottery.R;
 //import com.example.eventlottery.admin.AdminGate;
+import com.example.eventlottery.WaitingListController;
 import com.example.eventlottery.data.EventRepository;
 import com.example.eventlottery.data.RepositoryProvider;
 import com.example.eventlottery.databinding.FragmentEventDetailBinding;
@@ -37,6 +38,8 @@ public class EventDetailFragment extends Fragment {
 
     private String currentUserDeviceId;
     private EventRepository eventRepository;
+
+    private WaitingListController waitingListController;
 
     @Nullable
     @Override
@@ -81,6 +84,19 @@ public class EventDetailFragment extends Fragment {
         }
 
         bindEvent(event);
+
+        final String eventId = event.getId();
+        eventRepository.observeEvents().observe(getViewLifecycleOwner(), events -> {
+            Event updated = eventRepository.findEventById(eventId);
+            if (updated != null) {
+                bindEvent(updated);
+                setupActionButtons(updated, currentUserDeviceId);
+            }
+        });
+        waitingListController = new WaitingListController(
+                RepositoryProvider.getEventRepository(),
+                RepositoryProvider.getProfileRepository()  // if you have this
+        );
         setupActionButtons(event, currentUserDeviceId);
     }
 
@@ -154,25 +170,13 @@ public class EventDetailFragment extends Fragment {
         if (isOnWaitlist) {
             binding.joinEventButton.setText(R.string.leave_waiting_list);
             binding.joinEventButton.setOnClickListener(v -> {
-                // Leave
-                event.leaveWaitingList(userID);
-                eventRepository.updateWaitingList(event.getId(), event.getWaitingList());
-
-                // Update UI to show join button again
-                setupButton(event, userID);
-
+                waitingListController.leaveWaitingList(event.getId(), userID);
                 Toast.makeText(requireContext(), "Left waiting list", Toast.LENGTH_SHORT).show();
             });
         } else {
             binding.joinEventButton.setText(R.string.join_waiting_list);
             binding.joinEventButton.setOnClickListener(v -> {
-                // Join
-                event.joinWaitingList(userID);
-                eventRepository.updateWaitingList(event.getId(), event.getWaitingList());
-
-                // Update UI to show leave button
-                setupButton(event, userID);
-
+                waitingListController.joinWaitingList(event.getId(), userID);
                 Toast.makeText(requireContext(), "Joined waiting list", Toast.LENGTH_SHORT).show();
             });
         }
