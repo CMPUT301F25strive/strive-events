@@ -8,7 +8,8 @@ import com.example.eventlottery.model.Event;
 import java.util.List;
 
 /**
- * entry point for reading events displayed to entrants.
+ * Entry point for reading events displayed to entrants.
+ * Includes support for observing and updating the waiting list.
  */
 public interface EventRepository {
 
@@ -19,28 +20,27 @@ public interface EventRepository {
     LiveData<List<Event>> observeEvents();
 
     /**
-     * trigger background refresh using the current data source.
+     * Trigger background refresh using the current data source.
      */
     void refresh();
 
     /**
-     * Gets an event from its unique event ID.
-     * @param id : unique ID of the event
-     * @return the Event whose ID corresponds to the given event ID
+     * Find a single event by its unique ID.
+     * @param id event identifier
+     * @return event or null if not found
      */
     Event findEventById(String id);
 
     /**
-     * updates the waiting list of an event
-     * @param eventID : unique ID of the event
-     * @param waitingList  the waiting list
+     * Update the waiting list for a specific event.
+     * @param eventID the event's ID
+     * @param waitingList list of device IDs on the waiting list
      */
-    void updateWaitingList(String eventID, List<String> waitingList);
+    void updateWaitingList(@NonNull String eventID, @NonNull List<String> waitingList);
 
     /**
      * Remove an event from the catalogue.
      */
-    void deleteEvent(String eventId);
-
+    void deleteEvent(@NonNull String eventId);
 
 }
