@@ -69,6 +69,10 @@
         <action
             android:id="@+id/action_profileFragment_to_adminEntrantsFragment"
             app:destination="@id/adminEntrantsFragment" />
+
+        <action
+            android:id="@+id/action_profileFragment_to_myEventsFragment"
+            app:destination="@id/myEventsFragment" />
     </fragment>
 
     <!-- Edit Profile Fragment -->
