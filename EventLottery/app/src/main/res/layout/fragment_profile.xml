@@ -66,6 +66,20 @@
             android:padding="20dp"
             android:gravity="center_horizontal">
 
+            <TextView
+                android:id="@+id/adminBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/error_chip_background"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
+                android:text="@string/admin_banner_label"
+                android:textColor="@android:color/holo_red_dark"
+                android:textStyle="bold"
+                android:visibility="gone"/>
+
             <ImageView
                 android:id="@+id/profileAvatar"
                 android:layout_width="100dp"

@@ -23,6 +23,10 @@
     <string name="event_detail_description_placeholder">No description provided yet.</string>
     <string name="profile_menu_guidelines">Lottery Guidelines</string>
     <string name="profile_menu_admin_entrants">Entrants</string>
+    <string name="admin_banner_label">Admin Dashboard</string>
+    <string name="admin_welcome_title">Admin access</string>
+    <string name="admin_welcome_message">You are signed in as an administrator. Continue to the admin dashboard?</string>
+    <string name="admin_welcome_continue">Continue</string>
     <string name="guidelines_title">Lottery Guidelines</string>
     <string name="guidelines_body">Lottery slots are distributed as fairly as possible:\n\n- Sign up for a waiting list during the entry window. ONE entry per event. \n- When the window closes, the system randomly selects the available spots. \n- Winners will be notified and must confirm. If someone declines or times out, the system draws again. </string>
     <string name="guidelines_back_content_description">Go back to profile</string>

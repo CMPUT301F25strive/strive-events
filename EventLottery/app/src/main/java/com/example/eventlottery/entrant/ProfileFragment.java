@@ -72,8 +72,10 @@ public class ProfileFragment extends Fragment {
                 binding.profileEmail.setText(profile.getEmail());
                 binding.profilePhone.setText(profile.getPhone());
                 binding.menuAdminEntrants.setVisibility(profile.isAdmin() ? View.VISIBLE : View.GONE);
+                binding.adminBadge.setVisibility(profile.isAdmin() ? View.VISIBLE : View.GONE);
             } else {
                 binding.menuAdminEntrants.setVisibility(View.GONE);
+                binding.adminBadge.setVisibility(View.GONE);
             }
 
             // Other potential errors
