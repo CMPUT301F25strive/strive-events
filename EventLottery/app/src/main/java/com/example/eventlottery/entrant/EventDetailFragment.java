@@ -14,12 +14,14 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.eventlottery.R;
-//import com.example.eventlottery.admin.AdminGate;
+import com.example.eventlottery.admin.AdminGate;
 import com.example.eventlottery.WaitingListController;
 import com.example.eventlottery.data.EventRepository;
+import com.example.eventlottery.data.ProfileRepository;
 import com.example.eventlottery.data.RepositoryProvider;
 import com.example.eventlottery.databinding.FragmentEventDetailBinding;
 import com.example.eventlottery.model.Event;
+import com.example.eventlottery.model.Profile;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.text.SimpleDateFormat;
@@ -38,6 +40,7 @@ public class EventDetailFragment extends Fragment {
 
     private String currentUserDeviceId;
     private EventRepository eventRepository;
+    private ProfileRepository profileRepository;
 
     private WaitingListController waitingListController;
 
@@ -55,8 +58,9 @@ public class EventDetailFragment extends Fragment {
         // Probably we should get the device ID from DeviceIdentityService class
         // Get device ID
         currentUserDeviceId = Settings.Secure.getString(requireContext().getContentResolver(), Settings.Secure.ANDROID_ID);
-        // Get event repository
+        // Get repositories
         eventRepository = RepositoryProvider.getEventRepository();
+        profileRepository = RepositoryProvider.getProfileRepository();
 
         binding.eventDetailToolbar.setNavigationOnClickListener(v ->
                 NavHostFragment.findNavController(EventDetailFragment.this).popBackStack());
@@ -74,8 +78,7 @@ public class EventDetailFragment extends Fragment {
         }
 
         currentEvent = event;
-        //isAdmin = AdminGate.isAdmin(requireContext());
-        configAdminButton();
+        determineAdminStatus();
 
         // Get the latest event
         Event latestEvent = eventRepository.findEventById(event.getId());
@@ -94,8 +97,8 @@ public class EventDetailFragment extends Fragment {
             }
         });
         waitingListController = new WaitingListController(
-                RepositoryProvider.getEventRepository(),
-                RepositoryProvider.getProfileRepository()  // if you have this
+                eventRepository,
+                profileRepository
         );
         setupActionButtons(event, currentUserDeviceId);
     }
@@ -180,6 +183,33 @@ public class EventDetailFragment extends Fragment {
                 Toast.makeText(requireContext(), "Joined waiting list", Toast.LENGTH_SHORT).show();
             });
         }
+    }
+
+    private void determineAdminStatus() {
+        isAdmin = AdminGate.isAdmin(requireContext());
+        configAdminButton();
+
+        if (profileRepository == null || currentUserDeviceId == null) {
+            return;
+        }
+        profileRepository.findUserById(currentUserDeviceId, new ProfileRepository.ProfileCallback() {
+            @Override
+            public void onSuccess(Profile profile) {
+                boolean repoAdmin = profile != null && profile.isAdmin();
+                if (repoAdmin != isAdmin && binding != null) {
+                    isAdmin = repoAdmin;
+                    configAdminButton();
+                }
+            }
+
+            @Override
+            public void onDeleted() {
+            }
+
+            @Override
+            public void onError(String message) {
+            }
+        });
     }
 
     @Override

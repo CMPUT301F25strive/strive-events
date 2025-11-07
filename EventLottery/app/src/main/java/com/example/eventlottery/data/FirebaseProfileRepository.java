@@ -4,6 +4,8 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import com.example.eventlottery.model.Profile;
 import com.google.firebase.firestore.CollectionReference;
@@ -23,7 +25,8 @@ import java.util.Map;
  * This provides search/browse for admin.
  */
 public class FirebaseProfileRepository implements ProfileRepository {
-    private List<Profile> users = new ArrayList<>();
+    private final List<Profile> users = new ArrayList<>();
+    private final MutableLiveData<List<Profile>> profilesLiveData = new MutableLiveData<>(new ArrayList<>());
     private FirebaseFirestore db;
     private CollectionReference usersRef;
 
@@ -48,9 +51,12 @@ public class FirebaseProfileRepository implements ProfileRepository {
                         String name = doc.getString("name");
                         String email = doc.getString("email");
                         String phone = doc.getString("phone");
+                        String roleString = doc.getString("role");
+                        Profile.Role role = parseRole(roleString);
 
-                        if (users != null) { users.add(new Profile(userID, name, email, phone)); }
+                        users.add(new Profile(userID, name, email, phone, role));
                     }
+                    profilesLiveData.postValue(new ArrayList<>(users));
                 }
             }
         });
@@ -83,7 +89,8 @@ public class FirebaseProfileRepository implements ProfileRepository {
                                 doc.getId(),
                                 doc.getString("name"),
                                 doc.getString("email"),
-                                doc.getString("phone")
+                                doc.getString("phone"),
+                                parseRole(doc.getString("role"))
                         );
                         callback.onSuccess(profile);
                     } else {
@@ -113,14 +120,8 @@ public class FirebaseProfileRepository implements ProfileRepository {
      */
     @Override
     public void saveUser(Profile profile, @NonNull ProfileCallback callback) {
-        Map<String, Object> data = new HashMap<>();
-        data.put("deviceID", profile.getDeviceID());
-        data.put("name", profile.getName());
-        data.put("email", profile.getEmail());
-        data.put("phone", profile.getPhone());
-
         usersRef.document(profile.getDeviceID())
-                .set(data)
+                .set(buildProfileData(profile))
                 .addOnSuccessListener(aVoid -> callback.onSuccess(profile))
                 .addOnFailureListener(e -> callback.onError(e.getMessage()));
     }
@@ -135,12 +136,13 @@ public class FirebaseProfileRepository implements ProfileRepository {
 
     @Override
     public void saveUser(Profile profile) {
-
+        usersRef.document(profile.getDeviceID())
+                .set(buildProfileData(profile));
     }
 
     @Override
     public void deleteUser(String id) {
-
+        usersRef.document(id).delete();
     }
 
     /**
@@ -150,7 +152,18 @@ public class FirebaseProfileRepository implements ProfileRepository {
      */
     @Override
     public List<Profile> findUsersByRole(Profile.Role role) {
-        return new ArrayList<>();
+        List<Profile> result = new ArrayList<>();
+        for (Profile user : users) {
+            if (user.getRole() == role) {
+                result.add(user);
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public LiveData<List<Profile>> observeProfiles() {
+        return profilesLiveData;
     }
 
     // ===== DeviceID-based Auth operations =====
@@ -202,16 +215,22 @@ public class FirebaseProfileRepository implements ProfileRepository {
             }
 
             Profile profile = new Profile(deviceID, name, email, phone);
-            Map<String, Object> data = new HashMap<>();
-            data.put("deviceID", deviceID);
-            data.put("name", name);
-            data.put("email", email);
-            data.put("phone", phone);
+            Map<String, Object> data = buildProfileData(profile);
 
             usersRef.document(deviceID)
                     .set(data)
                     .addOnSuccessListener(aVoid -> callback.onResult(true, "Registration successful"))
                     .addOnFailureListener(e -> callback.onResult(false, e.getMessage()));
         });
+    }
+
+    private Map<String, Object> buildProfileData(Profile profile) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("deviceID", profile.getDeviceID());
+        data.put("name", profile.getName());
+        data.put("email", profile.getEmail());
+        data.put("phone", profile.getPhone());
+        data.put("role", profile.getRole().name());
+        return data;
     }
 }
