@@ -78,6 +78,9 @@ public class Profile {
         this.phone = phone != null ? phone.trim() : null;
     }
 
+    /**
+     * @return true if the profile represents an administrator
+     */
     public boolean isAdmin() {
         return role == Role.ADMIN;
     }
@@ -176,4 +179,3 @@ public class Profile {
         this.role = role != null ? role : Role.USER;
     }
 }
-

@@ -1,19 +1,20 @@
 package com.example.eventlottery.model;
 
-import android.Manifest;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.os.Build;
 
-import androidx.annotation.RequiresPermission;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.example.eventlottery.R;
 
+/**
+ * Minimal helper for creating the notification channel and dispatching event invitations.
+ * Encapsulating this logic keeps repository/service classes free from Android framework details.
+ */
 public class PushNotificationService {
     private final Context context;
     private static final String CHANNEL_ID = "event_channel_id";
@@ -21,8 +22,9 @@ public class PushNotificationService {
 
 
     /**
-     * PushNotificationService constructor
-     * @param context
+     * Builds a notification helper bound to the provided context.
+     *
+     * @param context Android context used to access system services
      */
     public PushNotificationService(Context context) {
         this.context = context;
@@ -47,9 +49,10 @@ public class PushNotificationService {
     }
 
     /**
-     * creates a channel for the notifications
-     * @param title : title for the notification
-     * @param message : message for the notification
+     * Sends a notification summarizing the event invitation to the user.
+     *
+     * @param title   title for the notification
+     * @param message message for the notification
      */
     public void sendNotification(String title, String message) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
