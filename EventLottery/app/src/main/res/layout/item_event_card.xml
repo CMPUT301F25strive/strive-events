@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="12dp"
     app:cardCornerRadius="18dp"
-    app:cardElevation="0dp"
-    app:cardUseCompatPadding="true">
+    app:cardElevation="3dp"
+    app:cardUseCompatPadding="true"
+    app:strokeWidth="0dp"
+    android:background="@color/white">
+
+    <!-- Rest of your card content stays the same -->
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -15,11 +20,12 @@
 
         <ImageView
             android:id="@+id/eventPoster"
-            android:layout_width="116dp"
+            android:layout_width="96dp"
             android:layout_height="96dp"
+            android:background="@drawable/event_image_placeholder"
             android:contentDescription="@string/event_poster_content_description"
             android:scaleType="centerCrop"
-            android:src="@drawable/poster_swim"
+            android:src="@drawable/poster_puppy"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

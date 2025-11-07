@@ -1,4 +1,11 @@
+
 package com.example.eventlottery;
+
+import com.example.eventlottery.data.EventRepository;
+import com.example.eventlottery.data.ProfileRepository;
+import com.example.eventlottery.model.Event;
+
+import org.checkerframework.common.returnsreceiver.qual.This;
 
 import java.util.List;
 
@@ -16,7 +23,6 @@ public class WaitingListController {
      * @param eventRepository: the repository used to manage the events
      * @param profileRepository: the repository used to manage the profiles
      */
-
     public WaitingListController(EventRepository eventRepository, ProfileRepository profileRepository) {
         this.eventRepository = eventRepository;
         this.profileRepository = profileRepository;
@@ -25,52 +31,66 @@ public class WaitingListController {
     /**
      * This methods adds entrants based on their entrantID to the waiting list to the event specified by eventID
      * @param eventID: ID of the event
-     * @param entrantID: ID of the entrant
+     * @param userID: ID of the user's device
      */
-    public void joinWaitingList(int eventID, String entrantID) {
-//        Event event = eventRepository.getEvent(eventID);
-//        EntrantProfile entrant = profileRepository.findEntrantById(entrantID);
-//        WaitingList waitingList = event.getWaitingList(); // might have to add the method getWaitingList() in EventRepository since it shows error without it
-//
-//        if (waitingList.getEntrantCount() >= event.getCapacity()) {
-//            throw new IllegalArgumentException(); //change this exception
-//        }
-//
-//        waitingList.addEntrant(entrant); // might have to add method addEntrant() in ProfileRepository
-//        profileRepository.saveEntrant(entrant);
+    public void joinWaitingList(String eventID, String userID) {
+        Event event = eventRepository.findEventById(eventID);
+        if (event == null) {
+            throw new IllegalArgumentException("Event not found: " + eventID);
+        }
+
+        // Check if event is full and registration is open
+        if (event.getSpotsRemaining() <= 0 && event.getStatus() == Event.Status.REG_OPEN) {
+            // Add to waiting list if not already there
+            if (!event.isOnWaitingList(userID)) {
+                event.joinWaitingList(userID);
+                // Update in Firebase
+                eventRepository.updateWaitingList(eventID, event.getWaitingList());
+            }
+        } else {
+            throw new IllegalStateException("Cannot join waiting list - event has available spots or registration closed");
+        }
     }
 
     /**
      * This methods removes entrants based on their entrantID from the waiting list to the event specified by eventID
-     * @param eventID: ID of the event
-     * @param entrantID: ID of the entrant
+     * @param eventID: the unique key for events
+     * @param userID: the unique key for users
      */
-    public void leaveWaitingList(int eventID, String entrantID) {
-//        Event event = eventRepository.getEvent(eventID);
-//        EntrantProfile entrant = profileRepository.findEntrantById(entrantID);
-//        WaitingList waitingList = event.getWaitingList(); // might have to add in EventRepository
-//
-//        waitingList.deleteEntrant(entrant);
+    public void leaveWaitingList(String eventID, String userID) {
+        Event event = eventRepository.findEventById(eventID);
+        if (event == null) {
+            throw new IllegalArgumentException("Event not found: " + eventID);
+        }
+
+        if (event.isOnWaitingList(userID)) {
+            event.leaveWaitingList(userID);
+            // Update in Firebase
+            eventRepository.updateWaitingList(eventID, event.getWaitingList());
+        }
     }
 
     /**
-     * This methods returns the number of entrants that are in the waiting list
+     * This methods the number of entrants on the waiting list
      * @param eventID: ID of the event
-     * @return int: number of entrants in the waiting list
+     * @return the number of entrants on the list
      */
-    public int countEntrants(int eventID) {
-//        Event event = eventRepository.getEvent(eventID);
-//        return event.getWaitingList().getEntrantCount(); // might have to add in EventRepository
-        return 0;
+    public int getWaitingListCount(String eventID) {
+        Event event = eventRepository.findEventById(eventID);
+        if (event == null) {
+            throw new IllegalArgumentException("Event not found: " + eventID);
+        }
+        return event.getWaitingListSize();
     }
 
     /**
      * This methods displays the map of the locations of all the entrants in the waiting list
      * @param eventID: ID of the event
+     * @param userID: ID of the user
      */
-    public void showMapView(int eventID) {
-        Event event = eventRepository.getEvent(eventID);
-        //... // will complete after implementation of the GeoService
+    public boolean isOnWaitingList(String eventID, String userID) {
+        Event event = eventRepository.findEventById(eventID);
+        if (event == null) return false;
+        return event.isOnWaitingList(userID);
     }
-
 }

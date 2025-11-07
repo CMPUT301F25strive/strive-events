@@ -8,15 +8,33 @@ import androidx.annotation.NonNull;
 public final class RepositoryProvider {
 
     private static EventRepository eventRepository;
+    private static ProfileRepository profileRepository;
 
     private RepositoryProvider() {
     }
 
+    /**
+     * Gets the EventRepository
+     * @return eventRepository
+     */
     @NonNull
     public static synchronized EventRepository getEventRepository() {
         if (eventRepository == null) {
-            eventRepository = new FakeEventRepository();
+            //eventRepository = new FakeEventRepository();
+            eventRepository = new FirebaseEventRepository();
         }
         return eventRepository;
+    }
+
+    /**
+     * Gets the ProfileRepository
+     * @return profileRepository
+     */
+    @NonNull
+    public static synchronized ProfileRepository getProfileRepository() {
+        if (profileRepository == null) {
+            profileRepository = new FirebaseProfileRepository();
+        }
+        return profileRepository;
     }
 }

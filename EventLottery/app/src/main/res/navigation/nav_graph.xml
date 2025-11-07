@@ -3,20 +3,129 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/entrantEventListFragment">
+    app:startDestination="@id/welcomeFragment">
 
+    <!-- Welcome/Login/Register -->
+    <fragment
+        android:id="@+id/welcomeFragment"
+        android:name="com.example.eventlottery.WelcomeFragment"
+        android:label="Welcome"
+        tools:layout="@layout/fragment_welcome">
+
+        <!-- Navigate to main event list after login or registration -->
+        <action
+            android:id="@+id/action_welcomeFragment_to_entrantEventListFragment"
+            app:destination="@id/entrantEventListFragment"
+            app:popUpTo="@id/welcomeFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <!-- Entrant Home Feed -->
     <fragment
         android:id="@+id/entrantEventListFragment"
         android:name="com.example.eventlottery.entrant.EntrantEventListFragment"
-        android:label="@string/home_tab_label"
+        android:label="Home"
         tools:layout="@layout/fragment_event_list">
+
+        <action
+            android:id="@+id/action_entrantEventListFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
+
         <action
             android:id="@+id/action_entrantEventListFragment_to_eventDetailFragment"
             app:destination="@id/eventDetailFragment" />
+
+        <!-- Fixed: Add action to MyEventsFragment here -->
+        <action
+            android:id="@+id/action_entrantEventListFragment_to_myEventsFragment"
+            app:destination="@id/myEventsFragment" />
     </fragment>
+
+    <!-- Profile Fragment -->
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.eventlottery.entrant.ProfileFragment"
+        android:label="Profile"
+        tools:layout="@layout/fragment_profile">
+
+        <action
+            android:id="@+id/action_profileFragment_to_entrantEventListFragment"
+            app:destination="@id/entrantEventListFragment" />
+
+        <action
+            android:id="@+id/action_profileFragment_to_profileEditFragment"
+            app:destination="@id/profileEditFragment" />
+
+        <action
+            android:id="@+id/action_profileFragment_to_welcomeFragment"
+            app:destination="@id/welcomeFragment"
+            app:popUpTo="@id/profileFragment"
+            app:popUpToInclusive="true"/>
+
+        <action
+            android:id="@+id/action_profileFragment_to_profileGuidelinesFragment"
+            app:destination="@id/profileGuidelinesFragment" />
+
+        <action
+            android:id="@+id/action_profileFragment_to_adminEntrantsFragment"
+            app:destination="@id/adminEntrantsFragment" />
+    </fragment>
+
+    <!-- Edit Profile Fragment -->
+    <fragment
+        android:id="@+id/profileEditFragment"
+        android:name="com.example.eventlottery.entrant.ProfileEditFragment"
+        android:label="Edit Profile"
+        tools:layout="@layout/fragment_edit_profile" />
+
+    <!-- Event Detail Fragment -->
     <fragment
         android:id="@+id/eventDetailFragment"
         android:name="com.example.eventlottery.entrant.EventDetailFragment"
-        android:label="@string/event_detail_title"
+        android:label="Event Detail"
         tools:layout="@layout/fragment_event_detail" />
+
+    <!-- My Events Fragment -->
+    <fragment
+        android:id="@+id/myEventsFragment"
+        android:name="com.example.eventlottery.entrant.MyEventsFragment"
+        android:label="My Events"
+        tools:layout="@layout/fragment_event_list">
+
+        <action
+            android:id="@+id/action_myEventsFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
+
+        <action
+            android:id="@+id/action_myEventsFragment_to_entrantEventListFragment"
+            app:destination="@id/entrantEventListFragment" />
+
+        <action
+            android:id="@+id/action_myEventsFragment_to_eventDetailFragment"
+            app:destination="@id/eventDetailFragment" />
+    </fragment>
+
+    <!-- Lottery Guidelines Fragment -->
+    <fragment
+        android:id="@+id/profileGuidelinesFragment"
+        android:name="com.example.eventlottery.entrant.ProfileGuidelinesFragment"
+        android:label="Lottery Guidelines"
+        tools:layout="@layout/fragment_profile_guidelines" />
+
+    <fragment
+        android:id="@+id/adminEntrantsFragment"
+        android:name="com.example.eventlottery.admin.AdminEntrantsFragment"
+        android:label="@string/admin_entrants_title"
+        tools:layout="@layout/fragment_admin_entrants">
+
+        <action
+            android:id="@+id/action_adminEntrantsFragment_to_adminEditProfileFragment"
+            app:destination="@id/adminEditProfileFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/adminEditProfileFragment"
+        android:name="com.example.eventlottery.admin.AdminEditProfileFragment"
+        android:label="@string/admin_profile_edit_title"
+        tools:layout="@layout/fragment_edit_profile" />
 </navigation>
