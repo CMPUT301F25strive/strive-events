@@ -143,7 +143,8 @@ public class ProfileFragment extends Fragment {
                         .popBackStack(R.id.entrantEventListFragment, false);
                 return true;
             } else if (item.getItemId() == R.id.nav_my_events) {
-                // TODO: set a navigation to my_events page
+                NavHostFragment.findNavController(this)
+                        .navigate(R.id.myEventsFragment);
                 return true;
             }
             return false;
