@@ -1,7 +1,6 @@
 package com.example.eventlottery.data;
 
 import androidx.annotation.NonNull;
-
 import com.example.eventlottery.model.Profile;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -61,31 +60,18 @@ public class FirebaseProfileRepository implements ProfileRepository {
 
     @Override
     public void deleteUser(String deviceID, @NonNull ProfileCallback callback) {
-        // First, get the profile to retrieve email for Auth deletion
-        usersRef.document(deviceID).get()
-                .addOnSuccessListener(doc -> {
-                    if (!doc.exists()) {
-                        callback.onError("User not found in Firestore");
-                        return;
+        usersRef.document(deviceID)
+                .delete()
+                .addOnSuccessListener(aVoid -> {
+                    FirebaseUser currentUser = auth.getCurrentUser();
+                    if (currentUser != null) {
+                        currentUser.delete()
+                                .addOnSuccessListener(unused -> callback.onDeleted())
+                                .addOnFailureListener(e ->
+                                        callback.onError("Firestore deleted but Auth user not deleted: " + e.getMessage()));
+                    } else {
+                        callback.onDeleted();
                     }
-
-                    String email = doc.getString("email");
-
-                    // Delete Firestore document
-                    usersRef.document(deviceID).delete()
-                            .addOnSuccessListener(aVoid -> {
-                                FirebaseUser currentUser = auth.getCurrentUser();
-                                if (currentUser != null && email.equals(currentUser.getEmail())) {
-                                    // Delete the Auth user
-                                    currentUser.delete()
-                                            .addOnSuccessListener(unused -> callback.onDeleted())
-                                            .addOnFailureListener(e ->
-                                                    callback.onError("Firestore deleted but Auth user not deleted: " + e.getMessage()));
-                                } else {
-                                    callback.onDeleted(); // Firestore deleted, Auth user not logged in
-                                }
-                            })
-                            .addOnFailureListener(e -> callback.onError(e.getMessage()));
                 })
                 .addOnFailureListener(e -> callback.onError(e.getMessage()));
     }
@@ -95,7 +81,7 @@ public class FirebaseProfileRepository implements ProfileRepository {
         return new ArrayList<>();
     }
 
-    // ===== Firebase Authentication Integration =====
+    // ===== Firebase Authentication =====
     @Override
     public void userExists(String email, UserExistsCallback callback) {
         auth.fetchSignInMethodsForEmail(email)

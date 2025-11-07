@@ -17,6 +17,9 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.example.eventlottery.data.ProfileRepository;
+import com.example.eventlottery.data.RepositoryProvider;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class WelcomeFragment extends Fragment {
 
@@ -47,14 +50,22 @@ public class WelcomeFragment extends Fragment {
         tvSwitchMode = view.findViewById(R.id.tvSwitchMode);
         progressBar = view.findViewById(R.id.progressBar);
 
-        profileRepo = com.example.eventlottery.data.RepositoryProvider.getProfileRepository();
+        profileRepo = RepositoryProvider.getProfileRepository();
 
+        // ===== Auto-login if user already signed in =====
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            Navigation.findNavController(view)
+                    .navigate(R.id.action_welcomeFragment_to_entrantEventListFragment);
+            return;
+        }
+
+        // Main button click
         btnMainAction.setOnClickListener(v -> {
             String email = etEmail.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
             String phone = etPhone.getText().toString().trim();
             String name = etName.getText().toString().trim();
-            String deviceID = getDeviceId();
 
             if (email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(getContext(), "Email and password required", Toast.LENGTH_SHORT).show();
@@ -63,11 +74,12 @@ public class WelcomeFragment extends Fragment {
 
             progressBar.setVisibility(View.VISIBLE);
 
+            String deviceID = getDeviceId();
+
             if (isLoginMode) {
                 profileRepo.login(email, password, (success, message) -> {
                     progressBar.setVisibility(View.GONE);
                     if (success) {
-                        Toast.makeText(getContext(), "Welcome back!", Toast.LENGTH_SHORT).show();
                         Navigation.findNavController(view)
                                 .navigate(R.id.action_welcomeFragment_to_entrantEventListFragment);
                     } else {
@@ -77,7 +89,7 @@ public class WelcomeFragment extends Fragment {
             } else {
                 if (name.isEmpty()) {
                     progressBar.setVisibility(View.GONE);
-                    Toast.makeText(getContext(), "Please enter your full name", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Enter full name", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
