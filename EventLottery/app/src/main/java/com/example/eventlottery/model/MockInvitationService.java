@@ -1,9 +1,6 @@
 package com.example.eventlottery.model;
 
-import android.Manifest;
 import android.content.Context;
-
-import androidx.annotation.RequiresPermission;
 
 import com.example.eventlottery.data.EventRepository;
 import com.example.eventlottery.data.ProfileRepository;
@@ -11,21 +8,21 @@ import com.example.eventlottery.data.ProfileRepository;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-public class InvitationService {
+public class MockInvitationService {
     private EventRepository eventRepository;
 
     private ProfileRepository profileRepository;
 
-    private PushNotificationService notificationService;
+    private MockNotificationService notificationService;
 
     /**
      * This is a constructor of InvitationService with the given Profile Repository
      * @param profileRepository: the repository used to manage the profiles
      */
-    public InvitationService(EventRepository eventRepository, ProfileRepository profileRepository, Context context) {
+    public MockInvitationService(EventRepository eventRepository, ProfileRepository profileRepository, Context context) {
         this.eventRepository = eventRepository;
         this.profileRepository = profileRepository;
-        this.notificationService = new PushNotificationService(context);
+        this.notificationService = new MockNotificationService(context);
     }
 
     /**
