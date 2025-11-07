@@ -68,9 +68,10 @@ public class FirebaseEventRepository implements EventRepository {
                         Long posterResIdLong = doc.getLong("posterResId");
                         int posterResId = posterResIdLong != null ? posterResIdLong.intValue() : 0; //
 
-                        Log.d("Firestore", String.format("Event(%s, %s) fetched", id, name));
+                        List<String> waitingList = (List<String>) doc.get("waitingList");
+                        if (waitingList == null) waitingList = new ArrayList<>();
 
-                        events.add(new Event(
+                        Event event = new Event(
                                 id,
                                 name,
                                 organizerName,
@@ -81,7 +82,11 @@ public class FirebaseEventRepository implements EventRepository {
                                 status,
                                 posterResId,
                                 description
-                        ));
+                        );
+                        event.setWaitingList(waitingList);
+                        events.add(event);
+                        Log.d("Firestore", String.format("Event(%s, %s) fetched", id, name));
+
                     }
                     eventsLiveData.setValue(new ArrayList<>(events));
                 }
