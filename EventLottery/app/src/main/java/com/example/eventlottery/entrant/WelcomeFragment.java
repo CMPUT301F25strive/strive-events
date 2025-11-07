@@ -21,6 +21,10 @@ import com.example.eventlottery.data.RepositoryProvider;
 import com.example.eventlottery.model.Profile;
 import com.google.android.material.snackbar.Snackbar;
 
+/**
+ * This is the Javacode for the welcome page. If user's deviced ID is in database, it will automatically navagiate to main page.
+ */
+
 public class WelcomeFragment extends Fragment {
 
     private EditText etName, etPhone, etEmail;

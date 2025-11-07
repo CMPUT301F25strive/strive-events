@@ -24,6 +24,10 @@ import com.example.eventlottery.model.Profile;
 import com.example.eventlottery.viewmodel.ProfileViewModel;
 import com.example.eventlottery.viewmodel.ProfileViewModelFactory;
 
+/**
+ * This is the Java code for the activity of Profile page.
+ */
+
 public class ProfileFragment extends Fragment {
 
     private FragmentProfileBinding binding;
@@ -118,6 +122,11 @@ public class ProfileFragment extends Fragment {
                 NavHostFragment.findNavController(this)
                         .navigate(R.id.action_profileFragment_to_profileGuidelinesFragment)
         );
+
+        // Guidance page
+        //binding.menuGuidelines.setOnClickListener(v ->
+                //
+           //      );
 
         // Bottom navigation
         setupBottomNav();

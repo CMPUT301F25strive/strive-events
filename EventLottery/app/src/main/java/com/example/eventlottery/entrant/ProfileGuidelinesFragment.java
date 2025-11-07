@@ -12,6 +12,10 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.eventlottery.databinding.FragmentProfileGuidelinesBinding;
 
+/**
+ * This is the JavaCode for activity of App user Guidelines
+ */
+
 public class ProfileGuidelinesFragment extends Fragment {
 
     private FragmentProfileGuidelinesBinding binding;

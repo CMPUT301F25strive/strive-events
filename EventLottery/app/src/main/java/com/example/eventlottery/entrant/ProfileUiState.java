@@ -3,6 +3,10 @@ package com.example.eventlottery.entrant;
 import androidx.annotation.NonNull;
 import com.example.eventlottery.model.Profile;
 
+/**
+ * This is the JavaCode indicating the state of a profile. The state encapsulates the relevant flags for a profile such as loading, deleting, error messages etc.
+ */
+
 public class ProfileUiState {
     private final boolean loading;
     private final Profile profile;

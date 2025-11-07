@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -22,6 +21,10 @@ import com.example.eventlottery.viewmodel.ProfileViewModel;
 import com.example.eventlottery.viewmodel.ProfileViewModelFactory;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.textfield.TextInputEditText;
+
+/**
+ * This is the JavaCode for activity of Edit profile
+ */
 
 public class ProfileEditFragment extends Fragment {
 
@@ -50,6 +53,7 @@ public class ProfileEditFragment extends Fragment {
                               @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+
         ProfileRepository repo = RepositoryProvider.getProfileRepository();
         ProfileViewModelFactory factory = new ProfileViewModelFactory(repo);
         viewModel = new ViewModelProvider(requireActivity(), factory).get(ProfileViewModel.class);
@@ -72,7 +76,8 @@ public class ProfileEditFragment extends Fragment {
         });
 
         // Toolbar navigation
-        toolbar.setNavigationOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack()
+        toolbar.setNavigationOnClickListener(
+                v -> NavHostFragment.findNavController(this).popBackStack()
         );
 
         buttonSave.setOnClickListener(v -> {
@@ -99,7 +104,7 @@ public class ProfileEditFragment extends Fragment {
             editTextEmail.setError(null);
 
             viewModel.updateProfile(name, email, phone);
-            
+
             // Show success message and navigate back
             Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show();
             NavHostFragment.findNavController(this).popBackStack();
