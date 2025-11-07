@@ -28,6 +28,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+/**
+ * This class contains all the actions and details of the event detail page.
+ */
+
 public class EventDetailFragment extends Fragment {
 
     public static final String ARG_EVENT = "event";
