@@ -210,16 +210,29 @@ public class Event implements Serializable {
         return waitingList.contains(deviceId);
     }
 
+    /**
+     * Adds the entrant to the attendee roster once they successfully claim a spot.
+     *
+     * @param deviceId device identifier for the entrant
+     */
     public void joinAttendeesList(String deviceId) {
         if (!attendeesList.contains(deviceId)) {
             attendeesList.add(deviceId);
         }
     }
 
+    /**
+     * Removes an entrant from the attendee roster when they decline or leave.
+     *
+     * @param deviceId device identifier for the entrant
+     */
     public void leaveAttendeesList(String deviceId) {
         attendeesList.remove(deviceId);
     }
 
+    /**
+     * @return total confirmed attendees currently recorded for the event
+     */
     public int getAttendeesListSize() {
         return attendeesList.size();
     }

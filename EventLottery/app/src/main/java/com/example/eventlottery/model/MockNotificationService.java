@@ -7,7 +7,7 @@ import android.content.Context;
 public class MockNotificationService {
     /**
      * Constructor for the MockNotificationService
-     * @param context
+     * @param context unused but kept here to mirror the production implementation signature
      */
     public MockNotificationService(Context context) {}
 
