@@ -44,12 +44,15 @@ public class WelcomeFragment extends Fragment {
 
         etName = view.findViewById(R.id.etName);
         etPhone = view.findViewById(R.id.etPhone);
-        etEmail = view.findViewById(R.id.etEmail); // Add email EditText in XML
+        etEmail = view.findViewById(R.id.etEmail);
         btnMainAction = view.findViewById(R.id.btnMainAction);
         tvSwitchMode = view.findViewById(R.id.tvSwitchMode);
         progressBar = view.findViewById(R.id.progressBar);
 
         profileRepo = RepositoryProvider.getProfileRepository();
+
+        // Start in login mode by default
+        setModeUI(isLoginMode);
 
         // ===== Auto-login by deviceID =====
         String deviceID = getDeviceId();
@@ -57,45 +60,43 @@ public class WelcomeFragment extends Fragment {
         profileRepo.findUserById(deviceID, new ProfileRepository.ProfileCallback() {
             @Override
             public void onSuccess(Profile profile) {
-                // DeviceID exists → auto-login
                 progressBar.setVisibility(View.GONE);
                 handleAdminEntry(view, profile);
             }
 
             @Override
-            public void onDeleted() { }
+            public void onDeleted() {
+                progressBar.setVisibility(View.GONE);
+            }
 
             @Override
             public void onError(String message) {
-                // User not found → stay in login/register screen
                 progressBar.setVisibility(View.GONE);
+                // stay in login/register screen
             }
         });
 
-        // Main action button
+        // Main button action
         btnMainAction.setOnClickListener(v -> {
             progressBar.setVisibility(View.VISIBLE);
-            String phone = etPhone.getText().toString().trim();
+            String deviceID1 = getDeviceId();
             String name = etName.getText().toString().trim();
-            String email = etEmail.getText().toString().trim(); // Get email input
-
-            if (!isLoginMode && email.isEmpty()) {
-                progressBar.setVisibility(View.GONE);
-                Toast.makeText(getContext(), "Enter your email", Toast.LENGTH_SHORT).show();
-                return;
-            }
+            String phone = etPhone.getText().toString().trim();
+            String email = etEmail.getText().toString().trim();
 
             if (isLoginMode) {
-                profileRepo.findUserById(deviceID, new ProfileRepository.ProfileCallback() {
+                // Login mode
+                profileRepo.findUserById(deviceID1, new ProfileRepository.ProfileCallback() {
                     @Override
                     public void onSuccess(Profile profile) {
                         progressBar.setVisibility(View.GONE);
-                        // DeviceID exists → login successful
                         handleAdminEntry(view, profile);
                     }
 
                     @Override
-                    public void onDeleted() { }
+                    public void onDeleted() {
+                        progressBar.setVisibility(View.GONE);
+                    }
 
                     @Override
                     public void onError(String message) {
@@ -104,13 +105,14 @@ public class WelcomeFragment extends Fragment {
                     }
                 });
             } else {
-                if (name.isEmpty()) {
+                // Register mode
+                if (name.isEmpty() || email.isEmpty()) {
                     progressBar.setVisibility(View.GONE);
-                    Toast.makeText(getContext(), "Enter full name", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                Profile newProfile = new Profile(deviceID, name, email, phone); // Pass email here
+                Profile newProfile = new Profile(deviceID1, name, email, phone);
                 profileRepo.saveUser(newProfile, new ProfileRepository.ProfileCallback() {
                     @Override
                     public void onSuccess(Profile profile) {
@@ -120,7 +122,9 @@ public class WelcomeFragment extends Fragment {
                     }
 
                     @Override
-                    public void onDeleted() { }
+                    public void onDeleted() {
+                        progressBar.setVisibility(View.GONE);
+                    }
 
                     @Override
                     public void onError(String message) {
@@ -131,25 +135,29 @@ public class WelcomeFragment extends Fragment {
             }
         });
 
-        // Toggle login/register mode
-        tvSwitchMode.setOnClickListener(v -> toggleMode());
+        // Toggle mode on text click
+        tvSwitchMode.setOnClickListener(v -> {
+            isLoginMode = !isLoginMode;
+            setModeUI(isLoginMode);
+        });
     }
 
-    private void toggleMode() {
-        if (isLoginMode) {
-            isLoginMode = false;
-            etPhone.setVisibility(View.VISIBLE);
-            etName.setVisibility(View.VISIBLE);
-            etEmail.setVisibility(View.VISIBLE); // show email in register mode
-            btnMainAction.setText("Register");
-            tvSwitchMode.setText("Already a user? Login");
-        } else {
-            isLoginMode = true;
-            etPhone.setVisibility(View.GONE);
+    /**
+     * Updates UI visibility/text based on the current mode.
+     */
+    private void setModeUI(boolean loginMode) {
+        if (loginMode) {
             etName.setVisibility(View.GONE);
-            etEmail.setVisibility(View.GONE); // hide email in login mode
+            etPhone.setVisibility(View.GONE);
+            etEmail.setVisibility(View.GONE);
             btnMainAction.setText("Login");
             tvSwitchMode.setText("Not a user? Register");
+        } else {
+            etName.setVisibility(View.VISIBLE);
+            etPhone.setVisibility(View.VISIBLE);
+            etEmail.setVisibility(View.VISIBLE);
+            btnMainAction.setText("Register");
+            tvSwitchMode.setText("Already a user? Login");
         }
     }
 

@@ -67,5 +67,19 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:visibility="gone" />
+
+        <!-- Switch mode (Login/Register) -->
+        <TextView
+            android:id="@+id/tvSwitchMode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Already have an account? Log in"
+            android:textColor="@android:color/holo_blue_dark"
+            android:textSize="16sp"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:layout_gravity="center_horizontal"
+            android:visibility="visible" />
+
     </LinearLayout>
 </ScrollView>

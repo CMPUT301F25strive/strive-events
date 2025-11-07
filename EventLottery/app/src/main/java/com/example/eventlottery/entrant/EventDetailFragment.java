@@ -28,10 +28,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-/**
- * Fragment that shows details for a single event.
- * Handles joining/leaving waiting lists and admin deletion.
- */
 public class EventDetailFragment extends Fragment {
 
     public static final String ARG_EVENT = "event";
@@ -67,9 +63,8 @@ public class EventDetailFragment extends Fragment {
         profileRepository = RepositoryProvider.getProfileRepository();
 
         binding.eventDetailToolbar.setNavigationOnClickListener(v ->
-                NavHostFragment.findNavController(this).popBackStack());
+                NavHostFragment.findNavController(EventDetailFragment.this).popBackStack());
 
-        // Load event from savedInstanceState or arguments
         Event event = null;
         if (savedInstanceState != null) {
             event = (Event) savedInstanceState.getSerializable(ARG_EVENT);
@@ -171,43 +166,24 @@ public class EventDetailFragment extends Fragment {
         }
     }
 
-    /**
-     * Configures the join/leave waiting list button
-     */
     private void setupButton(@NonNull Event event, String userID) {
+        // Check if user is already on waitlist
         boolean isOnWaitlist = event.isOnWaitingList(userID);
 
         if (isOnWaitlist) {
             binding.joinEventButton.setText(R.string.leave_waiting_list);
             binding.joinEventButton.setOnClickListener(v -> {
-                try {
-                    event.leaveWaitingList(userID);
-                    eventRepository.updateWaitingList(event.getId(), event.getWaitingList());
-                    Toast.makeText(requireContext(), "Left waiting list", Toast.LENGTH_SHORT).show();
-                    // Update UI
-                    setupButton(event, userID);
-                    binding.eventDetailSpots.setText(getString(R.string.event_detail_spots_format, Math.max(event.getSpotsRemaining(), 0)));
-                } catch (Exception e) {
-                    Toast.makeText(requireContext(), "Failed to leave waiting list", Toast.LENGTH_SHORT).show();
-                }
+                waitingListController.leaveWaitingList(event.getId(), userID);
+                Toast.makeText(requireContext(), "Left waiting list", Toast.LENGTH_SHORT).show();
             });
         } else {
             binding.joinEventButton.setText(R.string.join_waiting_list);
             binding.joinEventButton.setOnClickListener(v -> {
-                try {
-                    event.joinWaitingList(userID);
-                    eventRepository.updateWaitingList(event.getId(), event.getWaitingList());
-                    Toast.makeText(requireContext(), "Joined waiting list", Toast.LENGTH_SHORT).show();
-                    // Update UI
-                    setupButton(event, userID);
-                    binding.eventDetailSpots.setText(getString(R.string.event_detail_spots_format, Math.max(event.getSpotsRemaining(), 0)));
-                } catch (Exception e) {
-                    Toast.makeText(requireContext(), "Failed to join waiting list", Toast.LENGTH_SHORT).show();
-                }
+                waitingListController.joinWaitingList(event.getId(), userID);
+                Toast.makeText(requireContext(), "Joined waiting list", Toast.LENGTH_SHORT).show();
             });
         }
     }
-
 
     private void determineAdminStatus() {
         isAdmin = AdminGate.isAdmin(requireContext());

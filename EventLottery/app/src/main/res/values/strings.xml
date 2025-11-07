@@ -22,6 +22,7 @@
     <string name="profile_picture">Profile picture</string>
     <string name="event_detail_description_placeholder">No description provided yet.</string>
     <string name="profile_menu_guidelines">Lottery Guidelines</string>
+    <string name="event_detail_spots_placeholder">Spots remaining: --</string>
     <string name="profile_menu_admin_entrants">Entrants</string>
     <string name="admin_banner_label">Admin Dashboard</string>
     <string name="admin_welcome_snackbar">Admin access granted</string>
