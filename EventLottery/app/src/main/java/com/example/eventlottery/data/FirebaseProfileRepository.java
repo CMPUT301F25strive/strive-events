@@ -44,8 +44,12 @@ public class FirebaseProfileRepository implements ProfileRepository {
                         String name = doc.getString("name");
                         String email = doc.getString("email");
                         String phone = doc.getString("phone");
-                        
-                        if (users != null) { users.add(new Profile(userID, name, email, phone)); }
+                        String roleString = doc.getString("role");
+                        Profile.Role role = parseRole(roleString);
+
+                        if (users != null) {
+                            users.add(new Profile(userID, name, email, phone, role));
+                        }
                     }
                 }
             }
@@ -97,6 +101,7 @@ public class FirebaseProfileRepository implements ProfileRepository {
         data.put("name", profile.getName());
         data.put("email", profile.getEmail());
         data.put("phone", profile.getPhone());
+        data.put("role", profile.getRole().name());
 
         usersRef.document(profile.getDeviceID())
             .set(data)
@@ -123,5 +128,16 @@ public class FirebaseProfileRepository implements ProfileRepository {
             }
         }
         return result;
+    }
+
+    private Profile.Role parseRole(String roleString) {
+        if (roleString == null) {
+            return Profile.Role.USER;
+        }
+        try {
+            return Profile.Role.valueOf(roleString.toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            return Profile.Role.USER;
+        }
     }
 }

@@ -175,6 +175,21 @@
                 android:textColor="?attr/colorOnSurfaceVariant"
                 tools:text="Bring your swimsuit and positive vibes for a relaxed community challenge." />
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/adminDeleteButton"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/delete_event"
+                android:textColor="@color/error"
+                android:visibility="gone"
+                app:icon="@drawable/ic_delete_24"
+                app:iconGravity="textStart"
+                app:iconPadding="4dp"
+                app:iconTint="@color/error"
+                app:rippleColor="@color/error" />
+
         </LinearLayout>
     </ScrollView>
 
