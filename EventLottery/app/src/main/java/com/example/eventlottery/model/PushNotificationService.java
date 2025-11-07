@@ -19,11 +19,19 @@ public class PushNotificationService {
     private static final String CHANNEL_ID = "event_channel_id";
     private static final int NOTIFICATION_ID = 1;
 
+
+    /**
+     * PushNotificationService constructor
+     * @param context
+     */
     public PushNotificationService(Context context) {
         this.context = context;
         createNotificationChannel();
     }
 
+    /**
+     * creates a channel for the notifications
+     */
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = "Event Notifications";
@@ -38,6 +46,11 @@ public class PushNotificationService {
         }
     }
 
+    /**
+     * creates a channel for the notifications
+     * @param title : title for the notification
+     * @param message : message for the notification
+     */
     public void sendNotification(String title, String message) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_notification)
