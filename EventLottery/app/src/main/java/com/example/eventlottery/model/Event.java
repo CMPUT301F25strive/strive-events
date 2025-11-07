@@ -33,6 +33,7 @@ public class Event implements Serializable {
     private final int spotsRemaining;
     private final Status status;
     private List<String> waitingList;
+    private List<String> attendeesList;
     @DrawableRes
     private final int posterResId;
     @Nullable
@@ -74,6 +75,7 @@ public class Event implements Serializable {
         this.posterResId = posterResId;
         this.description = description;
         this.waitingList = new ArrayList<>();
+        this.attendeesList = new ArrayList<>();
     }
 
     /**
@@ -205,7 +207,21 @@ public class Event implements Serializable {
      * @return boolean returns true if user is on the waiting list, false otherwise
      */
     public boolean isOnWaitingList(String deviceId) {
-        return waitingList.contains(deviceId);
+        return attendeesList.contains(deviceId);
+    }
+
+    public void joinAttendeesList(String deviceId) {
+        if (!attendeesList.contains(deviceId)) {
+            attendeesList.add(deviceId);
+        }
+    }
+
+    public void leaveAttendeesList(String deviceId) {
+        attendeesList.remove(deviceId);
+    }
+
+    public int getAttendeesListSize() {
+        return attendeesList.size();
     }
 
     @Override

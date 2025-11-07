@@ -55,7 +55,6 @@ public class MockProfileRepository implements ProfileRepository {
     @Override
     public void saveUser(Profile profile) {
         users.add(profile);
-        notifyProfilesChanged();
     }
 
     /**
@@ -65,7 +64,6 @@ public class MockProfileRepository implements ProfileRepository {
     @Override
     public void deleteUser(String id) {
         users.removeIf(profile -> id.equals(profile.getDeviceID()));
-        notifyProfilesChanged();
     }
 
     /**
@@ -87,9 +85,5 @@ public class MockProfileRepository implements ProfileRepository {
     @Override
     public LiveData<List<Profile>> observeProfiles() {
         return profilesLiveData;
-    }
-
-    private void notifyProfilesChanged() {
-        profilesLiveData.setValue(new ArrayList<>(users));
-    }
+    };
 }

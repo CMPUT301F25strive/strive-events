@@ -13,6 +13,10 @@ public final class RepositoryProvider {
     private RepositoryProvider() {
     }
 
+    /**
+     * Gets the EventRepository
+     * @return eventRepository
+     */
     @NonNull
     public static synchronized EventRepository getEventRepository() {
         if (eventRepository == null) {
@@ -22,6 +26,10 @@ public final class RepositoryProvider {
         return eventRepository;
     }
 
+    /**
+     * Gets the ProfileRepository
+     * @return profileRepository
+     */
     @NonNull
     public static synchronized ProfileRepository getProfileRepository() {
         if (profileRepository == null) {

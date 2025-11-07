@@ -59,6 +59,6 @@ public class ProfileRepositoryTest {
     @Test
     public void testFindUserByRole() {
         List<Profile> profiles = mockProfileRepo().findUsersByRole(Profile.Role.USER);
-        assertTrue("empty list", profiles.isEmpty());
+        assertEquals(1, profiles.size());
     }
 }

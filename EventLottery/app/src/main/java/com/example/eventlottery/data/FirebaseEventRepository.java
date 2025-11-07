@@ -32,6 +32,10 @@ public class FirebaseEventRepository implements EventRepository {
     private CollectionReference eventsRef;
     private final MutableLiveData<List<Event>> eventsLiveData = new MutableLiveData<>();
 
+
+    /**
+     * FirebaseEventRepository constructor
+     */
     public FirebaseEventRepository() {
         db = FirebaseFirestore.getInstance();
         eventsRef = db.collection("events");
@@ -94,6 +98,11 @@ public class FirebaseEventRepository implements EventRepository {
         });
     }
 
+    /**
+     * Gets an event from its unique event ID.
+     * @param eventID : unique ID of the event
+     * @return the Event whose ID corresponds to the given event ID
+     */
     @Override
     public Event findEventById(String eventID) {
         Log.d("EventRepository", "Searching for eventID: " + eventID);
@@ -108,12 +117,18 @@ public class FirebaseEventRepository implements EventRepository {
         return null;
     }
 
+    /**
+     * @return eventsLiveData
+     */
     @NonNull
     @Override
     public LiveData<List<Event>> observeEvents() {
         return eventsLiveData;
     }
 
+    /**
+     * trigger background refresh using the current data source.
+     */
     @Override
     public void refresh() {}    //
 
@@ -168,6 +183,11 @@ public class FirebaseEventRepository implements EventRepository {
         throw new IllegalArgumentException();
 
     }
+    /**
+     * This method gets the event list from an EventID
+     * @return Event: the event with the corresponding eventID
+     * @throws IllegalArgumentException: if no event is associated with that ID exists
+     */
     public Event getEvent(String eventID) {
         for (int i = 0; i < events.size(); i++) {
             if (Objects.equals(eventID, events.get(i).getId())) {
@@ -179,6 +199,7 @@ public class FirebaseEventRepository implements EventRepository {
 
     /**
      * This method removes an Event from the list using the event's ID if it exists in the list
+     * @param eventID : ID of the event to be deleted
      */
     public void deleteEvent(int eventID) {
         for (int i = 0; i < events.size(); i++) {
@@ -193,6 +214,11 @@ public class FirebaseEventRepository implements EventRepository {
         }
     }
     // Overload
+
+    /**
+     * This method removes an Event from the list using the event's ID if it exists in the list
+     * @param eventID : ID of the event to be deleted
+     */
     @Override
     public void deleteEvent(String eventID) {
         for (int i = 0; i < events.size(); i++) {
@@ -213,6 +239,12 @@ public class FirebaseEventRepository implements EventRepository {
         return events.size();
     }
 
+
+    /**
+     * This method updates an event's waiting list
+     * @param eventId : ID of the event whose waiting needs to be updated
+     * @param waitingList : The waiting list of the event
+     */
     @Override
     public void updateWaitingList(String eventId, List<String> waitingList) {
         Map<String, Object> updateData = new HashMap<>();
