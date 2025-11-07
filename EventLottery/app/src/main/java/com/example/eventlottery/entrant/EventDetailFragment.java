@@ -52,12 +52,12 @@ public class EventDetailFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Get the current device ID
+        // Probably we should get the device ID from DeviceIdentityService class
+        // Get device ID
         currentUserDeviceId = Settings.Secure.getString(requireContext().getContentResolver(), Settings.Secure.ANDROID_ID);
-        // Get repository
+        // Get event repository
         eventRepository = RepositoryProvider.getEventRepository();
 
-        // Setup toolbar back button
         binding.eventDetailToolbar.setNavigationOnClickListener(v ->
                 NavHostFragment.findNavController(this).popBackStack());
 
@@ -74,18 +74,26 @@ public class EventDetailFragment extends Fragment {
             return;
         }
 
-        currentEvent = event;
-        // Configure admin delete button
-        configAdminButton();
-
-        // Fetch latest event from repository
+        // Get the latest event
         Event latestEvent = eventRepository.findEventById(event.getId());
         if (latestEvent != null) {
             event = latestEvent;
         }
-
-        // Bind event details to UI
+    
         bindEvent(event);
+
+        final String eventId = event.getId();
+        eventRepository.observeEvents().observe(getViewLifecycleOwner(), events -> {
+            Event updated = eventRepository.findEventById(eventId);
+            if (updated != null) {
+                bindEvent(updated);
+                setupActionButtons(updated, currentUserDeviceId);
+            }
+        });
+        waitingListController = new WaitingListController(
+                RepositoryProvider.getEventRepository(),
+                RepositoryProvider.getProfileRepository()  // if you have this
+        );
         setupActionButtons(event, currentUserDeviceId);
     }
 
@@ -111,48 +119,15 @@ public class EventDetailFragment extends Fragment {
         }
     }
 
-    /**
-     * Shows admin delete button if user is admin.
-     */
-    private void configAdminButton() {
-        if (!isAdmin || binding == null) {
-            binding.adminDeleteButton.setVisibility(View.GONE);
-            return;
-        }
-        binding.adminDeleteButton.setVisibility(View.VISIBLE);
-        binding.adminDeleteButton.setOnClickListener(v -> {
-            if (currentEvent == null) return;
-            new MaterialAlertDialogBuilder(requireContext())
-                    .setTitle(R.string.delete_event_confirm_title)
-                    .setMessage(R.string.delete_event_confirm_body)
-                    .setNegativeButton(android.R.string.cancel, null)
-                    .setPositiveButton(R.string.delete_event, (dialog, which) -> performDelete())
-                    .show();
-        });
-    }
-
-    /**
-     * Deletes current event from repository
-     */
-    private void performDelete() {
-        if (currentEvent == null) return;
-        try {
-            eventRepository.deleteEvent(currentEvent.getId());
-            Toast.makeText(requireContext(), R.string.delete_event_success, Toast.LENGTH_SHORT).show();
-            NavHostFragment.findNavController(this).popBackStack();
-        } catch (Exception e) {
-            Toast.makeText(requireContext(), R.string.delete_event_failure, Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    /**
-     * Shows or hides the join/leave button depending on registration status
-     */
     private void setupActionButtons(@NonNull Event event, String userID) {
+        // Only show buttons if registration is open
         if (event.getStatus() == Event.Status.REG_OPEN) {
             binding.buttonContainer.setVisibility(View.VISIBLE);
+
+            // Set up join/leave button
             setupButton(event, userID);
         } else {
+            // Hide entire button container for closed events
             binding.buttonContainer.setVisibility(View.GONE);
         }
     }
@@ -194,11 +169,16 @@ public class EventDetailFragment extends Fragment {
         }
     }
 
+
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (currentEvent != null) {
-            outState.putSerializable(ARG_EVENT, currentEvent);
+        Event event = null;
+        if (getArguments() != null) {
+            event = (Event) getArguments().getSerializable(ARG_EVENT);
+        }
+        if (event != null) {
+            outState.putSerializable(ARG_EVENT, event);
         }
     }
 

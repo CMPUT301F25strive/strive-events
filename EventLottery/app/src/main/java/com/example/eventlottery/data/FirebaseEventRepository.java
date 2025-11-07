@@ -21,8 +21,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class FirebaseEventRepository implements EventRepository {
+import com.example.eventlottery.model.Event;
 
+/**
+ * This class holds our Event objects
+ */
+public class FirebaseEventRepository implements EventRepository {
     private List<Event> events = new ArrayList<>();
     private FirebaseFirestore db;
     private CollectionReference eventsRef;
@@ -31,7 +35,6 @@ public class FirebaseEventRepository implements EventRepository {
     public FirebaseEventRepository() {
         db = FirebaseFirestore.getInstance();
         eventsRef = db.collection("events");
-
         eventsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot querySnapshots, @Nullable FirebaseFirestoreException error) {
@@ -41,8 +44,8 @@ public class FirebaseEventRepository implements EventRepository {
                 }
                 if (querySnapshots != null) {
                     events.clear();
-                    for (QueryDocumentSnapshot doc : querySnapshots) {
-                        String id = doc.getId();
+                    for (QueryDocumentSnapshot doc: querySnapshots) {
+                        String id = doc.getId();    // doc ID should be string
                         String name = doc.getString("name");
                         String description = doc.getString("description");
                         String venue = doc.getString("venue");
@@ -81,11 +84,15 @@ public class FirebaseEventRepository implements EventRepository {
 
     @Override
     public Event findEventById(String eventID) {
+        Log.d("EventRepository", "Searching for eventID: " + eventID);
         for (Event event : events) {
-            if (Objects.equals(eventID, event.getId())) {
+            Log.d("EventRepository", "Checking events: " + event.getId());
+            if (eventID.equals(event.getId())) {
+                Log.d("EventRepository", "Found event: " + event.getTitle());
                 return event;
             }
         }
+        Log.d("EventRepository", "Event not found");
         return null;
     }
 
@@ -96,28 +103,113 @@ public class FirebaseEventRepository implements EventRepository {
     }
 
     @Override
-    public void refresh() {}
+    public void refresh() {}    //
 
-    @Override
-    public void updateWaitingList(@NonNull String eventId, @NonNull List<String> waitingList) {
-        Map<String, Object> updateData = new HashMap<>();
-        updateData.put("waitingList", waitingList);
-
-        eventsRef.document(eventId)
-                .update(updateData)
-                .addOnSuccessListener(aVoid -> Log.d("Firestore", "Waiting list updated for event: " + eventId))
-                .addOnFailureListener(e -> Log.e("Firestore", "Error updating waiting list", e));
+    /**
+     * This method adds an Event type object to the events list
+     * @param e: the object to add
+     */
+    public void add(Event e) {
+        events.add(e);
+        db = FirebaseFirestore.getInstance();
+        eventsRef = db.collection("events");
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("eventID", e.getId());
+        data.put("name", e.getTitle());
+        data.put("description", e.getDescription());
+        data.put("venue", e.getVenue());
+        data.put("capacity", e.getCapacity());
+        data.put("organizerName", e.getOrganizerName());
+        data.put("startTimeMillis", e.getStartTimeMillis());
+        data.put("spotsRemaining", e.getSpotsRemaining());
+        data.put("status", e.getStatus().name());
+        data.put("posterResId", e.getPosterResId());
+        data.put("waitingList", e.getWaitingList());
+        data.put("waitingListSize", e.getWaitingListSize());
+        //data.put("organizerID", e.getOrganizerID());
+        //data.put("posterID", e.getPosterID());
+        //data.put("geoRequired", e.getGeoRequired());
+        eventsRef.document(e.getId()).set(data);
     }
 
-    @Override
-    public void deleteEvent(@NonNull String eventID) {
+    /**
+     * This method gets the event list
+     * @return list: the list of events to be returned
+     */
+    public List<Event> getEvents() {
+        List<Event> list = events;
+        return list;
+    }
+
+    // We can overload before confirming the type of id
+    /**
+     * This method gets the event list from an EventID
+     * @return Event: the event with the corresponding eventID
+     * @throws IllegalArgumentException: if no event is associated with that ID exists
+     */
+    public Event getEvent(int eventID) {
+        for (int i = 0; i < events.size(); i++) {
+            if (String.valueOf(eventID).equals(events.get(i).getId())) {
+                return events.get(i);
+            }
+        }
+        throw new IllegalArgumentException();
+
+    }
+    public Event getEvent(String eventID) {
         for (int i = 0; i < events.size(); i++) {
             if (Objects.equals(eventID, events.get(i).getId())) {
-                events.remove(i);
+                return events.get(i);
+            }
+        }
+        throw new IllegalArgumentException();
+    }
+
+    /**
+     * This method removes an Event from the list using the event's ID if it exists in the list
+     */
+    public void deleteEvent(int eventID) {
+        for (int i = 0; i < events.size(); i++) {
+            String strID = String.valueOf(eventID);
+            if (strID.equals(events.get(i).getId())) {
+                events.remove(events.get(i));
+
+                eventsRef.document(strID).delete();  // Delete from the Firebase
+                eventsLiveData.setValue(new ArrayList<>(events));   // Update UI
+                break;
+            }
+        }
+    }
+    // Overload
+    public void deleteEvent(String eventID) {
+        for (int i = 0; i < events.size(); i++) {
+            if (Objects.equals(eventID, events.get(i).getId())) {
+                events.remove(events.get(i));
                 eventsRef.document(eventID).delete();
                 eventsLiveData.setValue(new ArrayList<>(events));
                 break;
             }
         }
     }
-}
+
+    /**
+     * This counts the amount of events in the list
+     * @return int: the number of events in the list
+     */
+    public int getSize() {
+        return events.size();
+    }
+
+    @Override
+    public void updateWaitingList(String eventId, List<String> waitingList) {
+        Map<String, Object> updateData = new HashMap<>();
+        updateData.put("waitingList", waitingList);
+
+        eventsRef.document(eventId)
+                .update(updateData)
+                .addOnSuccessListener(aVoid ->
+                        Log.d("Firestore", "Waiting list updated for event: " + eventId))
+                .addOnFailureListener(e ->
+                        Log.e("Firestore", "Error updating waiting list", e));
+    }
+
