@@ -59,6 +59,10 @@
         <action
             android:id="@+id/action_profileFragment_to_profileGuidelinesFragment"
             app:destination="@id/profileGuidelinesFragment" />
+
+        <action
+            android:id="@+id/action_profileFragment_to_adminEntrantsFragment"
+            app:destination="@id/adminEntrantsFragment" />
     </fragment>
 
     <!-- Edit Profile Fragment -->
@@ -82,4 +86,21 @@
         android:name="com.example.eventlottery.entrant.ProfileGuidelinesFragment"
         android:label="Lottery Guidelines"
         tools:layout="@layout/fragment_profile_guidelines" />
+
+    <fragment
+        android:id="@+id/adminEntrantsFragment"
+        android:name="com.example.eventlottery.admin.AdminEntrantsFragment"
+        android:label="@string/admin_entrants_title"
+        tools:layout="@layout/fragment_admin_entrants">
+
+        <action
+            android:id="@+id/action_adminEntrantsFragment_to_adminEditProfileFragment"
+            app:destination="@id/adminEditProfileFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/adminEditProfileFragment"
+        android:name="com.example.eventlottery.admin.AdminEditProfileFragment"
+        android:label="@string/admin_profile_edit_title"
+        tools:layout="@layout/fragment_edit_profile" />
 </navigation>

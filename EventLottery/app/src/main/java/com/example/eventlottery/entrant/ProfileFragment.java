@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -72,6 +71,9 @@ public class ProfileFragment extends Fragment {
                 binding.profileName.setText(profile.getName());
                 binding.profileEmail.setText(profile.getEmail());
                 binding.profilePhone.setText(profile.getPhone());
+                binding.menuAdminEntrants.setVisibility(profile.isAdmin() ? View.VISIBLE : View.GONE);
+            } else {
+                binding.menuAdminEntrants.setVisibility(View.GONE);
             }
 
             // Other potential errors
@@ -79,6 +81,11 @@ public class ProfileFragment extends Fragment {
                 Toast.makeText(requireContext(), state.getErrorMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+
+        binding.menuAdminEntrants.setOnClickListener(v ->
+                NavHostFragment.findNavController(this)
+                        .navigate(R.id.action_profileFragment_to_adminEntrantsFragment)
+        );
 
         // Edit Profile button
         binding.buttonEditProfile.setOnClickListener(v ->

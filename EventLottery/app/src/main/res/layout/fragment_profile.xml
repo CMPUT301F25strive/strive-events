@@ -157,6 +157,17 @@
                 android:background="?android:attr/selectableItemBackground"/>
 
             <TextView
+                android:id="@+id/menuAdminEntrants"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/profile_menu_admin_entrants"
+                android:padding="12dp"
+                android:textSize="16sp"
+                android:textColor="@color/black"
+                android:background="?android:attr/selectableItemBackground"
+                android:visibility="gone"/>
+
+            <TextView
                 android:id="@+id/menuDeleteAccount"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

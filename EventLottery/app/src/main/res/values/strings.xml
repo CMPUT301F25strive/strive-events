@@ -22,6 +22,7 @@
     <string name="profile_picture">Profile picture</string>
     <string name="event_detail_description_placeholder">No description provided yet.</string>
     <string name="profile_menu_guidelines">Lottery Guidelines</string>
+    <string name="profile_menu_admin_entrants">Entrants</string>
     <string name="guidelines_title">Lottery Guidelines</string>
     <string name="guidelines_body">Lottery slots are distributed as fairly as possible:\n\n- Sign up for a waiting list during the entry window. ONE entry per event. \n- When the window closes, the system randomly selects the available spots. \n- Winners will be notified and must confirm. If someone declines or times out, the system draws again. </string>
     <string name="guidelines_back_content_description">Go back to profile</string>
@@ -34,4 +35,18 @@
     <string name="delete_event_failure">Failed to delete event</string>
     <string name="event_detail_waiting_list_count_format">On waitlist: %1$d</string>
     <string name="event_waiting_list_content_description">Number of entrants on waiting list</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="admin_entrants_title">Entrants</string>
+    <string name="admin_entrants_empty">No entrants available yet.</string>
+    <string name="admin_profile_actions_title">Choose an action</string>
+    <string name="admin_profile_actions_edit">Edit info</string>
+    <string name="admin_profile_actions_delete">Delete profile</string>
+    <string name="admin_profile_delete_confirm_title">Delete this profile?</string>
+    <string name="admin_profile_delete_confirm_body">This will remove the entrant and all of their information.</string>
+    <string name="admin_profile_delete_success">Profile deleted</string>
+    <string name="admin_profile_delete_error">Failed to delete profile</string>
+    <string name="admin_profile_edit_title">Edit Entrant</string>
+    <string name="admin_profile_edit_success">Profile updated</string>
+    <string name="admin_profile_edit_error">Failed to update profile</string>
+    <string name="admin_entrant_role_format">Role: %1$s</string>
 </resources>
