@@ -19,7 +19,7 @@ import androidx.navigation.Navigation;
 import com.example.eventlottery.data.ProfileRepository;
 import com.example.eventlottery.data.RepositoryProvider;
 import com.example.eventlottery.model.Profile;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.snackbar.Snackbar;
 
 public class WelcomeFragment extends Fragment {
 
@@ -160,16 +160,9 @@ public class WelcomeFragment extends Fragment {
     private void handleAdminEntry(@NonNull View view, @Nullable Profile profile) {
         boolean isAdmin = profile != null && profile.isAdmin();
         if (isAdmin) {
-            new MaterialAlertDialogBuilder(requireContext())
-                    .setTitle(R.string.admin_welcome_title)
-                    .setMessage(R.string.admin_welcome_message)
-                    .setCancelable(false)
-                    .setPositiveButton(R.string.admin_welcome_continue, (dialog, which) ->
-                            navigateToDashboard(view))
-                    .show();
-        } else {
-            navigateToDashboard(view);
+            Snackbar.make(view, R.string.admin_welcome_snackbar, Snackbar.LENGTH_LONG).show();
         }
+        navigateToDashboard(view);
     }
 
     private void navigateToDashboard(@NonNull View view) {

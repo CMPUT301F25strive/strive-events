@@ -75,6 +75,7 @@
                 android:paddingEnd="16dp"
                 android:paddingTop="6dp"
                 android:paddingBottom="6dp"
+                android:layout_marginBottom="8dp"
                 android:text="@string/admin_banner_label"
                 android:textColor="@android:color/holo_red_dark"
                 android:textStyle="bold"
@@ -136,6 +137,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="12dp"
+                android:layout_marginTop="12dp"
                 android:background="?android:attr/selectableItemBackground">
 
                 <TextView
@@ -165,6 +167,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/profile_menu_guidelines"
+                android:layout_marginTop="8dp"
                 android:padding="12dp"
                 android:textSize="16sp"
                 android:textColor="@color/black"
@@ -174,11 +177,12 @@
                 android:id="@+id/menuAdminEntrants"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/profile_menu_admin_entrants"
-                android:padding="12dp"
-                android:textSize="16sp"
                 android:textColor="@color/black"
+                android:textSize="16sp"
+                android:padding="12dp"
                 android:background="?android:attr/selectableItemBackground"
+                android:text="@string/profile_menu_admin_entrants"
+                android:layout_marginTop="8dp"
                 android:visibility="gone"/>
 
             <TextView
@@ -190,7 +194,7 @@
                 android:textSize="16sp"
                 android:padding="12dp"
                 android:background="?android:attr/selectableItemBackground"
-                android:layout_marginTop="8dp"/>
+                android:layout_marginTop="16dp"/>
         </LinearLayout>
     </ScrollView>
 
