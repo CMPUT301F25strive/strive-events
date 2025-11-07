@@ -15,24 +15,21 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.example.eventlottery.R;
 import com.example.eventlottery.databinding.FragmentEventListBinding;
 import com.example.eventlottery.model.Event;
-import com.example.eventlottery.viewmodel.EntrantEventListViewModel;
-import com.example.eventlottery.viewmodel.EntrantEventListViewModelFactory;
+import com.example.eventlottery.viewmodel.MyEventsViewModel;
+import com.example.eventlottery.viewmodel.MyEventsViewModelFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * entrant home feed showing joinable events.
+ * Shows events the entrant has joined or is on the waiting list for.
  */
-public class EntrantEventListFragment extends Fragment implements EventListAdapter.Listener {
+public class MyEventsFragment extends Fragment implements EventListAdapter.Listener {
 
     private FragmentEventListBinding binding;
-    private EntrantEventListViewModel viewModel;
+    private MyEventsViewModel viewModel;
     private EventListAdapter adapter;
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (binding != null) {
-            binding.bottomNavigation.setSelectedItemId(R.id.nav_home);
-        }
-    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -46,19 +43,15 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
         setupRecycler();
         setupBottomNav();
 
-        viewModel = new ViewModelProvider(this, new EntrantEventListViewModelFactory())
-                .get(EntrantEventListViewModel.class);
+        // Initialize ViewModel with context for device ID
+        viewModel = new ViewModelProvider(this, new MyEventsViewModelFactory(requireContext()))
+                .get(MyEventsViewModel.class);
 
-        binding.eventRefresh.setOnRefreshListener(() -> {
-            binding.errorMessage.setVisibility(View.GONE);
-            viewModel.refresh();
-        });
+        // Pull-to-refresh
+        binding.eventRefresh.setOnRefreshListener(() -> viewModel.refresh());
 
+        // Observe state
         viewModel.getState().observe(getViewLifecycleOwner(), this::renderState);
-
-        binding.filterButton.setOnClickListener(v ->
-                Toast.makeText(requireContext(), R.string.filter_content_description, Toast.LENGTH_SHORT).show()
-        );
     }
 
     private void setupRecycler() {
@@ -66,39 +59,35 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
         binding.eventRecycler.setAdapter(adapter);
         binding.eventRecycler.setHasFixedSize(true);
     }
+
     private void setupBottomNav() {
-        binding.bottomNavigation.setSelectedItemId(R.id.nav_home);
+        binding.bottomNavigation.setSelectedItemId(R.id.nav_my_events);
         binding.bottomNavigation.setOnItemSelectedListener(item -> {
-            if (item.getItemId() == R.id.nav_home) { return true; }
-            else if (item.getItemId() == R.id.nav_profile) {
+            int id = item.getItemId();
+            if (id == R.id.nav_home) {
                 NavHostFragment.findNavController(this)
-                        .navigate(R.id.action_entrantEventListFragment_to_profileFragment);
+                        .navigate(R.id.action_myEventsFragment_to_entrantEventListFragment);
                 return true;
-            } else if (item.getItemId() == R.id.nav_my_events) {
+            } else if (id == R.id.nav_profile) {
                 NavHostFragment.findNavController(this)
-                        .navigate(R.id.action_entrantEventListFragment_to_myEventsFragment);
+                        .navigate(R.id.action_myEventsFragment_to_profileFragment);
                 return true;
-            }
-            return false;
+            } else return id == R.id.nav_my_events;
         });
     }
+
     private void renderState(@NonNull EventListUiState state) {
         binding.loadingIndicator.setVisibility(state.loading ? View.VISIBLE : View.GONE);
         binding.eventRefresh.setRefreshing(false);
-        adapter.submitList(state.events);
+
+        List<Event> myEvents = state.events != null ? state.events : new ArrayList<>();
+        adapter.submitList(myEvents);
 
         if (state.errorMessage != null) {
-            showMessage(state.errorMessage);
-        } else if (state.events.isEmpty()) {
-            showMessage(getString(R.string.no_events_placeholder));
-        } else {
-            binding.errorMessage.setVisibility(View.GONE);
+            Toast.makeText(requireContext(), state.errorMessage, Toast.LENGTH_SHORT).show();
+        } else if (myEvents.isEmpty()) {
+            Toast.makeText(requireContext(), getString(R.string.no_my_events_placeholder), Toast.LENGTH_SHORT).show();
         }
-    }
-
-    private void showMessage(@NonNull String message) {
-        binding.errorMessage.setText(message);
-        binding.errorMessage.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -112,6 +101,6 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
         Bundle args = new Bundle();
         args.putSerializable(EventDetailFragment.ARG_EVENT, event);
         NavHostFragment.findNavController(this)
-                .navigate(R.id.action_entrantEventListFragment_to_eventDetailFragment, args);
+                .navigate(R.id.action_myEventsFragment_to_eventDetailFragment, args);
     }
 }

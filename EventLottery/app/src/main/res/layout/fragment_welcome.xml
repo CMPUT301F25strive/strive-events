@@ -20,15 +20,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
-        <!-- Name input (registration only) -->
+        <!-- Name input -->
         <EditText
             android:id="@+id/etName"
             android:hint="Full Name"
             android:inputType="textPersonName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="16dp"
+            android:visibility="gone" />
 
         <!-- Email input -->
         <EditText
@@ -37,17 +37,18 @@
             android:inputType="textEmailAddress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="16dp"
+            android:visibility="gone" />
 
-        <!-- Phone input (registration only) -->
+        <!-- Phone input -->
         <EditText
             android:id="@+id/etPhone"
             android:hint="Phone (optional)"
             android:inputType="phone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="16dp"
+            android:visibility="gone" />
 
         <!-- Progress bar -->
         <ProgressBar
@@ -61,18 +62,10 @@
         <!-- Main action button -->
         <Button
             android:id="@+id/btnMainAction"
-            android:text="Login"
+            android:text="Register"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Toggle login/register link -->
-        <TextView
-            android:id="@+id/tvSwitchMode"
-            android:text="Not a user? Register"
-            android:textColor="@android:color/holo_blue_dark"
-            android:textSize="16sp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_marginBottom="16dp"
+            android:visibility="gone" />
     </LinearLayout>
 </ScrollView>

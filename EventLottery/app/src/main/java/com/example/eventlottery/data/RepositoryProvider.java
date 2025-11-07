@@ -3,7 +3,7 @@ package com.example.eventlottery.data;
 import androidx.annotation.NonNull;
 
 /**
- * simple locator so we can swap repository implementations later.
+ * Simple locator so we can swap repository implementations later.
  */
 public final class RepositoryProvider {
 
@@ -11,17 +11,25 @@ public final class RepositoryProvider {
     private static ProfileRepository profileRepository;
 
     private RepositoryProvider() {
+        // Prevent instantiation
     }
 
+    /**
+     * @return singleton instance of EventRepository
+     */
     @NonNull
     public static synchronized EventRepository getEventRepository() {
         if (eventRepository == null) {
-            //eventRepository = new FakeEventRepository();
+            // You can switch implementations here
+            // eventRepository = new FakeEventRepository();
             eventRepository = new FirebaseEventRepository();
         }
         return eventRepository;
     }
 
+    /**
+     * @return singleton instance of ProfileRepository
+     */
     @NonNull
     public static synchronized ProfileRepository getProfileRepository() {
         if (profileRepository == null) {

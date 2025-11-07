@@ -10,12 +10,12 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * event domain model shared across entrant and organizer screens.
+ * Event domain model shared across entrant and organizer screens.
  */
 public class Event implements Serializable {
 
     /**
-     * status values for an event registration window.
+     * Status values for an event registration window.
      */
     public enum Status {
         REG_OPEN,
@@ -48,7 +48,8 @@ public class Event implements Serializable {
             int spotsRemaining,
             @NonNull Status status,
             @DrawableRes int posterResId,
-            @Nullable String description
+            @Nullable String description,
+            @Nullable List<String> waitingList
     ) {
         this.id = Objects.requireNonNull(id, "id required");
         this.title = Objects.requireNonNull(title, "title required");
@@ -60,86 +61,37 @@ public class Event implements Serializable {
         this.status = Objects.requireNonNull(status, "status required");
         this.posterResId = posterResId;
         this.description = description;
-        this.waitingList = new ArrayList<>();
+        this.waitingList = waitingList != null ? waitingList : new ArrayList<>();
     }
 
-    /**
-     * @return unique identifier for this event.
-     */
     @NonNull
-    public String getId() {
-        return id;
-    }
+    public String getId() { return id; }
 
-    /**
-     * @return display title.
-     */
     @NonNull
-    public String getTitle() {
-        return title;
-    }
+    public String getTitle() { return title; }
 
-    /**
-     * @return organizer display name.
-     */
     @NonNull
-    public String getOrganizerName() {
-        return organizerName;
-    }
+    public String getOrganizerName() { return organizerName; }
 
-    /**
-     * @return event start timestamp in utc millis.
-     */
-    public long getStartTimeMillis() {
-        return startTimeMillis;
-    }
+    public long getStartTimeMillis() { return startTimeMillis; }
 
-    /**
-     * @return venue description
-     */
     @NonNull
-    public String getVenue() {
-        return venue;
-    }
+    public String getVenue() { return venue; }
 
-    /**
-     * @return total capacity configured by the organizer
-     */
-    public int getCapacity() {
-        return capacity;
-    }
+    public int getCapacity() { return capacity; }
 
-    /**
-     * @return current remaining entries on the waiting list.
-     */
-    public int getSpotsRemaining() {
-        return spotsRemaining;
-    }
+    public int getSpotsRemaining() { return spotsRemaining; }
 
-    /**
-     * @return current registration status.
-     */
     @NonNull
-    public Status getStatus() {
-        return status;
-    }
+    public Status getStatus() { return status; }
 
-    /**
-     * @return drawable resource used as poster placeholder.
-     */
     @DrawableRes
-    public int getPosterResId() {
-        return posterResId;
-    }
+    public int getPosterResId() { return posterResId; }
 
     @Nullable
-    public String getDescription() {
-        return description;
-    }
+    public String getDescription() { return description; }
 
-    public List<String> getWaitingList() {
-        return waitingList;
-    }
+    public List<String> getWaitingList() { return waitingList; }
 
     public void setWaitingList(List<String> waitingList) {
         this.waitingList = waitingList;
@@ -177,11 +129,12 @@ public class Event implements Serializable {
                 && Objects.equals(organizerName, event.organizerName)
                 && Objects.equals(venue, event.venue)
                 && status == event.status
-                && Objects.equals(description, event.description);
+                && Objects.equals(description, event.description)
+                && Objects.equals(waitingList, event.waitingList);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, title, organizerName, startTimeMillis, venue, capacity, spotsRemaining, status, posterResId, description);
+        return Objects.hash(id, title, organizerName, startTimeMillis, venue, capacity, spotsRemaining, status, posterResId, description, waitingList);
     }
 }

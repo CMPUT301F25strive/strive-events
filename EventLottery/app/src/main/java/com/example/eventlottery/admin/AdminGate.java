@@ -15,17 +15,38 @@ import com.example.eventlottery.model.Profile;
  */
 public final class AdminGate {
 
-    private AdminGate() {
+    private AdminGate() { }
+
+    // Callback interface
+    public interface AdminCheckCallback {
+        void onResult(boolean isAdmin);
     }
 
-    public static boolean isAdmin(Context context) {
+    // Asynchronous admin check
+    public static void isAdmin(Context context, AdminCheckCallback callback) {
         String deviceId = fetchDeviceId(context);
         if (TextUtils.isEmpty(deviceId)) {
-            return false;
+            callback.onResult(false);
+            return;
         }
+
         ProfileRepository repository = RepositoryProvider.getProfileRepository();
-        Profile profile = repository.findUserById(deviceId);
-        return profile != null && profile.isAdmin();
+        repository.findUserById(deviceId, new ProfileRepository.ProfileCallback() {
+            @Override
+            public void onSuccess(Profile profile) {
+                callback.onResult(profile != null && profile.isAdmin());
+            }
+
+            @Override
+            public void onDeleted() {
+                callback.onResult(false);
+            }
+
+            @Override
+            public void onError(String message) {
+                callback.onResult(false);
+            }
+        });
     }
 
     @Nullable
