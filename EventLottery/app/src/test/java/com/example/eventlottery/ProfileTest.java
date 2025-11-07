@@ -10,14 +10,17 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+/**
+ * This is a test class for Profile
+ */
 public class ProfileTest {
-    Event event = new Event("1", "Valorant Tournament", "Tenz", 0,
-            "Los Angeles", 200, 200, Event.Status.REG_OPEN, 1,
-            "A Valorant Tournament hosted by Tenz for a prize of $1000");
     Profile userProfile = new Profile("ABC123456789", "John Doe",
             "johndoe@example.com", "123-456-7890"
     );
 
+    /**
+     * This tests all the getter function in the profile class will get correct information.
+     */
     @Test
     public void testProfile(){
         assertFalse(userProfile.isAdmin());
@@ -25,9 +28,11 @@ public class ProfileTest {
         assertEquals("John Doe",userProfile.getName());
         assertEquals("johndoe@example.com",userProfile.getEmail());
         assertEquals("123-456-7890",userProfile.getPhone());
-        //assert userProfile.getHistoryEvents() != null; test for future
     }
 
+    /**
+     * This tests the update function in profile class works correctly.
+     */
     @Test
     public void testUpdateProfile(){
         userProfile.updatePersonalInfo("Test_Name","test@email.com","111");

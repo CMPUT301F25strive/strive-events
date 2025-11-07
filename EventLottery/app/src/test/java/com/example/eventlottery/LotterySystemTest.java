@@ -15,6 +15,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * This is a test class for Lottery system
+ */
 public class LotterySystemTest {
     Event event = new Event("1", "Valorant Tournament", "Tenz", 0,
             "Los Angeles", 3, 200, Event.Status.REG_OPEN, 1,
@@ -32,7 +35,9 @@ public class LotterySystemTest {
             "johndoe@example.com", "123-456-7890");
 
 
-
+    /**
+     * This tests the lottery system draws entrants from the right number of people from waiting list.
+     */
     @Test
     public void testLotteryDraw() {
         event.joinWaitingList(userProfile_1.getDeviceID());
@@ -44,6 +49,9 @@ public class LotterySystemTest {
         assertEquals(event.getCapacity(), winners_list.size());
     }
 
+    /**
+     * This tests that the lottery system draws entrants from waiting list with no duplication.
+     */
     @Test
     public void testNonDuplicates(){
         List<String> waitingList = List.of("1BC123456789", "2BC123456789","3BC123456789","4BC123456789","5BC123456789");
@@ -53,6 +61,9 @@ public class LotterySystemTest {
         assertEquals(winners_list.size(), uniqueWinners.size());
     }
 
+    /**
+     * This test the function of Draw replacement when a user choose to decline the invitation, a new entrant will be drawn from the pool.
+     */
     @Test
     public  void testReplacementDraw(){
         List<String> waitingList = List.of("1BC123456789", "2BC123456789","3BC123456789","4BC123456789","5BC123456789");
@@ -69,6 +80,9 @@ public class LotterySystemTest {
         }
     }
 
+    /**
+     * This tests the exception that when there's no more available entrant in the pool, the winners list will remain the same.
+     */
     @Test
     public void testReplacementDraw_NoMoreEntrantsInThePool(){
         List<String> waitingList = List.of("1BC123456789", "2BC123456789","3BC123456789");
