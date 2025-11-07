@@ -32,5 +32,7 @@
     <string name="delete_event_confirm_body">This removes the event for all entrants. This action cannot be undone.</string>
     <string name="delete_event_success">Event deleted</string>
     <string name="delete_event_failure">Failed to delete event</string>
+    <string name="event_detail_waiting_list_count_format">On waitlist: %1$d</string>
+    <string name="event_waiting_list_content_description">Number of entrants on waiting list</string>
     <string name="no_my_events_placeholder">You have not joined any events yet.</string>
 </resources>
