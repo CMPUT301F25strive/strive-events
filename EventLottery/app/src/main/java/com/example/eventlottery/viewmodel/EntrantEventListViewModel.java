@@ -52,4 +52,5 @@ public class EntrantEventListViewModel extends ViewModel {
         }
         return value.events;
     }
+
 }

@@ -5,7 +5,7 @@ import java.util.List;
 
 /**
  * This class stores information for the profile of a user.
- * Holds functionalities for updating the profile and storing unique device ID.
+ * This holds the functionalities for updating the profile.
  */
 public class Profile {
     public enum Role {
@@ -29,7 +29,7 @@ public class Profile {
      * @param email user email
      */
     public Profile(String deviceID, String name, String email) {
-        this(deviceID, name, email, null);
+        this(deviceID, name, email, null); // delegate to full constructor
     }
 
     /**
@@ -40,14 +40,22 @@ public class Profile {
      * @param phone user phone
      */
     public Profile(String deviceID, String name, String email, String phone) {
-        this.deviceID = deviceID;
+        this(deviceID, name, email, phone, Role.USER);
+    }
+
+    public Profile(String deviceID, String name, String email, String phone, Role role) {
+        this.deviceID = deviceID;   // From DeviceIdentityService
         this.name = name;
         this.email = email;
         this.phone = phone;
+        setRole(role);
     }
 
     /**
-     * Updates the profile's personal info
+     * This method updates the current profile with given parameter values.
+     * @param name: new name
+     * @param email: new email
+     * @param phone: new phone number
      */
     public void updatePersonalInfo(String name, String email, String phone) {
         if (name == null || name.trim().isEmpty()) {
@@ -66,7 +74,10 @@ public class Profile {
         return role == Role.ADMIN;
     }
 
-    // ===== Device ID =====
+    /**
+     * This method returns the user's device ID.
+     * @return the value of the unique device ID
+     */
     public String getDeviceID() {
         return deviceID;
     }
@@ -75,7 +86,10 @@ public class Profile {
         this.deviceID = deviceID;
     }
 
-    // ===== Other getters and setters =====
+    /**
+     * This method returns user's name
+     * @return the value of name
+     */
     public String getName() {
         return name;
     }
@@ -84,6 +98,10 @@ public class Profile {
         this.name = name;
     }
 
+    /**
+     * This method returns the user's email
+     * @return the value of email
+     */
     public String getEmail() {
         return email;
     }
@@ -92,6 +110,10 @@ public class Profile {
         this.email = email;
     }
 
+    /**
+     * This method returns the user's phone number
+     * @return the value of phone
+     */
     public String getPhone() {
         return phone;
     }
@@ -100,19 +122,26 @@ public class Profile {
         this.phone = phone;
     }
 
+    /**
+     * This method returns the list of history events from user
+     * @return the list of event references
+     */
     public List<Event> getHistoryEvents() {
         return historyEvents;
     }
 
-    public List<Event> getOwnedEvents() {
-        return ownedEvents;
-    }
-
+    /**
+     * This method returns the preferences of the user
+     * @return the value of preference
+     */
     public String getPreferences() {
         return preferences;
     }
 
-    public Role getRole() {
-        return role;
+    public Role getRole() { return role; }
+
+    public void setRole(Role role) {
+        this.role = role != null ? role : Role.USER;
     }
 }
+
