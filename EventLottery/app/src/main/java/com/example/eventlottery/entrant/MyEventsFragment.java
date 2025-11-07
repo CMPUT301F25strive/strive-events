@@ -42,6 +42,7 @@ public class MyEventsFragment extends Fragment implements EventListAdapter.Liste
         super.onViewCreated(view, savedInstanceState);
         setupRecycler();
         setupBottomNav();
+        binding.pageHeader.setText(R.string.my_events_page_header);
 
         // Initialize ViewModel with context for device ID
         viewModel = new ViewModelProvider(this, new MyEventsViewModelFactory(requireContext()))

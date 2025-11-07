@@ -67,6 +67,18 @@
             android:gravity="center_horizontal">
 
             <TextView
+                android:id="@+id/profileHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:layout_gravity="start"
+                android:text="@string/profile_page_header"
+                android:textColor="@color/black"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:gravity="start" />
+
+            <TextView
                 android:id="@+id/adminBadge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

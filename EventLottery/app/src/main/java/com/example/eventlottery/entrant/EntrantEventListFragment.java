@@ -45,6 +45,7 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
         super.onViewCreated(view, savedInstanceState);
         setupRecycler();
         setupBottomNav();
+        binding.pageHeader.setText(R.string.home_page_header);
 
         viewModel = new ViewModelProvider(this, new EntrantEventListViewModelFactory())
                 .get(EntrantEventListViewModel.class);

@@ -12,6 +12,9 @@
     <string name="nav_home">Home</string>
     <string name="nav_my_events">My events</string>
     <string name="nav_profile">Profile</string>
+    <string name="home_page_header">Home</string>
+    <string name="my_events_page_header">My Events</string>
+    <string name="profile_page_header">Profile</string>
     <string name="no_events_placeholder">no events available right now</string>
     <string name="event_detail_title">Event detail</string>
     <string name="event_detail_organizer_format">Organized by %1$s</string>
