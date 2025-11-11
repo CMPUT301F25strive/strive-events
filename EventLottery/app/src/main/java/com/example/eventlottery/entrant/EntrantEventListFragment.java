@@ -29,9 +29,10 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
     @Override
     public void onResume() {
         super.onResume();
-        if (binding != null) {
+        binding.bottomNavigation.post(() -> {
+            binding.bottomNavigation.setSelectedItemId(-1); // deselect first
             binding.bottomNavigation.setSelectedItemId(R.id.nav_home);
-        }
+        });
     }
     @Nullable
     @Override
@@ -69,15 +70,19 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
     }
     private void setupBottomNav() {
         binding.bottomNavigation.setSelectedItemId(R.id.nav_home);
+
         binding.bottomNavigation.setOnItemSelectedListener(item -> {
-            if (item.getItemId() == R.id.nav_home) { return true; }
-            else if (item.getItemId() == R.id.nav_profile) {
+         if (item.getItemId() == R.id.nav_profile) {
+             NavHostFragment.findNavController(this)
+                     .navigate(R.id.action_entrantEventListFragment_to_profileFragment);
+             return true;
+         }else if (item.getItemId() == R.id.nav_home) {
                 NavHostFragment.findNavController(this)
-                        .navigate(R.id.action_entrantEventListFragment_to_profileFragment);
+                        .popBackStack(R.id.entrantEventListFragment, false);
                 return true;
             } else if (item.getItemId() == R.id.nav_my_events) {
                 NavHostFragment.findNavController(this)
-                        .navigate(R.id.action_entrantEventListFragment_to_myEventsFragment);
+                        .navigate(R.id.myEventsFragment);
                 return true;
             }
             return false;

@@ -1,31 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/eventDetailRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface"
     tools:context=".entrant.EventDetailFragment">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/eventDetailToolbar"
+    <!-- === CONSISTENT TOP BAR === -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/topBarLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorSurface"
-        android:elevation="0dp"
-        app:navigationIcon="@drawable/ic_baseline_chevron_left_24"
-        app:title="@string/event_detail_title"
-        app:titleCentered="true"
-        app:titleTextColor="?attr/colorOnSurface" />
+        android:layout_height="56dp"
+        android:paddingTop="16dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        app:layout_constraintTop_toTopOf="parent">
 
+        <ImageButton
+            android:id="@+id/backButton"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/back"
+            android:padding="4dp"
+            android:src="@drawable/ic_baseline_chevron_left_36"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <TextView
+            android:id="@+id/appNameText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Event Details"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:gravity="center"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- === MAIN CONTENT === -->
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="?attr/actionBarSize"
+        android:layout_height="0dp"
+        android:layout_marginTop="56dp"
         android:paddingStart="20dp"
         android:paddingTop="12dp"
         android:paddingEnd="20dp"
-        android:paddingBottom="24dp">
+        android:paddingBottom="24dp"
+        app:layout_constraintTop_toBottomOf="@id/topBarLayout"
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -33,6 +63,7 @@
             android:orientation="vertical"
             android:paddingBottom="24dp">
 
+            <!-- Poster -->
             <ImageView
                 android:id="@+id/eventDetailPoster"
                 android:layout_width="match_parent"
@@ -44,16 +75,18 @@
                 android:outlineProvider="background"
                 android:clipToOutline="true" />
 
+            <!-- Title -->
             <TextView
                 android:id="@+id/eventDetailTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAppearance="?attr/textAppearanceHeadlineSmall"
-                android:textColor="?attr/colorOnSurface"
                 android:textStyle="bold"
+                android:textColor="?attr/colorOnSurface"
                 android:layout_marginTop="20dp"
-                tools:text="Puppy Training for beginners" />
+                tools:text="Puppy Training for Beginners" />
 
+            <!-- Organizer -->
             <TextView
                 android:id="@+id/eventDetailOrganizer"
                 android:layout_width="wrap_content"
@@ -63,24 +96,23 @@
                 android:textColor="?attr/colorOnSurfaceVariant"
                 tools:text="Organized by Jane" />
 
+            <!-- Date / Venue / Capacity / Waitlist -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:orientation="vertical">
 
+                <!-- Date -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
-
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:contentDescription="@string/event_calendar_content_description"
                         android:src="@drawable/ic_calendar_24"
                         app:tint="?attr/colorOnSurfaceVariant" />
-
                     <TextView
                         android:id="@+id/eventDetailDate"
                         android:layout_width="wrap_content"
@@ -91,18 +123,16 @@
                         tools:text="Sun, Jan 19 2025 · 7:30 pm" />
                 </LinearLayout>
 
+                <!-- Venue -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
-
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:contentDescription="@string/event_location_content_description"
                         android:src="@drawable/ic_location_24"
                         app:tint="?attr/colorOnSurfaceVariant" />
-
                     <TextView
                         android:id="@+id/eventDetailVenue"
                         android:layout_width="wrap_content"
@@ -110,21 +140,19 @@
                         android:layout_marginStart="8dp"
                         android:textAppearance="?attr/textAppearanceBodyMedium"
                         android:textColor="?attr/colorOnSurface"
-                        tools:text="Community centre" />
+                        tools:text="Community Centre" />
                 </LinearLayout>
 
+                <!-- Capacity -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
-
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:contentDescription="@string/event_capacity_content_description"
                         android:src="@drawable/ic_group_24"
                         app:tint="?attr/colorOnSurfaceVariant" />
-
                     <TextView
                         android:id="@+id/eventDetailCapacity"
                         android:layout_width="wrap_content"
@@ -135,18 +163,16 @@
                         tools:text="Capacity: 50" />
                 </LinearLayout>
 
+                <!-- Waitlist -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
-
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:contentDescription="@string/event_waiting_list_content_description"
                         android:src="@android:drawable/ic_menu_view"
                         app:tint="?attr/colorOnSurfaceVariant" />
-
                     <TextView
                         android:id="@+id/eventDetailWaitingListCount"
                         android:layout_width="wrap_content"
@@ -156,9 +182,9 @@
                         android:textColor="?attr/colorOnSurface"
                         tools:text="On waitlist: 3" />
                 </LinearLayout>
-
             </LinearLayout>
 
+            <!-- Description -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -176,7 +202,7 @@
                 android:textColor="?attr/colorOnSurfaceVariant"
                 tools:text="Bring your swimsuit and positive vibes for a relaxed community challenge." />
 
-            <!-- Button Container -->
+            <!-- Action Buttons -->
             <LinearLayout
                 android:id="@+id/buttonContainer"
                 android:layout_width="match_parent"
@@ -184,35 +210,36 @@
                 android:layout_marginTop="16dp"
                 android:orientation="horizontal"
                 android:gravity="end"
-                android:visibility="visible">  <!-- show only if REG_OPEN -->
+                android:visibility="visible">
 
-                <!-- Main Action Button (Join/Leave Waitlist) -->
+                <!-- Join / Leave Waiting List -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/joinEventButton"
+                    style="@style/Widget.Material3.Button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/join_waiting_list"
-                    style="@style/Widget.Material3.Button" />
-
+                    app:backgroundTint="@color/primary"
+                    android:textColor="@android:color/white"
+                    android:layout_marginTop="8dp" />
             </LinearLayout>
 
-            <!-- Admin Button -->
+            <!-- Admin Delete Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/adminDeleteButton"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
+                style="@style/Widget.Material3.Button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="@string/delete_event"
                 android:textColor="@color/error"
+                android:strokeColor="@color/error"
                 android:visibility="gone"
                 app:icon="@drawable/ic_delete_24"
                 app:iconGravity="textStart"
-                app:iconPadding="4dp"
+                app:iconPadding="6dp"
                 app:iconTint="@color/error"
-                app:rippleColor="@color/error" />
-
+                app:rippleColor="@color/error_container" />
         </LinearLayout>
     </ScrollView>
-
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

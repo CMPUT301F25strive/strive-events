@@ -4,62 +4,97 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
     tools:context=".entrant.ProfileGuidelinesFragment">
 
+    <!-- === CONSISTENT TOP BAR (back button + center title only) === -->
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/topBar"
-        android:layout_width="0dp"
+        android:id="@+id/topBarLayout"
+        android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:paddingStart="12dp"
+        android:paddingTop="16dp"
+        android:paddingStart="20dp"
         android:paddingEnd="20dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toTopOf="parent">
 
+        <!-- Back button -->
         <ImageButton
-            android:id="@+id/buttonBack"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:id="@+id/backButton"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:background="@android:color/transparent"
-            android:src="@drawable/ic_baseline_chevron_left_24"
-            android:contentDescription="@string/guidelines_back_content_description"
-            app:tint="@color/black"
+            android:contentDescription="Back"
+            android:padding="4dp"
+            android:src="@drawable/ic_baseline_chevron_left_36"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
 
+        <!-- Center title -->
         <TextView
-            android:id="@+id/title"
+            android:id="@+id/appNameText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/guidelines_title"
+            android:text="STRIVE"
             android:textSize="20sp"
             android:textStyle="bold"
             android:textColor="@color/black"
+            android:gravity="center"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <!-- === SCROLLABLE CONTENT === -->
     <ScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:padding="20dp"
-        app:layout_constraintTop_toBottomOf="@id/topBar"
+        android:clipToPadding="false"
+        android:paddingHorizontal="24dp"
+        android:paddingVertical="20dp"
+        app:layout_constraintTop_toBottomOf="@id/topBarLayout"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
-
-        <TextView
-            android:id="@+id/guidelinesBody"
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/guidelines_body"
-            android:textSize="16sp"
-            android:textColor="@color/black"
-            android:lineSpacingExtra="4dp" />
+            android:layout_height="wrap_content">
+
+            <!-- Section header -->
+            <TextView
+                android:id="@+id/guidelinesHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Event Participation Guidelines"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Accent divider -->
+            <View
+                android:layout_width="60dp"
+                android:layout_height="2dp"
+                android:background="@color/purple_700"
+                android:layout_marginBottom="20dp" />
+
+            <!-- Guidelines body -->
+            <TextView
+                android:id="@+id/guidelinesBody"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/guidelines_body"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:lineSpacingExtra="6dp"
+                android:letterSpacing="0.01"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:includeFontPadding="false" />
+
+        </LinearLayout>
     </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

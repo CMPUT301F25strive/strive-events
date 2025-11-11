@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
@@ -24,15 +25,11 @@ import com.example.eventlottery.model.Profile;
 import com.example.eventlottery.viewmodel.ProfileViewModel;
 import com.example.eventlottery.viewmodel.ProfileViewModelFactory;
 
-/**
- * This is the Java code for the activity of Profile page.
- */
-
 public class ProfileFragment extends Fragment {
 
     private FragmentProfileBinding binding;
     private ProfileViewModel viewModel;
-    private Switch notificationSwitch; // new switch reference
+    private Switch notificationSwitch;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -61,7 +58,6 @@ public class ProfileFragment extends Fragment {
         viewModel.getUiState().observe(getViewLifecycleOwner(), state -> {
             if (state == null) return;
 
-            // Check deletion
             if (state.isDeleted()) {
                 Toast.makeText(requireContext(), state.getErrorMessage(), Toast.LENGTH_SHORT).show();
                 NavHostFragment.findNavController(this)
@@ -69,7 +65,6 @@ public class ProfileFragment extends Fragment {
                 return;
             }
 
-            // Normal profile display
             Profile profile = state.getProfile();
             if (profile != null) {
                 binding.profileName.setText(profile.getName());
@@ -82,62 +77,63 @@ public class ProfileFragment extends Fragment {
                 binding.adminBadge.setVisibility(View.GONE);
             }
 
-            // Other potential errors
             if (state.getErrorMessage() != null && !state.isDeleted()) {
                 Toast.makeText(requireContext(), state.getErrorMessage(), Toast.LENGTH_SHORT).show();
             }
         });
 
+        // Admin Entrants
         binding.menuAdminEntrants.setOnClickListener(v ->
                 NavHostFragment.findNavController(this)
                         .navigate(R.id.action_profileFragment_to_adminEntrantsFragment)
         );
 
-        // Edit Profile button
+        // Edit Profile
         binding.buttonEditProfile.setOnClickListener(v ->
                 NavHostFragment.findNavController(this)
                         .navigate(R.id.action_profileFragment_to_profileEditFragment)
         );
 
-        // Delete Profile menu with confirmation dialog
+        // Delete Account — clean default AlertDialog
         binding.menuDeleteAccount.setOnClickListener(v -> {
-            new AlertDialog.Builder(requireContext())
+            AlertDialog dialog = new AlertDialog.Builder(requireContext())
                     .setTitle("Delete Account")
                     .setMessage("Are you sure you want to delete your account? This action cannot be undone.")
-                    .setPositiveButton("Delete", (dialog, which) -> viewModel.deleteProfile())
-                    .setNegativeButton("Cancel", null)
-                    .show();
-        });
+                    .setPositiveButton("Delete", (d, which) -> viewModel.deleteProfile())
+                    .setNegativeButton("Cancel", (d, which) -> d.dismiss())
+                    .create();
 
-        // Notification switch (just UI toggle)
-        notificationSwitch = binding.notificationSwitch; // connect switch from XML
-        notificationSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            Toast.makeText(getContext(),
-                    "Notifications " + (isChecked ? "ON" : "OFF"),
-                    Toast.LENGTH_SHORT).show();
-            // Currently no functional behavior; just toggle UI state
-        });
+            dialog.setOnShowListener(d -> {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                        .setTextColor(ContextCompat.getColor(requireContext(), R.color.error)); // red
+                dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+                        .setTextColor(ContextCompat.getColor(requireContext(), R.color.primary)); // blue
+            });
 
+            dialog.show();
+        });
+        // Notification toggle
+        notificationSwitch = binding.notificationSwitch;
+        notificationSwitch.setOnCheckedChangeListener((buttonView, isChecked) ->
+                Toast.makeText(requireContext(),
+                        "Notifications " + (isChecked ? "ON" : "OFF"),
+                        Toast.LENGTH_SHORT).show()
+        );
+
+        // Guidelines page
         binding.menuGuidelines.setOnClickListener(v ->
                 NavHostFragment.findNavController(this)
                         .navigate(R.id.action_profileFragment_to_profileGuidelinesFragment)
         );
 
-        // Guidance page
-        //binding.menuGuidelines.setOnClickListener(v ->
-                //
-           //      );
-
-        // Bottom navigation
         setupBottomNav();
     }
 
     private void setupBottomNav() {
         binding.bottomNavigation.setSelectedItemId(R.id.nav_profile);
-
         binding.bottomNavigation.setOnItemSelectedListener(item -> {
             if (item.getItemId() == R.id.nav_profile) {
-                return true; // already here
+                return true;
             } else if (item.getItemId() == R.id.nav_home) {
                 NavHostFragment.findNavController(this)
                         .popBackStack(R.id.entrantEventListFragment, false);

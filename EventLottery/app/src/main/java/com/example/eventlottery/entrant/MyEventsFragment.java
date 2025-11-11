@@ -65,10 +65,10 @@ public class MyEventsFragment extends Fragment implements EventListAdapter.Liste
         binding.bottomNavigation.setSelectedItemId(R.id.nav_my_events);
         binding.bottomNavigation.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
-            if (id == R.id.nav_home) {
-                NavHostFragment.findNavController(this)
-                        .navigate(R.id.action_myEventsFragment_to_entrantEventListFragment);
-                return true;
+            if (item.getItemId() == R.id.nav_home) {
+            NavHostFragment.findNavController(this)
+                    .popBackStack(R.id.entrantEventListFragment, false);
+            return true;
             } else if (id == R.id.nav_profile) {
                 NavHostFragment.findNavController(this)
                         .navigate(R.id.action_myEventsFragment_to_profileFragment);

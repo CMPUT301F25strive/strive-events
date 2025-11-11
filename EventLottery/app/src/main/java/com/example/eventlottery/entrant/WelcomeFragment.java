@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -19,21 +18,19 @@ import androidx.navigation.Navigation;
 import com.example.eventlottery.data.ProfileRepository;
 import com.example.eventlottery.data.RepositoryProvider;
 import com.example.eventlottery.model.Profile;
-import com.google.android.material.snackbar.Snackbar;
 
 /**
- * This is the Javacode for the welcome page. If user's deviced ID is in database, it will automatically navagiate to main page.
+ * WelcomeFragment:
+ * - Shows loading while checking device ID.
+ * - If profile exists → auto-login.
+ * - If not found → show registration form.
  */
-
 public class WelcomeFragment extends Fragment {
 
     private EditText etName, etPhone, etEmail;
     private Button btnMainAction;
-    private TextView tvSwitchMode;
     private ProgressBar progressBar;
     private ProfileRepository profileRepo;
-
-    private boolean isLoginMode = true;
 
     @Nullable
     @Override
@@ -50,131 +47,94 @@ public class WelcomeFragment extends Fragment {
         etPhone = view.findViewById(R.id.etPhone);
         etEmail = view.findViewById(R.id.etEmail);
         btnMainAction = view.findViewById(R.id.btnMainAction);
-        tvSwitchMode = view.findViewById(R.id.tvSwitchMode);
         progressBar = view.findViewById(R.id.progressBar);
 
         profileRepo = RepositoryProvider.getProfileRepository();
 
-        // Start in login mode by default
-        setModeUI(isLoginMode);
+        // Initially hide form
+        hideRegistrationForm();
 
-        // ===== Auto-login by deviceID =====
+        // Check if profile exists
         String deviceID = getDeviceId();
         progressBar.setVisibility(View.VISIBLE);
+
         profileRepo.findUserById(deviceID, new ProfileRepository.ProfileCallback() {
             @Override
             public void onSuccess(Profile profile) {
-                progressBar.setVisibility(View.GONE);
-                handleAdminEntry(view, profile);
+                // Existing user → skip registration
+                navigateToDashboard(view);
             }
 
             @Override
             public void onDeleted() {
+                // No user found → show registration form
                 progressBar.setVisibility(View.GONE);
+                showRegistrationForm();
             }
 
             @Override
             public void onError(String message) {
+                // Error or no record → show registration form
                 progressBar.setVisibility(View.GONE);
-                // stay in login/register screen
+                showRegistrationForm();
             }
         });
 
-        // Main button action
-        btnMainAction.setOnClickListener(v -> {
-            progressBar.setVisibility(View.VISIBLE);
-            String deviceID1 = getDeviceId();
-            String name = etName.getText().toString().trim();
-            String phone = etPhone.getText().toString().trim();
-            String email = etEmail.getText().toString().trim();
-
-            if (isLoginMode) {
-                // Login mode
-                profileRepo.findUserById(deviceID1, new ProfileRepository.ProfileCallback() {
-                    @Override
-                    public void onSuccess(Profile profile) {
-                        progressBar.setVisibility(View.GONE);
-                        handleAdminEntry(view, profile);
-                    }
-
-                    @Override
-                    public void onDeleted() {
-                        progressBar.setVisibility(View.GONE);
-                    }
-
-                    @Override
-                    public void onError(String message) {
-                        progressBar.setVisibility(View.GONE);
-                        Toast.makeText(getContext(), "Login failed: Device ID not found", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            } else {
-                // Register mode
-                if (name.isEmpty() || email.isEmpty()) {
-                    progressBar.setVisibility(View.GONE);
-                    Toast.makeText(getContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                Profile newProfile = new Profile(deviceID1, name, email, phone);
-                profileRepo.saveUser(newProfile, new ProfileRepository.ProfileCallback() {
-                    @Override
-                    public void onSuccess(Profile profile) {
-                        progressBar.setVisibility(View.GONE);
-                        Toast.makeText(getContext(), "Registration successful", Toast.LENGTH_SHORT).show();
-                        handleAdminEntry(view, profile);
-                    }
-
-                    @Override
-                    public void onDeleted() {
-                        progressBar.setVisibility(View.GONE);
-                    }
-
-                    @Override
-                    public void onError(String message) {
-                        progressBar.setVisibility(View.GONE);
-                        Toast.makeText(getContext(), "Registration failed: " + message, Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-        });
-
-        // Toggle mode on text click
-        tvSwitchMode.setOnClickListener(v -> {
-            isLoginMode = !isLoginMode;
-            setModeUI(isLoginMode);
-        });
+        // Registration button
+        btnMainAction.setOnClickListener(v -> registerUser(view));
     }
 
-    /**
-     * Updates UI visibility/text based on the current mode.
-     */
-    private void setModeUI(boolean loginMode) {
-        if (loginMode) {
-            etName.setVisibility(View.GONE);
-            etPhone.setVisibility(View.GONE);
-            etEmail.setVisibility(View.GONE);
-            btnMainAction.setText("Login");
-            tvSwitchMode.setText("Not a user? Register");
-        } else {
-            etName.setVisibility(View.VISIBLE);
-            etPhone.setVisibility(View.VISIBLE);
-            etEmail.setVisibility(View.VISIBLE);
-            btnMainAction.setText("Register");
-            tvSwitchMode.setText("Already a user? Login");
+    private void hideRegistrationForm() {
+        etName.setVisibility(View.GONE);
+        etEmail.setVisibility(View.GONE);
+        etPhone.setVisibility(View.GONE);
+        btnMainAction.setVisibility(View.GONE);
+    }
+
+    private void showRegistrationForm() {
+        etName.setVisibility(View.VISIBLE);
+        etEmail.setVisibility(View.VISIBLE);
+        etPhone.setVisibility(View.VISIBLE);
+        btnMainAction.setVisibility(View.VISIBLE);
+    }
+
+    private void registerUser(@NonNull View view) {
+        String name = etName.getText().toString().trim();
+        String email = etEmail.getText().toString().trim();
+        String phone = etPhone.getText().toString().trim();
+        String deviceID = getDeviceId();
+
+        if (name.isEmpty() || email.isEmpty()) {
+            Toast.makeText(getContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show();
+            return;
         }
+
+        progressBar.setVisibility(View.VISIBLE);
+        hideRegistrationForm();
+
+        Profile newProfile = new Profile(deviceID, name, email, phone);
+        profileRepo.saveUser(newProfile, new ProfileRepository.ProfileCallback() {
+            @Override
+            public void onSuccess(Profile profile) {
+                progressBar.setVisibility(View.GONE);
+                Toast.makeText(getContext(), "Registration successful", Toast.LENGTH_SHORT).show();
+                navigateToDashboard(view);
+            }
+
+            @Override
+            public void onDeleted() {}
+
+            @Override
+            public void onError(String message) {
+                progressBar.setVisibility(View.GONE);
+                showRegistrationForm();
+                Toast.makeText(getContext(), "Registration failed: " + message, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private String getDeviceId() {
         return Settings.Secure.getString(requireContext().getContentResolver(), Settings.Secure.ANDROID_ID);
-    }
-
-    private void handleAdminEntry(@NonNull View view, @Nullable Profile profile) {
-        boolean isAdmin = profile != null && profile.isAdmin();
-        if (isAdmin) {
-            Snackbar.make(view, R.string.admin_welcome_snackbar, Snackbar.LENGTH_LONG).show();
-        }
-        navigateToDashboard(view);
     }
 
     private void navigateToDashboard(@NonNull View view) {

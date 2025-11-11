@@ -19,19 +19,21 @@ import com.example.eventlottery.data.RepositoryProvider;
 import com.example.eventlottery.model.Profile;
 import com.example.eventlottery.viewmodel.ProfileViewModel;
 import com.example.eventlottery.viewmodel.ProfileViewModelFactory;
-import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.textfield.TextInputEditText;
+import android.widget.ImageButton;
+import android.widget.TextView;
 
 /**
- * This is the JavaCode for activity of Edit profile
+ * Fragment for editing user profile.
+ * Uses updated XML style with back button + center title only.
  */
-
 public class ProfileEditFragment extends Fragment {
 
     private ProfileViewModel viewModel;
     private TextInputEditText editTextName, editTextEmail, editTextPhone;
     private Button buttonSave;
-    private MaterialToolbar toolbar;
+    private ImageButton backButton;
+    private TextView appNameText;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -39,11 +41,15 @@ public class ProfileEditFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_edit_profile, container, false);
 
-        toolbar = view.findViewById(R.id.editProfileToolbar);
+        // Form fields
         editTextName = view.findViewById(R.id.editTextName);
         editTextEmail = view.findViewById(R.id.editTextEmail);
         editTextPhone = view.findViewById(R.id.editTextPhone);
         buttonSave = view.findViewById(R.id.buttonSave);
+
+        // Top bar
+        backButton = view.findViewById(R.id.backButton);
+        appNameText = view.findViewById(R.id.appNameText);
 
         return view;
     }
@@ -52,7 +58,6 @@ public class ProfileEditFragment extends Fragment {
     public void onViewCreated(@NonNull View view,
                               @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
 
         ProfileRepository repo = RepositoryProvider.getProfileRepository();
         ProfileViewModelFactory factory = new ProfileViewModelFactory(repo);
@@ -75,11 +80,12 @@ public class ProfileEditFragment extends Fragment {
             }
         });
 
-        // Toolbar navigation
-        toolbar.setNavigationOnClickListener(
+        // Back button navigation
+        backButton.setOnClickListener(
                 v -> NavHostFragment.findNavController(this).popBackStack()
         );
 
+        // Save profile button
         buttonSave.setOnClickListener(v -> {
             String name = editTextName.getText().toString().trim();
             String email = editTextEmail.getText().toString().trim();
@@ -109,6 +115,5 @@ public class ProfileEditFragment extends Fragment {
             Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show();
             NavHostFragment.findNavController(this).popBackStack();
         });
-
     }
 }

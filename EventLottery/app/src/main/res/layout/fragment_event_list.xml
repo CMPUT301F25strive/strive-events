@@ -6,7 +6,6 @@
     android:id="@+id/eventListRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
     tools:context=".entrant.EntrantEventListFragment">
 
     <!-- Top bar -->
@@ -17,7 +16,6 @@
         android:paddingTop="16dp"
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
-        android:background="@color/white"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
@@ -109,12 +107,11 @@
 
         </LinearLayout>
     </ScrollView>
-
-    <!-- Bottom navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:background="#1A000000"
         app:itemIconSize="36dp"
         app:itemIconTint="@color/bottom_nav_selector"
         app:itemRippleColor="@color/bottom_nav_ripple"

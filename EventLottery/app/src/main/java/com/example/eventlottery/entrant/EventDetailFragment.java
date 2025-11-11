@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
@@ -22,15 +23,12 @@ import com.example.eventlottery.data.RepositoryProvider;
 import com.example.eventlottery.databinding.FragmentEventDetailBinding;
 import com.example.eventlottery.model.Event;
 import com.example.eventlottery.model.Profile;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-
-/**
- * This class contains all the actions and details of the event detail page.
- */
 
 public class EventDetailFragment extends Fragment {
 
@@ -45,7 +43,6 @@ public class EventDetailFragment extends Fragment {
     private String currentUserDeviceId;
     private EventRepository eventRepository;
     private ProfileRepository profileRepository;
-
     private WaitingListController waitingListController;
 
     @Nullable
@@ -59,15 +56,11 @@ public class EventDetailFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Probably we should get the device ID from DeviceIdentityService class
-        // Get device ID
         currentUserDeviceId = Settings.Secure.getString(requireContext().getContentResolver(), Settings.Secure.ANDROID_ID);
-        // Get repositories
         eventRepository = RepositoryProvider.getEventRepository();
         profileRepository = RepositoryProvider.getProfileRepository();
 
-        binding.eventDetailToolbar.setNavigationOnClickListener(v ->
-                NavHostFragment.findNavController(EventDetailFragment.this).popBackStack());
+        binding.backButton.setOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
 
         Event event = null;
         if (savedInstanceState != null) {
@@ -84,11 +77,8 @@ public class EventDetailFragment extends Fragment {
         currentEvent = event;
         determineAdminStatus();
 
-        // Get the latest event
         Event latestEvent = eventRepository.findEventById(event.getId());
-        if (latestEvent != null) {
-            event = latestEvent;
-        }
+        if (latestEvent != null) event = latestEvent;
 
         bindEvent(event);
 
@@ -100,10 +90,8 @@ public class EventDetailFragment extends Fragment {
                 setupActionButtons(updated, currentUserDeviceId);
             }
         });
-        waitingListController = new WaitingListController(
-                eventRepository,
-                profileRepository
-        );
+
+        waitingListController = new WaitingListController(eventRepository, profileRepository);
         setupActionButtons(event, currentUserDeviceId);
     }
 
@@ -119,11 +107,7 @@ public class EventDetailFragment extends Fragment {
         binding.eventDetailVenue.setText(event.getVenue());
         binding.eventDetailCapacity.setText(getString(R.string.event_detail_capacity_format, event.getCapacity()));
         binding.eventDetailWaitingListCount.setText(getString(R.string.event_detail_waiting_list_count_format, event.getWaitingListSize()));
-        if (!TextUtils.isEmpty(event.getDescription())) {
-            binding.eventDetailDescription.setText(event.getDescription());
-        } else {
-            binding.eventDetailDescription.setText(R.string.event_detail_description_placeholder);
-        }
+        binding.eventDetailDescription.setText(!TextUtils.isEmpty(event.getDescription()) ? event.getDescription() : getString(R.string.event_detail_description_placeholder));
     }
 
     private void configAdminButton() {
@@ -133,9 +117,7 @@ public class EventDetailFragment extends Fragment {
         }
         binding.adminDeleteButton.setVisibility(View.VISIBLE);
         binding.adminDeleteButton.setOnClickListener(v -> {
-            if (currentEvent == null) {
-                return;
-            }
+            if (currentEvent == null) return;
             new MaterialAlertDialogBuilder(requireContext())
                     .setTitle(R.string.delete_event_confirm_title)
                     .setMessage(R.string.delete_event_confirm_body)
@@ -158,34 +140,44 @@ public class EventDetailFragment extends Fragment {
     }
 
     private void setupActionButtons(@NonNull Event event, String userID) {
-        // Only show buttons if registration is open
         if (event.getStatus() == Event.Status.REG_OPEN) {
             binding.buttonContainer.setVisibility(View.VISIBLE);
-
-            // Set up join/leave button
             setupButton(event, userID);
         } else {
-            // Hide entire button container for closed events
             binding.buttonContainer.setVisibility(View.GONE);
         }
     }
 
     private void setupButton(@NonNull Event event, String userID) {
-        // Check if user is already on waitlist
-        boolean isOnWaitlist = event.isOnWaitingList(userID);
+        final MaterialButton joinButton = binding.joinEventButton;
 
-        if (isOnWaitlist) {
-            binding.joinEventButton.setText(R.string.leave_waiting_list);
-            binding.joinEventButton.setOnClickListener(v -> {
+        updateButtonAppearance(event.isOnWaitingList(userID));
+
+        joinButton.setOnClickListener(v -> {
+            boolean currentlyOnWaitlist = event.isOnWaitingList(userID);
+            if (currentlyOnWaitlist) {
                 waitingListController.leaveWaitingList(event.getId(), userID);
                 Toast.makeText(requireContext(), "Left waiting list", Toast.LENGTH_SHORT).show();
-            });
-        } else {
-            binding.joinEventButton.setText(R.string.join_waiting_list);
-            binding.joinEventButton.setOnClickListener(v -> {
+                updateButtonAppearance(false);
+            } else {
                 waitingListController.joinWaitingList(event.getId(), userID);
                 Toast.makeText(requireContext(), "Joined waiting list", Toast.LENGTH_SHORT).show();
-            });
+                updateButtonAppearance(true);
+            }
+        });
+    }
+
+    private void updateButtonAppearance(boolean onWaitlist) {
+        if (binding == null) return;
+        MaterialButton joinButton = binding.joinEventButton;
+        if (onWaitlist) {
+            joinButton.setText(R.string.leave_waiting_list);
+            joinButton.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.error));
+            joinButton.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white));
+        } else {
+            joinButton.setText(R.string.join_waiting_list);
+            joinButton.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.primary));
+            joinButton.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white));
         }
     }
 
@@ -193,9 +185,8 @@ public class EventDetailFragment extends Fragment {
         isAdmin = AdminGate.isAdmin(requireContext());
         configAdminButton();
 
-        if (profileRepository == null || currentUserDeviceId == null) {
-            return;
-        }
+        if (profileRepository == null || currentUserDeviceId == null) return;
+
         profileRepository.findUserById(currentUserDeviceId, new ProfileRepository.ProfileCallback() {
             @Override
             public void onSuccess(Profile profile) {
@@ -207,24 +198,19 @@ public class EventDetailFragment extends Fragment {
             }
 
             @Override
-            public void onDeleted() {
-            }
+            public void onDeleted() { }
 
             @Override
-            public void onError(String message) {
-            }
+            public void onError(String message) { }
         });
     }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        Event event = null;
         if (getArguments() != null) {
-            event = (Event) getArguments().getSerializable(ARG_EVENT);
-        }
-        if (event != null) {
-            outState.putSerializable(ARG_EVENT, event);
+            Event event = (Event) getArguments().getSerializable(ARG_EVENT);
+            if (event != null) outState.putSerializable(ARG_EVENT, event);
         }
     }
 

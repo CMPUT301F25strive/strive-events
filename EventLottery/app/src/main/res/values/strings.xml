@@ -12,6 +12,7 @@
     <string name="nav_home">Home</string>
     <string name="nav_my_events">My events</string>
     <string name="nav_profile">Profile</string>
+    <string name="back">Back</string>
     <string name="home_page_header">Home</string>
     <string name="my_events_page_header">My Events</string>
     <string name="profile_page_header">Profile</string>

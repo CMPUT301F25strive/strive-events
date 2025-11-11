@@ -6,7 +6,6 @@
     android:id="@+id/profileRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
     tools:context=".entrant.ProfileFragment">
 
     <!-- Top bar -->
@@ -17,7 +16,7 @@
         android:paddingTop="16dp"
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
-        android:background="@color/white"
+        android:background="@android:color/transparent"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
@@ -203,7 +202,7 @@
                 android:layout_height="wrap_content"
                 android:text="Delete My Account"
                 android:textColor="@android:color/holo_red_dark"
-                android:textSize="16sp"
+                android:textSize="14sp"
                 android:padding="12dp"
                 android:background="?android:attr/selectableItemBackground"
                 android:layout_marginTop="16dp"/>
@@ -211,12 +210,12 @@
     </ScrollView>
 
     <!-- Bottom navigation -->
+    <!-- Bottom navigation with semi-transparent black background -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="?attr/colorSurface"
-        android:elevation="4dp"
+        android:background="#1A000000"
         app:itemIconSize="36dp"
         app:itemIconTint="@color/bottom_nav_selector"
         app:itemRippleColor="@color/bottom_nav_ripple"

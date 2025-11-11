@@ -21,6 +21,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 /**
  * Allows administrators to edit another entrant's profile information.
+ * Uses updated XML style: back button + center title only.
  */
 public class AdminEditProfileFragment extends Fragment {
 
@@ -43,10 +44,13 @@ public class AdminEditProfileFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         profileRepository = RepositoryProvider.getProfileRepository();
 
-        binding.editProfileToolbar.setTitle(R.string.admin_profile_edit_title);
-        binding.editProfileToolbar.setNavigationOnClickListener(v ->
+        // Set toolbar title and back navigation
+        binding.backButton.setVisibility(View.VISIBLE);
+        binding.appNameText.setText(R.string.admin_profile_edit_title);
+        binding.backButton.setOnClickListener(v ->
                 NavHostFragment.findNavController(this).popBackStack()
         );
+
         binding.adminDeleteButton.setVisibility(View.VISIBLE);
         binding.adminDeleteButton.setOnClickListener(v -> confirmDelete());
 
@@ -68,9 +72,7 @@ public class AdminEditProfileFragment extends Fragment {
         profileRepository.findUserById(profileId, new ProfileRepository.ProfileCallback() {
             @Override
             public void onSuccess(Profile profile) {
-                if (binding == null) {
-                    return;
-                }
+                if (binding == null) return;
                 targetProfile = profile;
                 binding.editTextName.setText(profile.getName());
                 binding.editTextEmail.setText(profile.getEmail());
@@ -78,8 +80,7 @@ public class AdminEditProfileFragment extends Fragment {
             }
 
             @Override
-            public void onDeleted() {
-            }
+            public void onDeleted() { }
 
             @Override
             public void onError(String message) {
@@ -122,8 +123,7 @@ public class AdminEditProfileFragment extends Fragment {
             }
 
             @Override
-            public void onDeleted() {
-            }
+            public void onDeleted() { }
 
             @Override
             public void onError(String message) {
@@ -154,8 +154,7 @@ public class AdminEditProfileFragment extends Fragment {
     private void performDelete() {
         profileRepository.deleteUser(targetProfile.getDeviceID(), new ProfileRepository.ProfileCallback() {
             @Override
-            public void onSuccess(Profile profile) {
-            }
+            public void onSuccess(Profile profile) { }
 
             @Override
             public void onDeleted() {

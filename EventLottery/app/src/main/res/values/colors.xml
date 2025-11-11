@@ -1,12 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_700">#6200EE</color>
-    <color name="purple_200">#EADDFF</color>
+    <!-- Light Theme -->
+    <color name="md_theme_light_primary">#D32F2F</color>
+    <color name="md_theme_light_onPrimary">#FFFFFF</color>
+    <color name="md_theme_light_primaryContainer">#FFCDD2</color>
+    <color name="md_theme_light_onPrimaryContainer">#370617</color>
+    <color name="md_theme_light_secondary">#4E342E</color>
+    <color name="md_theme_light_onSecondary">#FFFFFF</color>
+    <color name="md_theme_light_secondaryContainer">#D7CCC8</color>
+    <color name="md_theme_light_onSecondaryContainer">#3E2723</color>
+    <color name="md_theme_light_background">#FFFFFF</color>
+    <color name="md_theme_light_onBackground">#1C1B1F</color>
+    <color name="md_theme_light_surface">#FFFFFF</color>
+    <color name="md_theme_light_onSurface">#1C1B1F</color>
+    <color name="md_theme_light_error">#B00020</color>
+    <color name="md_theme_light_onError">#FFFFFF</color>
+
+    <!-- Dark Theme -->
+    <color name="md_theme_dark_primary">#EF5350</color>
+    <color name="md_theme_dark_onPrimary">#000000</color>
+    <color name="md_theme_dark_background">#121212</color>
+    <color name="md_theme_dark_onBackground">#FFFFFF</color>
+    <color name="md_theme_dark_surface">#1E1E1E</color>
+    <color name="md_theme_dark_onSurface">#FFFFFF</color>
+    <color name="md_theme_dark_error">#CF6679</color>
+    <color name="md_theme_dark_onError">#000000</color>
+
+    <!-- Core Material Colors -->
+    <color name="purple_200">#BB86FC</color>
     <color name="purple_500">#6200EE</color>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
-    <color name="primary">#2196F3</color>        <!-- Main blue -->
-    <color name="gray_dark">#666666</color>      <!-- Text gray -->
-    <color name="gray_light">#DDDDDD</color>     <!-- Divider gray -->
+    <color name="purple_700">#3700B3</color> <!-- restored -->
+    <color name="teal_200">#03DAC5</color>
+
+    <!-- App Primary Colors -->
+    <color name="primary">#2196F3</color>
+    <color name="onPrimary">#FFFFFF</color>
     <color name="error">#B00020</color>
+
+    <!-- Grays -->
+    <color name="gray_light">#D3D3D3</color>
+    <color name="gray_dark">#2E2E2E</color>
+    <color name="dark_gray">#333333</color>
+
+    <!-- Basics -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="error_container">#FFCDD2</color> <!-- light red for ripple -->
 </resources>

@@ -13,9 +13,8 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.example.eventlottery.databinding.FragmentProfileGuidelinesBinding;
 
 /**
- * This is the JavaCode for activity of App user Guidelines
+ * Fragment showing the app user guidelines with STRIVE-style header
  */
-
 public class ProfileGuidelinesFragment extends Fragment {
 
     private FragmentProfileGuidelinesBinding binding;
@@ -24,6 +23,7 @@ public class ProfileGuidelinesFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+        // Inflate using ViewBinding
         binding = FragmentProfileGuidelinesBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -32,8 +32,12 @@ public class ProfileGuidelinesFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        binding.buttonBack.setOnClickListener(v ->
+        // STRIVE-style back button
+        binding.backButton.setOnClickListener(v ->
                 NavHostFragment.findNavController(this).popBackStack());
+
+        // Optional: set title dynamically if needed
+        binding.appNameText.setText("Guidelines");
     }
 
     @Override
