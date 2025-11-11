@@ -12,7 +12,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
@@ -96,22 +95,14 @@ public class ProfileFragment extends Fragment {
 
         // Delete Account — clean default AlertDialog
         binding.menuDeleteAccount.setOnClickListener(v -> {
-            AlertDialog dialog = new AlertDialog.Builder(requireContext())
+            new AlertDialog.Builder(requireContext())
                     .setTitle("Delete Account")
                     .setMessage("Are you sure you want to delete your account? This action cannot be undone.")
-                    .setPositiveButton("Delete", (d, which) -> viewModel.deleteProfile())
-                    .setNegativeButton("Cancel", (d, which) -> d.dismiss())
-                    .create();
-
-            dialog.setOnShowListener(d -> {
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-                        .setTextColor(ContextCompat.getColor(requireContext(), R.color.error)); // red
-                dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
-                        .setTextColor(ContextCompat.getColor(requireContext(), R.color.primary)); // blue
-            });
-
-            dialog.show();
+                    .setPositiveButton("Delete", (dialog, which) -> viewModel.deleteProfile())
+                    .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
+                    .show();
         });
+
         // Notification toggle
         notificationSwitch = binding.notificationSwitch;
         notificationSwitch.setOnCheckedChangeListener((buttonView, isChecked) ->
