@@ -6,6 +6,7 @@ import androidx.annotation.Nullable;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -175,6 +176,22 @@ public class Event implements Serializable {
      */
     public void setWaitingList(List<String> waitingList) {
         this.waitingList = waitingList;
+    }
+
+    /**
+     * This method gets the list of the attendees who has accepted the invitation
+     * @return the list of attendee IDs
+     */
+    public List<String> getAttendeesList() {
+        return attendeesList;
+    }
+
+    /**
+     * This method sets the list of the attendees who has accepted the invitation
+     * @param attendeesList: the list of attendee IDs
+     */
+    public void setAttendeesList(List<String> attendeesList) {
+        this.attendeesList = attendeesList;
     }
 
     /**

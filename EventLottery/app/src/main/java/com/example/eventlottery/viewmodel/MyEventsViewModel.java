@@ -5,6 +5,7 @@ import android.provider.Settings;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
@@ -23,25 +24,27 @@ import java.util.List;
 public class MyEventsViewModel extends ViewModel {
 
     private final EventRepository repository;
-    private final LiveData<EventListUiState> state;
     private final String deviceId;
+    private final MutableLiveData<EventSegment> currentSegment = new MutableLiveData<>(EventSegment.WAITING_LIST);
+    private final LiveData<EventListUiState> state;
+
+    public enum EventSegment {
+        WAITING_LIST,
+        ACCEPTED,
+        HISTORY
+    }
 
     public MyEventsViewModel(@NonNull Context context) {
         repository = RepositoryProvider.getEventRepository();
         deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
 
-        // Transform repository events to UI state, filtering by deviceId in waiting list
-        state = Transformations.map(repository.observeEvents(), events -> {
-            List<Event> myEvents = new ArrayList<>();
-            if (events != null) {
-                for (Event event : events) {
-                    if (event.isOnWaitingList(deviceId)) {
-                        myEvents.add(event);
-                    }
-                }
-            }
-            return new EventListUiState(false, myEvents, null);
-        });
+        // Transform both repository events and segment changes into UI state
+        state = Transformations.switchMap(currentSegment, segment ->
+                Transformations.map(repository.observeEvents(), events -> {
+                    List<Event> filteredEvents = filterEventsBySegment(events, segment);
+                    return new EventListUiState(false, filteredEvents, null);
+                })
+        );
     }
 
     @NonNull
@@ -49,30 +52,51 @@ public class MyEventsViewModel extends ViewModel {
         return state;
     }
 
+    public LiveData<EventSegment> getCurrentSegment() {
+        return currentSegment;
+    }
+
+    public void switchSegment(EventSegment segment) {
+        currentSegment.setValue(segment);
+    }
+
+    private List<Event> filterEventsBySegment(List<Event> events, EventSegment segment) {
+        List<Event> filteredEvents = new ArrayList<>();
+        if (events == null) return filteredEvents;
+
+        long currentTime = System.currentTimeMillis();
+
+        for (Event event : events) {
+            boolean isOnWaitingList = event.isOnWaitingList(deviceId);
+            boolean isAttending = event.getAttendeesListSize() > 0 && event.getAttendeesList().contains(deviceId);
+
+            switch (segment) {
+                case WAITING_LIST:
+                    if (isOnWaitingList && !isAttending) {
+                        filteredEvents.add(event);
+                    }
+                    break;
+
+                case ACCEPTED:
+                    if (isAttending) {
+                        filteredEvents.add(event);
+                    }
+                    break;
+
+                case HISTORY:
+                    if (isAttending || isOnWaitingList) {
+                        filteredEvents.add(event);
+                    }
+                    break;
+            }
+        }
+        return filteredEvents;
+    }
+
     /**
      * Refresh all events from repository (pull-to-refresh or manual)
      */
     public void refresh() {
         repository.refresh();
-    }
-
-    /**
-     * Join an event's waiting list
-     */
-    public void joinEvent(@NonNull Event event) {
-        if (!event.isOnWaitingList(deviceId)) {
-            event.joinWaitingList(deviceId);
-            repository.updateWaitingList(event.getId(), event.getWaitingList());
-        }
-    }
-
-    /**
-     * Leave an event's waiting list
-     */
-    public void unjoinEvent(@NonNull Event event) {
-        if (event.isOnWaitingList(deviceId)) {
-            event.leaveWaitingList(deviceId);
-            repository.updateWaitingList(event.getId(), event.getWaitingList());
-        }
     }
 }

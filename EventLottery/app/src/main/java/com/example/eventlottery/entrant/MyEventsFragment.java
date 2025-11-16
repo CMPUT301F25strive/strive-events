@@ -13,7 +13,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.eventlottery.R;
-import com.example.eventlottery.databinding.FragmentEventListBinding;
+import com.example.eventlottery.databinding.FragmentMyEventsBinding;
 import com.example.eventlottery.model.Event;
 import com.example.eventlottery.viewmodel.MyEventsViewModel;
 import com.example.eventlottery.viewmodel.MyEventsViewModelFactory;
@@ -26,22 +26,25 @@ import java.util.List;
  */
 public class MyEventsFragment extends Fragment implements EventListAdapter.Listener {
 
-    private FragmentEventListBinding binding;
+    private FragmentMyEventsBinding binding;
     private MyEventsViewModel viewModel;
     private EventListAdapter adapter;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        binding = FragmentEventListBinding.inflate(inflater, container, false);
+        binding = FragmentMyEventsBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        // Set up UI
         setupRecycler();
         setupBottomNav();
+        setupToggleGroup();
         binding.pageHeader.setText(R.string.my_events_page_header);
 
         // Initialize ViewModel with context for device ID
@@ -51,7 +54,11 @@ public class MyEventsFragment extends Fragment implements EventListAdapter.Liste
         // Pull-to-refresh
         binding.eventRefresh.setOnRefreshListener(() -> viewModel.refresh());
 
-        // Observe state
+        // Get current state
+        viewModel.getCurrentSegment().observe(getViewLifecycleOwner(), segment -> {
+            updateToggleButtons(segment);
+            updateSectionHeader();
+        });
         viewModel.getState().observe(getViewLifecycleOwner(), this::renderState);
     }
 
@@ -59,6 +66,47 @@ public class MyEventsFragment extends Fragment implements EventListAdapter.Liste
         adapter = new EventListAdapter(this);
         binding.eventRecycler.setAdapter(adapter);
         binding.eventRecycler.setHasFixedSize(true);
+    }
+
+    private void setupToggleGroup() {
+        // Set initial state
+        binding.menuWaitingList.setChecked(true); //
+
+        // Initialize listeners
+        binding.myEventsToggleGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            if (isChecked) {
+                if (checkedId == R.id.menuWaitingList) {
+                    viewModel.switchSegment(MyEventsViewModel.EventSegment.WAITING_LIST);
+                } else if (checkedId == R.id.menuAccepted) {
+                    viewModel.switchSegment(MyEventsViewModel.EventSegment.ACCEPTED);
+                } else if (checkedId == R.id.menuHistory) {
+                    viewModel.switchSegment(MyEventsViewModel.EventSegment.HISTORY);
+                }
+            }
+        });
+    }
+
+    private void updateToggleButtons(MyEventsViewModel.EventSegment segment) {
+        binding.menuWaitingList.setChecked(segment == MyEventsViewModel.EventSegment.WAITING_LIST);
+        binding.menuAccepted.setChecked(segment == MyEventsViewModel.EventSegment.ACCEPTED);
+        binding.menuHistory.setChecked(segment == MyEventsViewModel.EventSegment.HISTORY);
+    }
+
+    private void updateSectionHeader() {
+        MyEventsViewModel.EventSegment segment = viewModel.getCurrentSegment().getValue();
+        if (segment != null) {
+            switch (segment) {
+                case WAITING_LIST:
+                    binding.upcomingHeader.setText("My Waiting List Events");
+                    break;
+                case ACCEPTED:
+                    binding.upcomingHeader.setText("My Upcoming Events");
+                    break;
+                case HISTORY:
+                    binding.upcomingHeader.setText("My Event History");
+                    break;
+            }
+        }
     }
 
     private void setupBottomNav() {
@@ -87,8 +135,32 @@ public class MyEventsFragment extends Fragment implements EventListAdapter.Liste
         if (state.errorMessage != null) {
             Toast.makeText(requireContext(), state.errorMessage, Toast.LENGTH_SHORT).show();
         } else if (myEvents.isEmpty()) {
-            Toast.makeText(requireContext(), getString(R.string.no_my_events_placeholder), Toast.LENGTH_SHORT).show();
+            showEmptyStateMessage();
+        } else {
+            binding.errorMessage.setVisibility(View.GONE);
         }
+    }
+
+    private void showEmptyStateMessage() {
+        MyEventsViewModel.EventSegment segment = viewModel.getCurrentSegment().getValue();
+        String message = "";
+
+        if (segment != null) {
+            switch (segment) {
+                case WAITING_LIST:
+                    message = "You haven't joined any waiting lists yet";
+                    break;
+                case ACCEPTED:
+                    message = "No upcoming events";
+                    break;
+                case HISTORY:
+                    message = "No past events attending";
+                    break;
+            }
+        }
+
+        binding.errorMessage.setText(message);
+        binding.errorMessage.setVisibility(View.VISIBLE);
     }
 
     @Override
