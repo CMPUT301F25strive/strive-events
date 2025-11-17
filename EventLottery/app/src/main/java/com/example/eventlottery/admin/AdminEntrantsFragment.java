@@ -45,11 +45,9 @@ public class AdminEntrantsFragment extends Fragment implements AdminEntrantAdapt
         adapter = new AdminEntrantAdapter(this);
         binding.entrantList.setAdapter(adapter);
         binding.entrantList.setHasFixedSize(true);
-
-        binding.adminEntrantsToolbar.setNavigationOnClickListener(v ->
+        binding.backButton.setOnClickListener(v ->
                 NavHostFragment.findNavController(this).popBackStack()
         );
-
         profileRepository.observeProfiles().observe(getViewLifecycleOwner(), profiles -> {
             if (profiles == null || profiles.isEmpty()) {
                 adapter.submitList(Collections.emptyList());

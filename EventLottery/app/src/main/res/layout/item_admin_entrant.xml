@@ -4,16 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="12dp"
-    app:cardCornerRadius="12dp"
+    android:layout_marginBottom="-16dp"
+    app:cardCornerRadius="36dp"
     app:cardUseCompatPadding="true"
-    app:strokeWidth="0dp">
+    app:strokeWidth="0dp"
+    app:cardBackgroundColor="#6AFFFFFF">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="18dp">
 
         <TextView
             android:id="@+id/adminEntrantName"
@@ -40,7 +41,7 @@
             android:layout_marginTop="4dp"
             android:textColor="@color/gray_dark"
             android:textSize="14sp"
-            tools:text="Role: USER" />
+            tools:text="USER" />
 
     </LinearLayout>
 
