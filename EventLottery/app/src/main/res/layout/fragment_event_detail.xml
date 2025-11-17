@@ -202,13 +202,13 @@
                 android:textColor="?attr/colorOnSurfaceVariant"
                 tools:text="Bring your swimsuit and positive vibes for a relaxed community challenge." />
 
-            <!-- Action Buttons -->
+            <!-- Action Buttons Container -->
             <LinearLayout
                 android:id="@+id/buttonContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:orientation="horizontal"
+                android:orientation="vertical"
                 android:gravity="end"
                 android:visibility="visible">
 
@@ -222,24 +222,23 @@
                     app:backgroundTint="@color/primary"
                     android:textColor="@android:color/white"
                     android:layout_marginTop="8dp" />
-            </LinearLayout>
 
-            <!-- Admin Delete Button -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/adminDeleteButton"
-                style="@style/Widget.Material3.Button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/delete_event"
-                android:textColor="@color/error"
-                android:strokeColor="@color/error"
-                android:visibility="gone"
-                app:icon="@drawable/ic_delete_24"
-                app:iconGravity="textStart"
-                app:iconPadding="6dp"
-                app:iconTint="@color/error"
-                app:rippleColor="@color/error_container" />
+                <!-- Admin Delete Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/adminDeleteButton"
+                    style="@style/Widget.Material3.Button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Delete Event"
+                    android:textColor="@android:color/white"
+                    app:backgroundTint="@color/error"
+                    android:visibility="gone"
+                    android:layout_marginTop="8dp"
+                    app:icon="@drawable/ic_delete_24"
+                    app:iconGravity="textStart"
+                    app:iconPadding="6dp"/>
+            </LinearLayout>
         </LinearLayout>
+
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

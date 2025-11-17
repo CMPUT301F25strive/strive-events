@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.eventlottery.data.RepositoryProvider;
 
 /**
- * provides entrant event list view models with shared repositories.
+ * Provides entrant event list view models with shared repositories.
  */
 public class EntrantEventListViewModelFactory implements ViewModelProvider.Factory {
 
@@ -18,6 +18,6 @@ public class EntrantEventListViewModelFactory implements ViewModelProvider.Facto
         if (modelClass.isAssignableFrom(EntrantEventListViewModel.class)) {
             return (T) new EntrantEventListViewModel(RepositoryProvider.getEventRepository());
         }
-        throw new IllegalArgumentException("unknown viewmodel type " + modelClass.getName());
+        throw new IllegalArgumentException("Unknown ViewModel type " + modelClass.getName());
     }
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/myEventsRoot"
@@ -25,11 +26,10 @@
             android:textSize="20sp"
             android:textStyle="bold"
             android:textColor="@color/black"
-            android:gravity="center"
+            android:gravity="center_vertical"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
         <ImageButton
             android:id="@+id/qrShortcut"
@@ -39,127 +39,96 @@
             android:contentDescription="@string/qr_shortcut_content_description"
             android:padding="4dp"
             android:src="@drawable/ic_qr_code_24"
+            android:tint="@color/black"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:tint="@color/black" />
-
+            app:layout_constraintBottom_toBottomOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Main content -->
-    <ScrollView
-        android:id="@+id/scrollView"
+    <!-- Segmented toggle group matching card width -->
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/myEventsToggleGroup"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        app:singleSelection="true"
+        app:selectionRequired="true"
+        app:layout_constraintTop_toBottomOf="@id/topBarLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:shapeAppearanceOverlay="@style/RoundedToggleGroup">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/menuWaitingList"
+            style="@style/StriveSegmentButtonTextOnly"
+            android:text="Waiting List"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/menuAccepted"
+            style="@style/StriveSegmentButtonTextOnly"
+            android:text="Accepted"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/menuHistory"
+            style="@style/StriveSegmentButtonTextOnly"
+            android:text="History"/>
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    <!-- SwipeRefreshLayout + RecyclerView (full-width, same card size as EntrantEventListFragment) -->
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/eventRefresh"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:fillViewport="true"
-        app:layout_constraintTop_toBottomOf="@id/topBarLayout"
+        android:clipToPadding="false"
+        app:layout_constraintTop_toBottomOf="@id/myEventsToggleGroup"
         app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <LinearLayout
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/eventRecycler"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="20dp">
-
-            <!-- Page title: My Events -->
-            <TextView
-                android:id="@+id/pageHeader"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:text="@string/my_events_page_header"
-                android:textColor="@color/black"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                tools:text="My Events" />
-
-            <!-- May need some adjustments for the addition of the role as an organizer-->
-            <!-- Segmented menu: Waiting List / Pending / History -->
-            <com.google.android.material.button.MaterialButtonToggleGroup
-                android:id="@+id/myEventsToggleGroup"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:singleSelection="true">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/menuWaitingList"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Waiting List"
-                    android:textAllCaps="false" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/menuAccepted"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Accepted"
-                    android:textAllCaps="false" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/menuHistory"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="History"
-                    android:textAllCaps="false" />
-            </com.google.android.material.button.MaterialButtonToggleGroup>
-
-            <!-- Section title: My Upcoming Events -->
-            <TextView
-                android:id="@+id/upcomingHeader"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="My Upcoming Events"
-                android:textColor="@color/black"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <!-- Pull-to-refresh function and the list of event cards -->
-            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-                android:id="@+id/eventRefresh"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clipToPadding="false"
-                android:paddingBottom="8dp">
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/eventRecycler"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:clipToPadding="false"
-                    android:paddingBottom="12dp"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                    tools:listitem="@layout/item_event_card" />
-            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
-        </LinearLayout>
-    </ScrollView>
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="56dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/item_event_card"/>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <!-- Bottom navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="#1A000000"
+        android:background="@android:color/transparent"
         app:itemIconSize="36dp"
-        app:itemIconTint="@color/bottom_nav_selector"
         app:itemRippleColor="@color/bottom_nav_ripple"
-        app:itemTextColor="@color/bottom_nav_selector"
+        app:itemIconTint="@android:color/black"
+        app:itemTextColor="@android:color/black"
+        app:menu="@menu/menu_bottom_nav"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:menu="@menu/menu_bottom_nav" />
+        android:elevation="12dp"/>
 
-    <!-- Loading indicator -->
+    <!-- Floating action button above bottom nav -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAddEvent"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="20dp"
+        android:contentDescription="add event"
+        android:src="@drawable/ic_add_24"
+        app:backgroundTint="@color/primary"
+        app:tint="@android:color/white"
+        android:elevation="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigation"/>
+
+    <!-- Loading indicator (centered) -->
     <ProgressBar
         android:id="@+id/loadingIndicator"
         style="?android:attr/progressBarStyleLarge"
@@ -170,9 +139,9 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Error message -->
+    <!-- Error message (centered) -->
     <TextView
         android:id="@+id/errorMessage"
         android:layout_width="wrap_content"
@@ -185,9 +154,9 @@
         android:textAppearance="?attr/textAppearanceBodyMedium"
         android:textColor="@android:color/holo_red_dark"
         android:visibility="gone"
-        tools:text="failed to load events"
+        tools:text="You haven’t joined any events"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

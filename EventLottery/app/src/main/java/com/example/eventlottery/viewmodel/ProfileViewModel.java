@@ -10,6 +10,10 @@ import com.example.eventlottery.data.ProfileRepository;
 import com.example.eventlottery.entrant.ProfileUiState;
 import com.example.eventlottery.model.Profile;
 
+/**
+ * ViewModel for managing profile operations: load, update, delete.
+ * Observed by ProfileFragment via uiState LiveData.
+ */
 public class ProfileViewModel extends ViewModel {
 
     private final ProfileRepository repository;
@@ -24,6 +28,9 @@ public class ProfileViewModel extends ViewModel {
         return uiState;
     }
 
+    /**
+     * Loads the profile for the given deviceID.
+     */
     public void loadProfile(String deviceID) {
         uiState.setValue(ProfileUiState.loading());
         this.currentDeviceID = deviceID;
@@ -47,6 +54,9 @@ public class ProfileViewModel extends ViewModel {
         });
     }
 
+    /**
+     * Updates the current profile's personal information.
+     */
     public void updateProfile(String name, String email, String phone) {
         ProfileUiState cur = uiState.getValue();
         if (cur == null || cur.getProfile() == null) return;
@@ -72,30 +82,40 @@ public class ProfileViewModel extends ViewModel {
         });
     }
 
+    /**
+     * Deletes the current profile.
+     * On success, sets uiState to deleted, triggering fragment navigation.
+     */
     public void deleteProfile() {
         ProfileUiState cur = uiState.getValue();
-        if (cur == null || cur.getProfile() == null) return;
+        if (cur == null || cur.getProfile() == null) {
+            uiState.setValue(ProfileUiState.error("No profile loaded"));
+            return;
+        }
 
         String deviceId = cur.getProfile().getDeviceID();
-        if (deviceId != null) {
-            repository.deleteUser(deviceId, new ProfileRepository.ProfileCallback() {
-                @Override
-                public void onSuccess(Profile profile) {
-                    // Not used in delete
-                }
-
-                @Override
-                public void onDeleted() {
-                    uiState.postValue(ProfileUiState.deleted());
-                }
-
-                @Override
-                public void onError(String message) {
-                    uiState.postValue(ProfileUiState.error(message));
-                }
-            });
-        } else {
-            uiState.setValue(ProfileUiState.error("Device ID is null"));
+        if (deviceId == null || deviceId.isEmpty()) {
+            uiState.setValue(ProfileUiState.error("Device ID is null or empty"));
+            return;
         }
+
+        repository.deleteUser(deviceId, new ProfileRepository.ProfileCallback() {
+            @Override
+            public void onSuccess(Profile profile) {
+                // Not used for delete
+            }
+
+            @Override
+            public void onDeleted() {
+                Log.d("ProfileViewModel", "Profile deleted successfully: " + deviceId);
+                uiState.postValue(ProfileUiState.deleted());
+            }
+
+            @Override
+            public void onError(String message) {
+                Log.e("ProfileViewModel", "Error deleting profile: " + message);
+                uiState.postValue(ProfileUiState.error(message));
+            }
+        });
     }
 }

@@ -8,7 +8,7 @@
     android:layout_height="match_parent"
     tools:context=".entrant.EntrantEventListFragment">
 
-    <!-- Top bar -->
+    <!-- Top bar with STRIVE aligned left -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/topBarLayout"
         android:layout_width="match_parent"
@@ -27,10 +27,9 @@
             android:textStyle="bold"
             android:textColor="@color/black"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:gravity="center"/>
+            android:gravity="center_vertical"/>
 
         <ImageButton
             android:id="@+id/qrShortcut"
@@ -59,69 +58,58 @@
             app:layout_constraintBottom_toBottomOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Scrollable event list -->
-    <ScrollView
-        android:id="@+id/scrollView"
+    <!-- SwipeRefreshLayout + RecyclerView for events -->
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/eventRefresh"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:fillViewport="true"
+        android:clipToPadding="false"
         app:layout_constraintTop_toBottomOf="@id/topBarLayout"
         app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <LinearLayout
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/eventRecycler"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="20dp"
-            android:gravity="start">
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="56dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/item_event_card" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-            <TextView
-                android:id="@+id/pageHeader"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:text="@string/home_page_header"
-                android:textColor="@color/black"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                tools:text="Home" />
-
-            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-                android:id="@+id/eventRefresh"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:clipToPadding="false"
-                android:paddingBottom="8dp">
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/eventRecycler"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:clipToPadding="false"
-                    android:paddingBottom="12dp"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                    tools:listitem="@layout/item_event_card"/>
-            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
-        </LinearLayout>
-    </ScrollView>
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="#1A000000"
+        android:background="@android:color/transparent"
         app:itemIconSize="36dp"
-        app:itemIconTint="@color/bottom_nav_selector"
         app:itemRippleColor="@color/bottom_nav_ripple"
-        app:itemTextColor="@color/bottom_nav_selector"
+        app:itemIconTint="@android:color/black"
+        app:itemTextColor="@android:color/black"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:menu="@menu/menu_bottom_nav"/>
+        app:menu="@menu/menu_bottom_nav"
+        android:elevation="12dp"/>
 
-    <!-- Loading indicator -->
+    <!-- Floating action button above bottom nav -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAddEvent"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="20dp"
+        android:contentDescription="add event"
+        android:src="@drawable/ic_add_24"
+        app:backgroundTint="@color/primary"
+        app:tint="@android:color/white"
+        android:elevation="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigation"/>
+
+    <!-- Loading indicator (centered) -->
     <ProgressBar
         android:id="@+id/loadingIndicator"
         style="?android:attr/progressBarStyleLarge"
@@ -134,7 +122,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Error message -->
+    <!-- Error message (centered) -->
     <TextView
         android:id="@+id/errorMessage"
         android:layout_width="wrap_content"
@@ -149,6 +137,7 @@
         android:visibility="gone"
         tools:text="failed to load events"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

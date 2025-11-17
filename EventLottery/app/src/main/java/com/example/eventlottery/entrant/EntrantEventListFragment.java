@@ -46,7 +46,7 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
         super.onViewCreated(view, savedInstanceState);
         setupRecycler();
         setupBottomNav();
-        binding.pageHeader.setText(R.string.home_page_header);
+//        binding.pageHeader.setText(R.string.home_page_header);
 
         viewModel = new ViewModelProvider(this, new EntrantEventListViewModelFactory())
                 .get(EntrantEventListViewModel.class);
@@ -61,8 +61,13 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
         binding.filterButton.setOnClickListener(v ->
                 Toast.makeText(requireContext(), R.string.filter_content_description, Toast.LENGTH_SHORT).show()
         );
-    }
 
+        // === ADD NAVIGATION TO CREATE EVENT ===
+        binding.fabAddEvent.setOnClickListener(v ->
+                NavHostFragment.findNavController(this)
+                        .navigate(R.id.action_entrantEventListFragment_to_createEventFragment)
+        );
+    }
     private void setupRecycler() {
         adapter = new EventListAdapter(this);
         binding.eventRecycler.setAdapter(adapter);
@@ -102,6 +107,7 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
         }
     }
 
+
     private void showMessage(@NonNull String message) {
         binding.errorMessage.setText(message);
         binding.errorMessage.setVisibility(View.VISIBLE);
@@ -120,4 +126,5 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
         NavHostFragment.findNavController(this)
                 .navigate(R.id.action_entrantEventListFragment_to_eventDetailFragment, args);
     }
+
 }

@@ -1,5 +1,6 @@
 package com.example.eventlottery.entrant;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,8 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.example.eventlottery.R;
 import com.example.eventlottery.databinding.ItemEventCardBinding;
 import com.example.eventlottery.model.Event;
 
@@ -16,9 +19,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-/**
- * recycler adapter for entrant event list.
- */
 public class EventListAdapter extends ListAdapter<Event, EventListAdapter.EventViewHolder> {
 
     public interface Listener {
@@ -26,8 +26,10 @@ public class EventListAdapter extends ListAdapter<Event, EventListAdapter.EventV
     }
 
     private final Listener listener;
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMM d yyyy", Locale.getDefault());
-    private final SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
+
+    private final SimpleDateFormat outputDateFormat =
+            new SimpleDateFormat("EEE, MMM d yyyy • h:mm a", Locale.getDefault());
+
     public EventListAdapter(@NonNull Listener listener) {
         super(DIFF_CALLBACK);
         this.listener = listener;
@@ -36,15 +38,17 @@ public class EventListAdapter extends ListAdapter<Event, EventListAdapter.EventV
     @NonNull
     @Override
     public EventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        ItemEventCardBinding binding = ItemEventCardBinding.inflate(inflater, parent, false);
+        ItemEventCardBinding binding = ItemEventCardBinding.inflate(
+                LayoutInflater.from(parent.getContext()),
+                parent,
+                false
+        );
         return new EventViewHolder(binding);
     }
 
     @Override
     public void onBindViewHolder(@NonNull EventViewHolder holder, int position) {
-        Event event = getItem(position);
-        holder.bind(event);
+        holder.bind(getItem(position));
     }
 
     class EventViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -57,29 +61,38 @@ public class EventListAdapter extends ListAdapter<Event, EventListAdapter.EventV
             this.binding = binding;
             binding.getRoot().setOnClickListener(this);
         }
-
         void bind(@NonNull Event event) {
             boundEvent = event;
-            binding.eventPoster.setImageResource(event.getPosterResId());
-            binding.eventTitle.setText(event.getTitle());
-            binding.eventOrganizer.setText(String.format(Locale.getDefault(), "with %s", event.getOrganizerName()));
 
-            Date date = new Date(event.getStartTimeMillis());
-            binding.eventDate.setText(dateFormat.format(date));
-            String timeCopy = timeFormat.format(date).toLowerCase(Locale.getDefault());
-            binding.eventTime.setText(timeCopy);
-            binding.eventVenue.setText(event.getVenue());
-            binding.eventStatus.setText(buildStatusCopy(event));
-        }
-
-        private String buildStatusCopy(@NonNull Event event) {
-            if (event.getStatus() == Event.Status.REG_OPEN) {
-                if (event.getSpotsRemaining() > 0) {
-                    return String.format(Locale.getDefault(), "%d spots left", event.getSpotsRemaining());
-                }
-                return "waitlist almost full";
+            // === POSTER ===
+            if (event.getPosterUrl() != null && !event.getPosterUrl().isEmpty()) {
+                Glide.with(binding.getRoot().getContext())
+                        .load(event.getPosterUrl())
+                        .into(binding.eventPoster);
+            } else {
+                binding.eventPoster.setImageResource(R.drawable.event_image_placeholder);
             }
-            return event.getStatus().name();
+
+            // === TITLE ===
+            binding.eventTitle.setText(event.getTitle());
+
+            // === ORGANIZER ===
+            binding.eventOrganizer.setText(event.getOrganizerName() != null ? "with " + event.getOrganizerName() : "");
+
+            // === DATE & TIME ===
+            Date date = new Date(event.getStartTimeMillis());
+            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMM d yyyy", Locale.getDefault());
+            SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
+
+            binding.eventDate.setText(dateFormat.format(date));
+            binding.eventTime.setText(timeFormat.format(date).toLowerCase(Locale.getDefault()));
+
+            // === VENUE ===
+            binding.eventVenue.setText(event.getVenue());
+
+            // === STATUS ===
+            binding.eventStatus.setText(""); // Or use a status string if needed
+            Log.d("EventAdapter", "Event: " + event.getTitle() + ", millis: " + event.getStartTimeMillis());
         }
 
         @Override
@@ -90,15 +103,27 @@ public class EventListAdapter extends ListAdapter<Event, EventListAdapter.EventV
         }
     }
 
-    private static final DiffUtil.ItemCallback<Event> DIFF_CALLBACK = new DiffUtil.ItemCallback<Event>() {
-        @Override
-        public boolean areItemsTheSame(@NonNull Event oldItem, @NonNull Event newItem) {
-            return oldItem.getId().equals(newItem.getId());
-        }
+    private static final DiffUtil.ItemCallback<Event> DIFF_CALLBACK =
+            new DiffUtil.ItemCallback<Event>() {
+                @Override
+                public boolean areItemsTheSame(
+                        @NonNull Event oldItem,
+                        @NonNull Event newItem
+                ) {
+                    return oldItem.getId().equals(newItem.getId());
+                }
 
-        @Override
-        public boolean areContentsTheSame(@NonNull Event oldItem, @NonNull Event newItem) {
-            return oldItem.equals(newItem);
-        }
-    };
+                @Override
+                public boolean areContentsTheSame(
+                        @NonNull Event oldItem,
+                        @NonNull Event newItem
+                ) {
+                    // Compare meaningful fields only
+                    return oldItem.getTitle().equals(newItem.getTitle()) &&
+                            oldItem.getVenue().equals(newItem.getVenue()) &&
+                            oldItem.getStartTimeMillis() == newItem.getStartTimeMillis() &&
+                            String.valueOf(oldItem.getPosterUrl())
+                                    .equals(String.valueOf(newItem.getPosterUrl()));
+                }
+            };
 }

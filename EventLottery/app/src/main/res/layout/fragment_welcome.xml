@@ -1,107 +1,133 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="24dp">
+    android:layout_height="match_parent">
 
-    <LinearLayout
-        android:orientation="vertical"
-        android:gravity="center_horizontal"
+    <!-- Top bar with STRIVE -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/topBarLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="56dp"
+        android:paddingTop="16dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <!-- App Title -->
         <TextView
-            android:id="@+id/tvTitle"
+            android:id="@+id/appNameText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="STRIVE"
             android:textSize="20sp"
             android:textStyle="bold"
             android:textColor="@color/black"
-            android:gravity="center"
-            android:layout_marginBottom="32dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:gravity="center_vertical"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <!-- Name input -->
-        <com.google.android.material.textfield.TextInputLayout
+    <!-- Scrollable form content below top bar -->
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toBottomOf="@id/topBarLayout"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:padding="20dp">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:gravity="start"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:boxBackgroundMode="outline"
-            app:boxStrokeColor="@color/primary"
-            app:boxCornerRadiusTopStart="100dp"
-            app:boxCornerRadiusTopEnd="100dp"
-            app:boxCornerRadiusBottomStart="100dp"
-            app:boxCornerRadiusBottomEnd="100dp"
-            android:hint="Full Name">
+            android:layout_height="wrap_content">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etName"
+            <!-- Name input -->
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPersonName"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_marginBottom="16dp"
+                app:boxBackgroundMode="outline"
+                app:boxStrokeColor="@color/primary"
+                app:boxCornerRadiusTopStart="100dp"
+                app:boxCornerRadiusTopEnd="100dp"
+                app:boxCornerRadiusBottomStart="100dp"
+                app:boxCornerRadiusBottomEnd="100dp"
+                android:hint="Full Name">
 
-        <!-- Email input -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:boxBackgroundMode="outline"
-            app:boxStrokeColor="@color/primary"
-            app:boxCornerRadiusTopStart="100dp"
-            app:boxCornerRadiusTopEnd="100dp"
-            app:boxCornerRadiusBottomStart="100dp"
-            app:boxCornerRadiusBottomEnd="100dp"
-            android:hint="Email">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPersonName"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etEmail"
+            <!-- Email input -->
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textEmailAddress"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_marginBottom="16dp"
+                app:boxBackgroundMode="outline"
+                app:boxStrokeColor="@color/primary"
+                app:boxCornerRadiusTopStart="100dp"
+                app:boxCornerRadiusTopEnd="100dp"
+                app:boxCornerRadiusBottomStart="100dp"
+                app:boxCornerRadiusBottomEnd="100dp"
+                android:hint="Email">
 
-        <!-- Phone input -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:boxBackgroundMode="outline"
-            app:boxStrokeColor="@color/primary"
-            app:boxCornerRadiusTopStart="100dp"
-            app:boxCornerRadiusTopEnd="100dp"
-            app:boxCornerRadiusBottomStart="100dp"
-            app:boxCornerRadiusBottomEnd="100dp"
-            android:hint="Phone (optional)">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textEmailAddress"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etPhone"
+            <!-- Phone input -->
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="phone"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_marginBottom="16dp"
+                app:boxBackgroundMode="outline"
+                app:boxStrokeColor="@color/primary"
+                app:boxCornerRadiusTopStart="100dp"
+                app:boxCornerRadiusTopEnd="100dp"
+                app:boxCornerRadiusBottomStart="100dp"
+                app:boxCornerRadiusBottomEnd="100dp"
+                android:hint="Phone (optional)">
 
-        <!-- Progress bar -->
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="?android:attr/progressBarStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            android:layout_marginBottom="16dp" />
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etPhone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="phone"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Main action button -->
-        <Button
-            android:id="@+id/btnMainAction"
-            android:text="Register"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:backgroundTint="@color/primary"
-            android:textColor="@color/white"
-            android:visibility="gone" />
+            <!-- Progress bar -->
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:visibility="gone"
+                android:layout_marginBottom="16dp" />
 
-    </LinearLayout>
-</ScrollView>
+            <!-- Main action button -->
+            <Button
+                android:id="@+id/btnMainAction"
+                android:text="Register"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:backgroundTint="@color/primary"
+                android:textColor="@color/white"
+                android:visibility="gone" />
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -8,7 +8,7 @@
     android:layout_height="match_parent"
     tools:context=".entrant.EditProfileFragment">
 
-    <!-- === CONSISTENT TOP BAR (back button + center title only) === -->
+    <!-- === CLEAN TOP BAR (no tint, black text, consistent height) === -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/topBarLayout"
         android:layout_width="match_parent"
@@ -16,6 +16,7 @@
         android:paddingTop="16dp"
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
+        android:background="@android:color/transparent"
         app:layout_constraintTop_toTopOf="parent">
 
         <!-- Back button -->
@@ -53,9 +54,9 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="56dp"
+        android:fillViewport="true"
         app:layout_constraintTop_toBottomOf="@id/topBarLayout"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:fillViewport="true">
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -64,6 +65,7 @@
             android:padding="20dp"
             android:gravity="center_horizontal">
 
+            <!-- Avatar -->
             <ImageView
                 android:id="@+id/profileAvatar"
                 android:layout_width="100dp"
@@ -136,6 +138,7 @@
                     android:hint="Phone Number (optional)"
                     android:inputType="phone"/>
             </com.google.android.material.textfield.TextInputLayout>
+
             <!-- Save button -->
             <Button
                 android:id="@+id/buttonSave"
@@ -146,7 +149,7 @@
                 android:backgroundTint="@color/primary"
                 android:textColor="@color/white"/>
 
-            <!-- Admin delete button (optional) -->
+            <!-- Admin delete button -->
             <Button
                 android:id="@+id/adminDeleteButton"
                 android:layout_width="match_parent"
@@ -159,5 +162,4 @@
 
         </LinearLayout>
     </ScrollView>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.bumptech.glide.Glide;
 import com.example.eventlottery.R;
 import com.example.eventlottery.admin.AdminGate;
 import com.example.eventlottery.WaitingListController;
@@ -96,7 +97,13 @@ public class EventDetailFragment extends Fragment {
     }
 
     private void bindEvent(@NonNull Event event) {
-        binding.eventDetailPoster.setImageResource(event.getPosterResId());
+        if (event.getPosterUrl() != null && !event.getPosterUrl().isEmpty()) {
+        Glide.with(requireContext())
+                .load(event.getPosterUrl())
+                .into(binding.eventDetailPoster);
+    } else {
+        binding.eventDetailPoster.setImageResource(R.drawable.event_image_placeholder);
+    }
         binding.eventDetailTitle.setText(event.getTitle());
         binding.eventDetailOrganizer.setText(getString(R.string.event_detail_organizer_format, event.getOrganizerName()));
 
@@ -152,14 +159,19 @@ public class EventDetailFragment extends Fragment {
         final MaterialButton joinButton = binding.joinEventButton;
 
         updateButtonAppearance(event.isOnWaitingList(userID));
-
         joinButton.setOnClickListener(v -> {
             boolean currentlyOnWaitlist = event.isOnWaitingList(userID);
+
             if (currentlyOnWaitlist) {
                 waitingListController.leaveWaitingList(event.getId(), userID);
                 Toast.makeText(requireContext(), "Left waiting list", Toast.LENGTH_SHORT).show();
                 updateButtonAppearance(false);
             } else {
+                // Check if event is actually full first
+                if (event.getStatus() != Event.Status.REG_OPEN) {
+                    Toast.makeText(requireContext(), "Registration closed", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 waitingListController.joinWaitingList(event.getId(), userID);
                 Toast.makeText(requireContext(), "Joined waiting list", Toast.LENGTH_SHORT).show();
                 updateButtonAppearance(true);

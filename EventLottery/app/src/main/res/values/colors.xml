@@ -46,4 +46,9 @@
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="error_container">#FFCDD2</color> <!-- light red for ripple -->
+    <color name="strive_segment_background_tube">#00FFFFFF</color> <!-- fully transparent placeholder -->
+    <color name="strive_segment_unselected">#10FFFFFF</color> <!-- transparent tube -->
+    <color name="strive_segment_selected">#FFFFFFFF</color>   <!-- white for selected -->
+    <color name="red">#FF0000</color> <!-- for selected segment -->
+    <color name="segment_background">#FFFFFF</color>
 </resources>

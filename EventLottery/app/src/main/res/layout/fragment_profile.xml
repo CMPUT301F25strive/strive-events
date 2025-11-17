@@ -8,7 +8,7 @@
     android:layout_height="match_parent"
     tools:context=".entrant.ProfileFragment">
 
-    <!-- Top bar -->
+    <!-- Top bar with STRIVE aligned left -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/topBarLayout"
         android:layout_width="match_parent"
@@ -16,7 +16,6 @@
         android:paddingTop="16dp"
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
-        android:background="@android:color/transparent"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
@@ -28,10 +27,9 @@
             android:textStyle="bold"
             android:textColor="@color/black"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:gravity="center"/>
+            android:gravity="center_vertical"/>
 
         <ImageButton
             android:id="@+id/qrShortcut"
@@ -65,17 +63,7 @@
             android:padding="20dp"
             android:gravity="center_horizontal">
 
-            <TextView
-                android:id="@+id/profileHeader"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:layout_gravity="start"
-                android:text="@string/profile_page_header"
-                android:textColor="@color/black"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:gravity="start" />
+            <!-- PROFILE header removed -->
 
             <TextView
                 android:id="@+id/adminBadge"
@@ -208,20 +196,18 @@
                 android:layout_marginTop="16dp"/>
         </LinearLayout>
     </ScrollView>
-
-    <!-- Bottom navigation -->
-    <!-- Bottom navigation with semi-transparent black background -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="#1A000000"
+        android:background="@android:color/transparent"
         app:itemIconSize="36dp"
-        app:itemIconTint="@color/bottom_nav_selector"
         app:itemRippleColor="@color/bottom_nav_ripple"
-        app:itemTextColor="@color/bottom_nav_selector"
+        app:itemIconTint="@android:color/black"
+        app:itemTextColor="@android:color/black"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:menu="@menu/menu_bottom_nav"/>
+        app:menu="@menu/menu_bottom_nav"
+        android:elevation="12dp"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

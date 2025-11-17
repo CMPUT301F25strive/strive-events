@@ -1,6 +1,5 @@
 package com.example.eventlottery.entrant;
 
-import android.app.AlertDialog;
 import android.os.Bundle;
 import android.provider.Settings.Secure;
 import android.util.Log;
@@ -23,6 +22,7 @@ import com.example.eventlottery.databinding.FragmentProfileBinding;
 import com.example.eventlottery.model.Profile;
 import com.example.eventlottery.viewmodel.ProfileViewModel;
 import com.example.eventlottery.viewmodel.ProfileViewModelFactory;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 public class ProfileFragment extends Fragment {
 
@@ -93,13 +93,14 @@ public class ProfileFragment extends Fragment {
                         .navigate(R.id.action_profileFragment_to_profileEditFragment)
         );
 
-        // Delete Account — clean default AlertDialog
+        // === Delete Account — Material3 Styled Dialog (matches Event delete dialog) ===
+
         binding.menuDeleteAccount.setOnClickListener(v -> {
-            new AlertDialog.Builder(requireContext())
+            new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
                     .setTitle("Delete Account")
                     .setMessage("Are you sure you want to delete your account? This action cannot be undone.")
+                    .setNegativeButton(android.R.string.cancel, null)
                     .setPositiveButton("Delete", (dialog, which) -> viewModel.deleteProfile())
-                    .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
                     .show();
         });
 

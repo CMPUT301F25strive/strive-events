@@ -35,10 +35,14 @@
             android:id="@+id/action_entrantEventListFragment_to_eventDetailFragment"
             app:destination="@id/eventDetailFragment" />
 
-        <!-- Fixed: Add action to MyEventsFragment here -->
         <action
             android:id="@+id/action_entrantEventListFragment_to_myEventsFragment"
             app:destination="@id/myEventsFragment" />
+
+        <!-- NEW: Navigate to CreateEventFragment -->
+        <action
+            android:id="@+id/action_entrantEventListFragment_to_createEventFragment"
+            app:destination="@id/createEventFragment" />
     </fragment>
 
     <!-- Profile Fragment -->
@@ -73,6 +77,7 @@
         <action
             android:id="@+id/action_profileFragment_to_myEventsFragment"
             app:destination="@id/myEventsFragment" />
+
     </fragment>
 
     <!-- Edit Profile Fragment -->
@@ -96,6 +101,9 @@
         android:label="My Events"
         tools:layout="@layout/fragment_event_list">
 
+        <action
+            android:id="@+id/action_myEventsFragment_to_createEventFragment"
+            app:destination="@id/createEventFragment" />
         <action
             android:id="@+id/action_myEventsFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
@@ -132,4 +140,11 @@
         android:name="com.example.eventlottery.admin.AdminEditProfileFragment"
         android:label="@string/admin_profile_edit_title"
         tools:layout="@layout/fragment_edit_profile" />
+
+    <fragment
+        android:id="@+id/createEventFragment"
+        android:name="com.example.eventlottery.ui.createevent.CreateEventFragment"
+        android:label="Create Event"
+        tools:layout="@layout/fragment_create_event" />
+
 </navigation>

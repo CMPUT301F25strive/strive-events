@@ -35,20 +35,20 @@ public class WaitingListController {
      */
     public void joinWaitingList(String eventID, String userID) {
         Event event = eventRepository.findEventById(eventID);
+        System.out.println("Cannot join waiting list - registration closed");
         if (event == null) {
             throw new IllegalArgumentException("Event not found: " + eventID);
         }
 
-        // Check if event is full and registration is open
-        if (event.getSpotsRemaining() <= 0 && event.getStatus() == Event.Status.REG_OPEN) {
-            // Add to waiting list if not already there
+        // Only allow joining if registration is open
+        if (event.getStatus() == Event.Status.REG_OPEN) {
             if (!event.isOnWaitingList(userID)) {
                 event.joinWaitingList(userID);
-                // Update in Firebase
+                // Update Firebase immediately
                 eventRepository.updateWaitingList(eventID, event.getWaitingList());
             }
         } else {
-            throw new IllegalStateException("Cannot join waiting list - event has available spots or registration closed");
+            System.out.println("Cannot join waiting list - registration closed");
         }
     }
 
