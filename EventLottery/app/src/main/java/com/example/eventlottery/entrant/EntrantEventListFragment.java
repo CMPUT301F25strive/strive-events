@@ -67,7 +67,7 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
 
         binding.filterButton.setOnClickListener(v -> {
             // Make filter fragment a child fragment of this fragment.
-            new EventFilterFragment().show(getChildFragmentManager(), "filter");
+            EventFilterFragment.newInstance(filter).show(getChildFragmentManager(), "filter");
         });
 
         // === ADD NAVIGATION TO CREATE EVENT ===

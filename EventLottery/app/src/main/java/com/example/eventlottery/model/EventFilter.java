@@ -4,7 +4,7 @@ import androidx.annotation.Nullable;
 
 import java.io.Serializable;
 
-public class EventFilter {
+public class EventFilter implements Serializable {
     @Nullable
     private Long filterStartTimeMillis;
 

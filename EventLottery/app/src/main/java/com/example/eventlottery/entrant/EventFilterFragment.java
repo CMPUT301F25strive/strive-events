@@ -10,15 +10,16 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
 import com.example.eventlottery.R;
 import com.example.eventlottery.model.Event;
 import com.example.eventlottery.model.EventFilter;
-import androidx.fragment.app.DialogFragment;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -28,21 +29,37 @@ import java.util.Locale;
 
 
 public class EventFilterFragment extends DialogFragment {
+    private static final String ARG_FILTER = "arg_filter";  // Constant key for the EventFilter arg Bundle.
 
     public interface Listener {
         void onFilterChanged(@NonNull EventFilter filter);
     }
 
-    // Initializations
+    // Listener to parent (EntrantEventListFragment)
     private Listener listener;
+
+    // UI
     private ChipGroup chipGroup;
     private MaterialButton startDateBtn;
     private MaterialButton endDateBtn;
 
-    // filter state
+    // Filter state
+    @Nullable
     private Long startTime = null;
+    @Nullable
     private Long endTime = null;
+    @Nullable
     private Event.Tag selectedTag = null;
+    @Nullable
+    private EventFilter initialFilter;
+
+    public static EventFilterFragment newInstance(@Nullable EventFilter filter) {
+        EventFilterFragment fragment = new EventFilterFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(ARG_FILTER, filter);   // Pack current filter into bundle
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -51,6 +68,19 @@ public class EventFilterFragment extends DialogFragment {
         Fragment parent = getParentFragment();
         if (parent instanceof Listener) {
             listener = (Listener) parent;
+        }
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            initialFilter = (EventFilter) getArguments().getSerializable(ARG_FILTER);
+            if (initialFilter != null) {
+                startTime = initialFilter.getFilterStartTimeMillis();
+                endTime = initialFilter.getFilterEndTimeMillis();
+                selectedTag = initialFilter.getFilterTag();
+            }
         }
     }
 
@@ -67,7 +97,7 @@ public class EventFilterFragment extends DialogFragment {
 
         WindowManager.LayoutParams params = window.getAttributes();
         params.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
-        params.y = 50; // Offset from the top
+        params.y = 50; // offset from status bar; tweak as needed
         window.setAttributes(params);
     }
 
@@ -83,11 +113,17 @@ public class EventFilterFragment extends DialogFragment {
         startDateBtn = view.findViewById(R.id.startDateButton);
         endDateBtn = view.findViewById(R.id.endDateButton);
         ImageButton closeBtn = view.findViewById(R.id.closeButton);
+        TextView resetBtn = view.findViewById(R.id.resetButton);
 
         closeBtn.setOnClickListener(v -> dismiss());
+        resetBtn.setOnClickListener(v -> resetFilter());
 
+        // Connect behavior to internal states (the filter)
         setupChips();
         setupDateButtons();
+
+        // Set UI to match internal state (the filter)
+        bindInitialStateToUI();
 
         return view;
     }
@@ -100,12 +136,15 @@ public class EventFilterFragment extends DialogFragment {
             } else {
                 int id = checkedIds.get(0);
                 Chip chip = group.findViewById(id);
-                String text = chip.getText().toString();
-
-                selectedTag = mapChipTextToTag(text);
+                if (chip != null) {
+                    String text = chip.getText().toString();
+                    selectedTag = mapChipTextToTag(text);
+                } else {
+                    selectedTag = null;
+                }
             }
 
-            sendFilter();
+            sendFilter();   // Notify parent
         });
     }
 
@@ -145,7 +184,7 @@ public class EventFilterFragment extends DialogFragment {
                         endDateBtn.setText(format(year, month, day));
                     }
 
-                    sendFilter();
+                    sendFilter();   // Notify parent
                 },
                 now.get(Calendar.YEAR),
                 now.get(Calendar.MONTH),
@@ -164,5 +203,70 @@ public class EventFilterFragment extends DialogFragment {
 
         EventFilter filter = new EventFilter(startTime, endTime, selectedTag);
         listener.onFilterChanged(filter);
+    }
+
+    private void bindInitialStateToUI() {
+        // Tag selection
+        if (selectedTag != null && chipGroup != null) {
+            // If with a selected tag chip form last time, match the id
+            int chipId = View.NO_ID;
+            switch (selectedTag) {
+                case ART: chipId = R.id.chip_art; break;
+                case MUSIC: chipId = R.id.chip_music; break;
+                case EDUCATION: chipId = R.id.chip_education; break;
+                case SPORTS: chipId = R.id.chip_sports; break;
+                case PARTY: chipId = R.id.chip_party; break;
+            }
+            if (chipId != View.NO_ID) {
+                // Check the matched chip
+                chipGroup.check(chipId);
+            }
+        } else if (chipGroup != null) {
+            // If no tag selected, clear the selection.
+            chipGroup.clearCheck();
+        }
+
+        // Start date
+        if (startTime != null) {
+            Calendar c = Calendar.getInstance();
+            c.setTimeInMillis(startTime);
+            startDateBtn.setText(format(
+                    c.get(Calendar.YEAR),
+                    c.get(Calendar.MONTH),
+                    c.get(Calendar.DAY_OF_MONTH)
+            ));
+        } else {
+            startDateBtn.setText("Start date");
+        }
+
+        // End date
+        if (endTime != null) {
+            Calendar c = Calendar.getInstance();
+            c.setTimeInMillis(endTime);
+            endDateBtn.setText(format(
+                    c.get(Calendar.YEAR),
+                    c.get(Calendar.MONTH),
+                    c.get(Calendar.DAY_OF_MONTH)
+            ));
+        } else {
+            endDateBtn.setText("End date");
+        }
+    }
+
+    private void resetFilter() {
+        // Clear filter state
+        startTime = null;
+        endTime = null;
+        selectedTag = null;
+
+        // Clear UI
+        if (chipGroup != null) {
+            chipGroup.clearCheck();
+        }
+        startDateBtn.setText("Start date");
+        endDateBtn.setText("End date");
+
+        // Notify parent
+        sendFilter();
     }
 }
