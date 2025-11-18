@@ -20,6 +20,7 @@ import com.example.eventlottery.R;
 import com.example.eventlottery.data.FirebaseEventRepository;
 import com.example.eventlottery.model.Event;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.chip.ChipGroup;
 
 import java.util.Calendar;
 import java.util.UUID;
@@ -37,6 +38,8 @@ public class CreateEventFragment extends Fragment {
 
     private Button saveButton;
     private ImageButton backButton;
+    private ChipGroup tagChipGroup;
+    private Event.Tag selectedTag = null;
 
     private FirebaseEventRepository firebaseRepo;
 
@@ -64,6 +67,30 @@ public class CreateEventFragment extends Fragment {
 
         saveButton = view.findViewById(R.id.buttonSaveEvent);
         backButton = view.findViewById(R.id.backButton);
+        tagChipGroup = view.findViewById(R.id.tagChipGroupForCreating);
+
+        tagChipGroup.setOnCheckedStateChangeListener((group, checkedIds) -> {
+            if (checkedIds.isEmpty()) {
+                selectedTag = null;
+                return;
+            }
+
+            int id = checkedIds.get(0);
+
+            if (id == R.id.chip_art) {
+                selectedTag = Event.Tag.ART;
+            } else if (id == R.id.chip_music) {
+                selectedTag = Event.Tag.MUSIC;
+            } else if (id == R.id.chip_education) {
+                selectedTag = Event.Tag.EDUCATION;
+            } else if (id == R.id.chip_sports) {
+                selectedTag = Event.Tag.SPORTS;
+            } else if (id == R.id.chip_party) {
+                selectedTag = Event.Tag.PARTY;
+            } else {
+                selectedTag = null;
+            }
+        });
 
         // === IMAGE PICKER ===
         eventPoster.setOnClickListener(v -> openGallery());
@@ -172,6 +199,12 @@ public class CreateEventFragment extends Fragment {
         String max = editTextMaxParticipants.getText().toString().trim();
         int maxParticipants = max.isEmpty() ? 0 : Integer.parseInt(max);
 
+        // Select a tag
+        if (selectedTag == null) {
+            Toast.makeText(requireContext(), "Please select a category", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if (date.isEmpty() || time.isEmpty()) {
             Toast.makeText(requireContext(), "Date and Time are required", Toast.LENGTH_SHORT).show();
             return;
@@ -195,7 +228,7 @@ public class CreateEventFragment extends Fragment {
         saveButton.setEnabled(false);
         saveButton.setText("Posting...");
 
-        firebaseRepo.uploadEvent(imageUri, title, description, location, date, time, maxParticipants,
+        firebaseRepo.uploadEvent(imageUri, title, description, location, date, time, maxParticipants, selectedTag,
                 (success, message) -> {
                     saveButton.setEnabled(true);
                     saveButton.setText("Post");

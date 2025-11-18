@@ -57,4 +57,11 @@
     <string name="admin_profile_edit_success">Profile updated</string>
     <string name="admin_profile_edit_error">Failed to update profile</string>
     <string name="admin_entrant_role_format">Role: %1$s</string>
+    <string-array name="event_tags">
+        <item>Art</item>
+        <item>Music</item>
+        <item>Education</item>
+        <item>Sports</item>
+        <item>Party</item>
+    </string-array>
 </resources>

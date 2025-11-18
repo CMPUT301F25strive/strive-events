@@ -128,6 +128,7 @@ public class FirebaseEventRepository implements EventRepository {
                             String date,
                             String time,
                             int maxParticipants,
+                            Event.Tag tag,
                             @NonNull UploadCallback callback) {
 
         // Generate unique event ID
@@ -140,14 +141,14 @@ public class FirebaseEventRepository implements EventRepository {
             imageRef.putFile(imageUri)
                     .addOnSuccessListener(taskSnapshot ->
                             imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                                saveEventToFirestore(eventId, title, description, location, date, time, maxParticipants, uri.toString(), callback);
+                                saveEventToFirestore(eventId, title, description, location, date, time, maxParticipants, uri.toString(), tag, callback);
                             }).addOnFailureListener(e -> {
                                 callback.onComplete(false, "Failed to get image URL");
                             })
                     )
                     .addOnFailureListener(e -> callback.onComplete(false, "Failed to upload image"));
         } else {
-            saveEventToFirestore(eventId, title, description, location, date, time, maxParticipants, null, callback);
+            saveEventToFirestore(eventId, title, description, location, date, time, maxParticipants, null, tag, callback);
         }
     }
 
@@ -159,6 +160,7 @@ public class FirebaseEventRepository implements EventRepository {
                                       String time,
                                       int maxParticipants,
                                       String posterUrl,
+                                      Event.Tag tag,
                                       UploadCallback callback) {
 
         long startTimeMillis = 0L;
@@ -183,7 +185,8 @@ public class FirebaseEventRepository implements EventRepository {
                 maxParticipants,
                 Event.Status.REG_OPEN,
                 posterUrl,
-                description
+                description,
+                tag
         );
 
         eventsRef.document(eventId)
