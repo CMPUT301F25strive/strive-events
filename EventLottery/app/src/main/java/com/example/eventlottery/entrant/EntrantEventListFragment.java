@@ -15,17 +15,24 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.example.eventlottery.R;
 import com.example.eventlottery.databinding.FragmentEventListBinding;
 import com.example.eventlottery.model.Event;
+import com.example.eventlottery.model.EventFilter;
 import com.example.eventlottery.viewmodel.EntrantEventListViewModel;
 import com.example.eventlottery.viewmodel.EntrantEventListViewModelFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * entrant home feed showing joinable events.
  */
-public class EntrantEventListFragment extends Fragment implements EventListAdapter.Listener {
+public class EntrantEventListFragment extends Fragment implements EventListAdapter.Listener, EventFilterFragment.Listener {
 
     private FragmentEventListBinding binding;
     private EntrantEventListViewModel viewModel;
     private EventListAdapter adapter;
+    private EventFilter filter = new EventFilter();
+    private final List<Event> allEvents = new ArrayList<>();
+
     @Override
     public void onResume() {
         super.onResume();
@@ -58,9 +65,10 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
 
         viewModel.getState().observe(getViewLifecycleOwner(), this::renderState);
 
-        binding.filterButton.setOnClickListener(v ->
-                Toast.makeText(requireContext(), R.string.filter_content_description, Toast.LENGTH_SHORT).show()
-        );
+        binding.filterButton.setOnClickListener(v -> {
+            // Make filter fragment a child fragment of this fragment.
+            new EventFilterFragment().show(getChildFragmentManager(), "filter");
+        });
 
         // === ADD NAVIGATION TO CREATE EVENT ===
         binding.fabAddEvent.setOnClickListener(v ->
@@ -96,7 +104,11 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
     private void renderState(@NonNull EventListUiState state) {
         binding.loadingIndicator.setVisibility(state.loading ? View.VISIBLE : View.GONE);
         binding.eventRefresh.setRefreshing(false);
-        adapter.submitList(state.events);
+
+        allEvents.clear();
+        allEvents.addAll(state.events);
+
+        applyFilter();
 
         if (state.errorMessage != null) {
             showMessage(state.errorMessage);
@@ -125,6 +137,23 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
         args.putSerializable(EventDetailFragment.ARG_EVENT, event);
         NavHostFragment.findNavController(this)
                 .navigate(R.id.action_entrantEventListFragment_to_eventDetailFragment, args);
+    }
+
+    @Override
+    public void onFilterChanged(@NonNull EventFilter newFilter) {
+        this.filter = newFilter;
+        applyFilter();  // Re-filter as the filter changes
+    }
+
+    private void applyFilter() {
+        // Fetch all events and pass them one by one for filtering
+        List<Event> filtered = new ArrayList<>();
+        for (Event e : allEvents) {
+            if (filter == null || filter.match(e)) {
+                filtered.add(e);
+            }
+        }
+        adapter.submitList(filtered);
     }
 
 }

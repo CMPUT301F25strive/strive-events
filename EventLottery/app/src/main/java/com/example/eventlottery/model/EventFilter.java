@@ -20,6 +20,10 @@ public class EventFilter {
         this.filterTag = filterTag;
     }
 
+    public EventFilter() {
+        this(null, null, null);
+    }
+
     public boolean match(Event event) {
         long eventStart = event.getStartTimeMillis();
         Event.Tag eventTag = event.getTag();
