@@ -8,7 +8,6 @@
     android:layout_height="match_parent"
     tools:context=".entrant.MyEventsFragment">
 
-    <!-- Top bar -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/topBarLayout"
         android:layout_width="match_parent"
@@ -36,7 +35,6 @@
             android:layout_width="36dp"
             android:layout_height="36dp"
             android:background="@android:color/transparent"
-            android:contentDescription="@string/qr_shortcut_content_description"
             android:padding="4dp"
             android:src="@drawable/ic_qr_code_24"
             android:tint="@color/black"
@@ -45,7 +43,6 @@
             app:layout_constraintBottom_toBottomOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Segmented toggle group matching card width -->
     <com.google.android.material.button.MaterialButtonToggleGroup
         android:id="@+id/myEventsToggleGroup"
         android:layout_width="0dp"
@@ -63,7 +60,7 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/menuWaitingList"
             style="@style/StriveSegmentButtonTextOnly"
-            android:text="Waiting List"/>
+            android:text="Waitlist"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/menuAccepted"
@@ -74,9 +71,13 @@
             android:id="@+id/menuHistory"
             style="@style/StriveSegmentButtonTextOnly"
             android:text="History"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/menuHosted"
+            style="@style/StriveSegmentButtonTextOnly"
+            android:text="Hosted"/>
     </com.google.android.material.button.MaterialButtonToggleGroup>
 
-    <!-- SwipeRefreshLayout + RecyclerView (full-width, same card size as EntrantEventListFragment) -->
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/eventRefresh"
         android:layout_width="0dp"
@@ -97,7 +98,6 @@
             tools:listitem="@layout/item_event_card"/>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    <!-- Bottom navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="0dp"
@@ -113,14 +113,12 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:elevation="12dp"/>
 
-    <!-- Floating action button above bottom nav -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabAddEvent"
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="20dp"
-        android:contentDescription="add event"
         android:src="@drawable/ic_add_24"
         app:backgroundTint="@color/primary"
         app:tint="@android:color/white"
@@ -128,7 +126,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/bottomNavigation"/>
 
-    <!-- Loading indicator (centered) -->
     <ProgressBar
         android:id="@+id/loadingIndicator"
         style="?android:attr/progressBarStyleLarge"
@@ -141,7 +138,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Error message (centered) -->
     <TextView
         android:id="@+id/errorMessage"
         android:layout_width="wrap_content"
@@ -151,7 +147,6 @@
         android:paddingTop="8dp"
         android:paddingEnd="16dp"
         android:paddingBottom="8dp"
-        android:textAppearance="?attr/textAppearanceBodyMedium"
         android:textColor="@android:color/holo_red_dark"
         android:visibility="gone"
         tools:text="You haven’t joined any events"

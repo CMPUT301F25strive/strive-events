@@ -176,17 +176,29 @@ public class EventDetailFragment extends Fragment {
 
     private void setupActionButtons(@NonNull Event event, String userID) {
 
-        if(isOrganizer){
-            binding.buttonContainer.setVisibility(View.VISIBLE);
-        }else if (event.getStatus() == Event.Status.REG_OPEN) {
-            binding.buttonContainer.setVisibility(View.VISIBLE);
-            setupJoinButton(event, userID);
-        }
-        else {
-            binding.buttonContainer.setVisibility(View.GONE);
+        binding.buttonContainer.setVisibility(View.VISIBLE);
+        setupJoinButton(event, userID);
+
+        if (event.getStatus() != Event.Status.REG_OPEN || isOrganizer) {
+            binding.joinEventButton.setVisibility(View.GONE);
         }
     }
-
+    private void configAdminButton(){
+        if ((!isAdmin && !isOrganizer)) {
+            binding.adminDeleteButton.setVisibility(View.GONE);
+        }else {
+            binding.adminDeleteButton.setVisibility(View.VISIBLE);
+            binding.adminDeleteButton.setOnClickListener(v -> {
+                if (currentEvent == null) return;
+                new MaterialAlertDialogBuilder(requireContext())
+                        .setTitle(R.string.delete_event_confirm_title)
+                        .setMessage(R.string.delete_event_confirm_body)
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .setPositiveButton(R.string.delete_event, (dialog, which) -> performDelete())
+                        .show();
+            });
+        }
+    }
     private void setupJoinButton(@NonNull Event event, String userID) {
         final MaterialButton joinButton = binding.joinEventButton;
 
@@ -229,22 +241,6 @@ public class EventDetailFragment extends Fragment {
 
     // ------------------------------------------------------------------------------
 
-    private void configAdminButton() {
-        if ((!isAdmin && !isOrganizer)) {
-            binding.adminDeleteButton.setVisibility(View.GONE);
-        }else {
-            binding.adminDeleteButton.setVisibility(View.VISIBLE);
-            binding.adminDeleteButton.setOnClickListener(v -> {
-                if (currentEvent == null) return;
-                new MaterialAlertDialogBuilder(requireContext())
-                        .setTitle(R.string.delete_event_confirm_title)
-                        .setMessage(R.string.delete_event_confirm_body)
-                        .setNegativeButton(android.R.string.cancel, null)
-                        .setPositiveButton(R.string.delete_event, (dialog, which) -> performDelete())
-                        .show();
-            });
-        }
-    }
 
     private void performDelete() {
         if (!isAdmin && !isOrganizer) return;
