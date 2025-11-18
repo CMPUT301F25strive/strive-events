@@ -28,6 +28,7 @@ public class FirebaseProfileRepository implements ProfileRepository {
     private final List<Profile> users = new ArrayList<>();
     private final MutableLiveData<List<Profile>> profilesLiveData = new MutableLiveData<>(new ArrayList<>());
     private FirebaseFirestore db;
+
     private CollectionReference usersRef;
 
     /**

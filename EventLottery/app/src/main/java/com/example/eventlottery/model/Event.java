@@ -3,6 +3,8 @@ package com.example.eventlottery.model;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +23,9 @@ public class Event implements Serializable {
 
     private String id;
     private String title;
+
+    private String organizerId;
+
     private String organizerName;
     private long startTimeMillis;
     private String venue;
@@ -29,16 +34,20 @@ public class Event implements Serializable {
     private Status status;
     private List<String> waitingList;
     private List<String> attendeesList;
-    private String posterUrl;   // ✅ NEW — stores Firebase image URL
+    private String posterUrl;   // Firebase image URL
     private String description;
 
-    /** REQUIRED FOR FIRESTORE */
+    /**
+     * REQUIRED FOR FIRESTORE
+     */
     public Event() {
         waitingList = new ArrayList<>();
         attendeesList = new ArrayList<>();
     }
 
-    /** Normal constructor */
+    /**
+     * Normal constructor
+     */
     public Event(
             @NonNull String id,
             @NonNull String title,
@@ -65,19 +74,53 @@ public class Event implements Serializable {
         this.attendeesList = new ArrayList<>();
     }
 
-    /** GETTERS */
+    /**
+     * GETTERS
+     */
 
-    public String getId() { return id; }
-    public String getTitle() { return title != null ? title : ""; }
-    public String getOrganizerName() { return organizerName != null ? organizerName : ""; }
-    public long getStartTimeMillis() { return startTimeMillis; }
-    public String getVenue() { return venue != null ? venue : ""; }
-    public int getCapacity() { return capacity; }
-    public int getSpotsRemaining() { return spotsRemaining; }
-    public Status getStatus() { return status != null ? status : Status.REG_OPEN; }
+    public String getId() {
+        return id;
+    }
 
-    public String getPosterUrl() { return posterUrl; }   // ✅ NEW getter
-    public String getDescription() { return description; }
+    public String getTitle() {
+        return title != null ? title : "";
+    }
+
+    public String getOrganizerName() {
+        return organizerName != null ? organizerName : "";
+    }
+
+    public String getOrganizerId() {
+        return organizerId;
+    }
+
+    public long getStartTimeMillis() {
+        return startTimeMillis;
+    }
+
+    public String getVenue() {
+        return venue != null ? venue : "";
+    }
+
+    public int getCapacity() {
+        return capacity;
+    }
+
+    public int getSpotsRemaining() {
+        return spotsRemaining;
+    }
+
+    public Status getStatus() {
+        return status != null ? status : Status.REG_OPEN;
+    }
+
+    public String getPosterUrl() {
+        return posterUrl;
+    }
+
+    public String getDescription() {
+        return description;
+    }
 
     public List<String> getWaitingList() {
         if (waitingList == null) waitingList = new ArrayList<>();
@@ -97,7 +140,16 @@ public class Event implements Serializable {
         this.attendeesList = attendeesList != null ? attendeesList : new ArrayList<>();
     }
 
-    /** WAITING LIST METHODS */
+    /**
+     * SETTER FOR NEW FIELD
+     */
+    public void setOrganizerId(String organizerId) {
+        this.organizerId = organizerId;
+    }
+
+    /**
+     * WAITING LIST METHODS
+     */
 
     public void joinWaitingList(String deviceId) {
         if (!getWaitingList().contains(deviceId)) {
@@ -117,7 +169,9 @@ public class Event implements Serializable {
         return getWaitingList().size();
     }
 
-    /** ATTENDEE LIST METHODS */
+    /**
+     * ATTENDEE LIST METHODS
+     */
 
     public void joinAttendeesList(String deviceId) {
         if (!getAttendeesList().contains(deviceId)) {
@@ -131,5 +185,40 @@ public class Event implements Serializable {
 
     public int getAttendeesListSize() {
         return getAttendeesList().size();
+    }
+
+    /**
+     * Asynchronously fetches the organizer's current profile name
+     * using the organizerId stored in this event.
+     *
+     * @param callback returns the organizer name, or "Unknown Organizer" on error.
+     */
+    public void fetchOrganizerName(ProfileNameCallback callback) {
+        if (organizerId == null || organizerId.trim().isEmpty()) {
+            callback.onResult("Unknown Organizer");
+            return;
+        }
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("profiles")
+                .document(organizerId)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (snapshot.exists()) {
+                        String name = snapshot.getString("name");
+                        callback.onResult(name != null ? name : "Unknown Organizer");
+                    } else {
+                        callback.onResult("Unknown Organizer");
+                    }
+                })
+                .addOnFailureListener(e -> callback.onResult("Unknown Organizer"));
+    }
+
+    /**
+     * Callback interface for organizer name result
+     */
+    public interface ProfileNameCallback {
+        void onResult(String name);
     }
 }

@@ -16,8 +16,8 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.bumptech.glide.Glide;
 import com.example.eventlottery.R;
-import com.example.eventlottery.admin.AdminGate;
 import com.example.eventlottery.WaitingListController;
+import com.example.eventlottery.admin.AdminGate;
 import com.example.eventlottery.data.EventRepository;
 import com.example.eventlottery.data.ProfileRepository;
 import com.example.eventlottery.data.RepositoryProvider;
@@ -37,32 +37,53 @@ public class EventDetailFragment extends Fragment {
 
     private FragmentEventDetailBinding binding;
     private Event currentEvent;
-    private boolean isAdmin;
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMM d yyyy", Locale.getDefault());
-    private final SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
 
-    private String currentUserDeviceId;
+    private boolean isAdmin = false;
+    private boolean isOrganizer = false;
+
+    private String deviceId;
+
     private EventRepository eventRepository;
     private ProfileRepository profileRepository;
     private WaitingListController waitingListController;
 
+    private final SimpleDateFormat dateFormat =
+            new SimpleDateFormat("EEE, MMM d yyyy", Locale.getDefault());
+    private final SimpleDateFormat timeFormat =
+            new SimpleDateFormat("h:mm a", Locale.getDefault());
+
+    // ------------------------------------------------------------------------------
+
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+
         binding = FragmentEventDetailBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
 
+    // ------------------------------------------------------------------------------
+
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view,
+                              @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        currentUserDeviceId = Settings.Secure.getString(requireContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+        deviceId = Settings.Secure.getString(
+                requireContext().getContentResolver(),
+                Settings.Secure.ANDROID_ID);
+
         eventRepository = RepositoryProvider.getEventRepository();
         profileRepository = RepositoryProvider.getProfileRepository();
+        waitingListController = new WaitingListController(eventRepository, profileRepository);
 
-        binding.backButton.setOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
+        binding.backButton.setOnClickListener(v ->
+                NavHostFragment.findNavController(this).popBackStack()
+        );
 
+        // Retrieve event ------------------------------------------------------------------
         Event event = null;
         if (savedInstanceState != null) {
             event = (Event) savedInstanceState.getSerializable(ARG_EVENT);
@@ -76,159 +97,214 @@ public class EventDetailFragment extends Fragment {
         }
 
         currentEvent = event;
-        determineAdminStatus();
 
-        Event latestEvent = eventRepository.findEventById(event.getId());
-        if (latestEvent != null) event = latestEvent;
+        // Set flags FIRST ------------------------------------------------------------------
+        isOrganizer = deviceId.equals(event.getOrganizerId());
+        isAdmin = AdminGate.isAdmin(requireContext());
+
+        // Re-check admin using profile data (updates if needed)
+        profileRepository.findUserById(deviceId, new ProfileRepository.ProfileCallback() {
+            @Override
+            public void onSuccess(Profile profile) {
+                boolean repoAdmin = profile != null && profile.isAdmin();
+                if (repoAdmin != isAdmin) {
+                    isAdmin = repoAdmin;
+                }
+            }
+
+            @Override public void onDeleted() {}
+            @Override public void onError(String message) {}
+        });
 
         bindEvent(event);
+        setupActionButtons(event, deviceId);
+        configAdminButton();
 
         final String eventId = event.getId();
-        eventRepository.observeEvents().observe(getViewLifecycleOwner(), events -> {
+
+        eventRepository.observeEvents().observe(getViewLifecycleOwner(), updatedList -> {
             Event updated = eventRepository.findEventById(eventId);
             if (updated != null) {
+                currentEvent = updated;
                 bindEvent(updated);
-                setupActionButtons(updated, currentUserDeviceId);
+                setupActionButtons(updated, deviceId);
             }
         });
-
-        waitingListController = new WaitingListController(eventRepository, profileRepository);
-        setupActionButtons(event, currentUserDeviceId);
     }
+
+    // ------------------------------------------------------------------------------
 
     private void bindEvent(@NonNull Event event) {
-        if (event.getPosterUrl() != null && !event.getPosterUrl().isEmpty()) {
-        Glide.with(requireContext())
-                .load(event.getPosterUrl())
-                .into(binding.eventDetailPoster);
-    } else {
-        binding.eventDetailPoster.setImageResource(R.drawable.event_image_placeholder);
-    }
+        // Poster
+        if (!TextUtils.isEmpty(event.getPosterUrl())) {
+            Glide.with(requireContext())
+                    .load(event.getPosterUrl())
+                    .into(binding.eventDetailPoster);
+        } else {
+            binding.eventDetailPoster.setImageResource(R.drawable.event_image_placeholder);
+        }
+
         binding.eventDetailTitle.setText(event.getTitle());
-        binding.eventDetailOrganizer.setText(getString(R.string.event_detail_organizer_format, event.getOrganizerName()));
+
+        fetchAndDisplayOrganizerName(event.getOrganizerId());
 
         Date date = new Date(event.getStartTimeMillis());
-        String dateCopy = dateFormat.format(date);
-        String timeCopy = timeFormat.format(date).toLowerCase(Locale.getDefault());
-        binding.eventDetailDate.setText(getString(R.string.event_detail_datetime_format, dateCopy, timeCopy));
+        String dateStr = dateFormat.format(date);
+        String timeStr = timeFormat.format(date)
+                .toLowerCase(Locale.getDefault());
+
+        binding.eventDetailDate.setText(
+                getString(R.string.event_detail_datetime_format, dateStr, timeStr)
+        );
+
         binding.eventDetailVenue.setText(event.getVenue());
-        binding.eventDetailCapacity.setText(getString(R.string.event_detail_capacity_format, event.getCapacity()));
-        binding.eventDetailWaitingListCount.setText(getString(R.string.event_detail_waiting_list_count_format, event.getWaitingListSize()));
-        binding.eventDetailDescription.setText(!TextUtils.isEmpty(event.getDescription()) ? event.getDescription() : getString(R.string.event_detail_description_placeholder));
+        binding.eventDetailCapacity.setText(
+                getString(R.string.event_detail_capacity_format, event.getCapacity())
+        );
+        binding.eventDetailWaitingListCount.setText(
+                getString(R.string.event_detail_waiting_list_count_format, event.getWaitingListSize())
+        );
+
+        binding.eventDetailDescription.setText(
+                !TextUtils.isEmpty(event.getDescription())
+                        ? event.getDescription()
+                        : getString(R.string.event_detail_description_placeholder)
+        );
     }
 
-    private void configAdminButton() {
-        if (!isAdmin || binding == null) {
-            binding.adminDeleteButton.setVisibility(View.GONE);
-            return;
-        }
-        binding.adminDeleteButton.setVisibility(View.VISIBLE);
-        binding.adminDeleteButton.setOnClickListener(v -> {
-            if (currentEvent == null) return;
-            new MaterialAlertDialogBuilder(requireContext())
-                    .setTitle(R.string.delete_event_confirm_title)
-                    .setMessage(R.string.delete_event_confirm_body)
-                    .setNegativeButton(android.R.string.cancel, null)
-                    .setPositiveButton(R.string.delete_event, (dialog, which) -> performDelete())
-                    .show();
-        });
-    }
-
-    private void performDelete() {
-        EventRepository repository = RepositoryProvider.getEventRepository();
-        if (currentEvent == null) return;
-        try {
-            repository.deleteEvent(currentEvent.getId());
-            Toast.makeText(requireContext(), R.string.delete_event_success, Toast.LENGTH_SHORT).show();
-            NavHostFragment.findNavController(this).popBackStack();
-        } catch (Exception e) {
-            Toast.makeText(requireContext(), R.string.delete_event_failure, Toast.LENGTH_SHORT).show();
-        }
-    }
+    // ------------------------------------------------------------------------------
 
     private void setupActionButtons(@NonNull Event event, String userID) {
-        if (event.getStatus() == Event.Status.REG_OPEN) {
+
+        if(isOrganizer){
             binding.buttonContainer.setVisibility(View.VISIBLE);
-            setupButton(event, userID);
-        } else {
+        }else if (event.getStatus() == Event.Status.REG_OPEN) {
+            binding.buttonContainer.setVisibility(View.VISIBLE);
+            setupJoinButton(event, userID);
+        }
+        else {
             binding.buttonContainer.setVisibility(View.GONE);
         }
     }
 
-    private void setupButton(@NonNull Event event, String userID) {
+    private void setupJoinButton(@NonNull Event event, String userID) {
         final MaterialButton joinButton = binding.joinEventButton;
 
-        updateButtonAppearance(event.isOnWaitingList(userID));
-        joinButton.setOnClickListener(v -> {
-            boolean currentlyOnWaitlist = event.isOnWaitingList(userID);
+        updateJoinButton(event.isOnWaitingList(userID));
 
-            if (currentlyOnWaitlist) {
+        joinButton.setOnClickListener(v -> {
+            boolean onWait = event.isOnWaitingList(userID);
+
+            if (onWait) {
                 waitingListController.leaveWaitingList(event.getId(), userID);
                 Toast.makeText(requireContext(), "Left waiting list", Toast.LENGTH_SHORT).show();
-                updateButtonAppearance(false);
+                updateJoinButton(false);
             } else {
-                // Check if event is actually full first
                 if (event.getStatus() != Event.Status.REG_OPEN) {
                     Toast.makeText(requireContext(), "Registration closed", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 waitingListController.joinWaitingList(event.getId(), userID);
                 Toast.makeText(requireContext(), "Joined waiting list", Toast.LENGTH_SHORT).show();
-                updateButtonAppearance(true);
+                updateJoinButton(true);
             }
         });
     }
 
-    private void updateButtonAppearance(boolean onWaitlist) {
+    private void updateJoinButton(boolean onList) {
         if (binding == null) return;
-        MaterialButton joinButton = binding.joinEventButton;
-        if (onWaitlist) {
-            joinButton.setText(R.string.leave_waiting_list);
-            joinButton.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.error));
-            joinButton.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white));
+
+        MaterialButton btn = binding.joinEventButton;
+
+        if (onList) {
+            btn.setText(R.string.leave_waiting_list);
+            btn.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.error));
+            btn.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white));
         } else {
-            joinButton.setText(R.string.join_waiting_list);
-            joinButton.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.primary));
-            joinButton.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white));
+            btn.setText(R.string.join_waiting_list);
+            btn.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.primary));
+            btn.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white));
         }
     }
 
-    private void determineAdminStatus() {
-        isAdmin = AdminGate.isAdmin(requireContext());
-        configAdminButton();
+    // ------------------------------------------------------------------------------
 
-        if (profileRepository == null || currentUserDeviceId == null) return;
+    private void configAdminButton() {
+        if ((!isAdmin && !isOrganizer)) {
+            binding.adminDeleteButton.setVisibility(View.GONE);
+        }else {
+            binding.adminDeleteButton.setVisibility(View.VISIBLE);
+            binding.adminDeleteButton.setOnClickListener(v -> {
+                if (currentEvent == null) return;
+                new MaterialAlertDialogBuilder(requireContext())
+                        .setTitle(R.string.delete_event_confirm_title)
+                        .setMessage(R.string.delete_event_confirm_body)
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .setPositiveButton(R.string.delete_event, (dialog, which) -> performDelete())
+                        .show();
+            });
+        }
+    }
 
-        profileRepository.findUserById(currentUserDeviceId, new ProfileRepository.ProfileCallback() {
+    private void performDelete() {
+        if (!isAdmin && !isOrganizer) return;
+
+        try {
+            eventRepository.deleteEvent(currentEvent.getId());
+            Toast.makeText(requireContext(), "Event deleted", Toast.LENGTH_SHORT).show();
+
+            NavHostFragment.findNavController(this).popBackStack();
+        } catch (Exception e) {
+            Toast.makeText(requireContext(), "Failed to delete event", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // ------------------------------------------------------------------------------
+
+    private void fetchAndDisplayOrganizerName(String organizerId) {
+        if (organizerId == null || organizerId.isEmpty()) {
+            binding.eventDetailOrganizer.setText("Organizer: Unknown");
+            return;
+        }
+
+        profileRepository.findUserById(organizerId, new ProfileRepository.ProfileCallback() {
             @Override
             public void onSuccess(Profile profile) {
-                boolean repoAdmin = profile != null && profile.isAdmin();
-                if (repoAdmin != isAdmin && binding != null) {
-                    isAdmin = repoAdmin;
-                    configAdminButton();
+                if (binding == null) return;
+
+                if (profile != null) {
+                    binding.eventDetailOrganizer.setText(
+                            "Organizer: " + profile.getName().toUpperCase()
+                    );
                 }
             }
 
             @Override
-            public void onDeleted() { }
+            public void onDeleted() {
+                if (binding != null)
+                    binding.eventDetailOrganizer.setText("Organizer: Deleted User");
+            }
 
             @Override
-            public void onError(String message) { }
+            public void onError(String msg) {
+                if (binding != null)
+                    binding.eventDetailOrganizer.setText("Organizer: UNKNOWN");
+            }
         });
     }
 
+    // ------------------------------------------------------------------------------
+
     @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if (getArguments() != null) {
-            Event event = (Event) getArguments().getSerializable(ARG_EVENT);
-            if (event != null) outState.putSerializable(ARG_EVENT, event);
-        }
+    public void onSaveInstanceState(@NonNull Bundle out) {
+        super.onSaveInstanceState(out);
+        if (currentEvent != null)
+            out.putSerializable(ARG_EVENT, currentEvent);
     }
 
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
         binding = null;
+        super.onDestroyView();
     }
 }

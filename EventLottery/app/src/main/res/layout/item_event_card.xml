@@ -45,7 +45,7 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="2"
-                android:text="Community Swim Challenge"
+                android:text="EVENT"
                 android:textAppearance="?attr/textAppearanceTitleMedium"
                 android:textStyle="bold" />
 
@@ -54,7 +54,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="with Jane"
+                android:text="WITH"
                 android:textAppearance="?attr/textAppearanceBodyMedium"
                 android:textColor="?attr/colorOnSurfaceVariant" />
 
@@ -81,7 +81,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
-                        android:text="Sun, Jan 19 2025"
+                        android:text="DATE"
                         android:textAppearance="?attr/textAppearanceBodyMedium" />
                 </LinearLayout>
 
@@ -103,7 +103,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
-                        android:text="7:30 pm"
+                        android:text="4:20 pm"
                         android:textAppearance="?attr/textAppearanceBodyMedium" />
                 </LinearLayout>
 

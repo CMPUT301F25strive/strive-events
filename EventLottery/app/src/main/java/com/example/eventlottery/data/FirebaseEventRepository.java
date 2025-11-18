@@ -7,18 +7,15 @@ import androidx.lifecycle.MutableLiveData;
 import com.example.eventlottery.model.Event;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+
+import android.net.Uri;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-import javax.annotation.Nullable;
-import android.net.Uri;
 
 public class FirebaseEventRepository implements EventRepository {
 
@@ -26,46 +23,40 @@ public class FirebaseEventRepository implements EventRepository {
     private final CollectionReference eventsRef;
     private final FirebaseStorage storage;
 
-    private final MutableLiveData<List<Event>> eventsLiveData = new MutableLiveData<>(new ArrayList<>());
+    private final MutableLiveData<List<Event>> eventsLiveData =
+            new MutableLiveData<>(new ArrayList<>());
 
     public FirebaseEventRepository() {
         firestore = FirebaseFirestore.getInstance();
         eventsRef = firestore.collection("events");
         storage = FirebaseStorage.getInstance();
-
-        // Start real-time listener
         listenForEvents();
     }
 
     // ============================================================
-    // REAL-TIME FIRESTORE LISTENER
+    // REAL-TIME LISTENER
     // ============================================================
     private void listenForEvents() {
-        eventsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot snapshots,
-                                @Nullable com.google.firebase.firestore.FirebaseFirestoreException e) {
+        eventsRef.addSnapshotListener((snapshots, e) -> {
+            if (snapshots == null) return;
 
-                if (snapshots == null) return;
-
-                List<Event> updated = new ArrayList<>();
-                for (DocumentSnapshot doc : snapshots.getDocuments()) {
-                    Event event = doc.toObject(Event.class);
-                    if (event != null) {
-                        // Ensure waitingList and attendeesList are non-null
-                        if (event.getWaitingList() == null) event.setWaitingList(new ArrayList<>());
-                        if (event.getAttendeesList() == null) event.setAttendeesList(new ArrayList<>());
-                        updated.add(event);
-                    }
+            List<Event> updated = new ArrayList<>();
+            for (DocumentSnapshot doc : snapshots.getDocuments()) {
+                Event event = doc.toObject(Event.class);
+                if (event != null) {
+                    if (event.getWaitingList() == null)
+                        event.setWaitingList(new ArrayList<>());
+                    if (event.getAttendeesList() == null)
+                        event.setAttendeesList(new ArrayList<>());
+                    updated.add(event);
                 }
-
-                eventsLiveData.postValue(updated);
             }
+            eventsLiveData.postValue(updated);
         });
     }
 
     // ============================================================
-    // OBSERVE EVENTS
+    // OBSERVERS
     // ============================================================
     @NonNull
     @Override
@@ -74,12 +65,10 @@ public class FirebaseEventRepository implements EventRepository {
     }
 
     @Override
-    public void refresh() {
-        // Firestore is real-time, no manual refresh needed
-    }
+    public void refresh() {}
 
     // ============================================================
-    // FIND EVENT BY ID
+    // FIND EVENT
     // ============================================================
     @Override
     public Event findEventById(String id) {
@@ -87,9 +76,7 @@ public class FirebaseEventRepository implements EventRepository {
         if (list == null) return null;
 
         for (Event e : list) {
-            if (e.getId().equals(id)) {
-                return e;
-            }
+            if (e.getId().equals(id)) return e;
         }
         return null;
     }
@@ -115,22 +102,23 @@ public class FirebaseEventRepository implements EventRepository {
     }
 
     // ============================================================
-    // UPLOAD NEW EVENT
+    // UPLOAD EVENT — NOW USES DEVICE ID AS ORGANIZER ID
     // ============================================================
     public interface UploadCallback {
         void onComplete(boolean success, String message);
     }
 
-    public void uploadEvent(Uri imageUri,
-                            String title,
-                            String description,
-                            String location,
-                            String date,
-                            String time,
-                            int maxParticipants,
-                            @NonNull UploadCallback callback) {
+    public void uploadEvent(
+            Uri imageUri,
+            String title,
+            String description,
+            String location,
+            long startTimeMillis,
+            int maxParticipants,
+            @NonNull String deviceId,
+            @NonNull UploadCallback callback
+    ) {
 
-        // Generate unique event ID
         String eventId = UUID.randomUUID().toString();
 
         if (imageUri != null) {
@@ -139,44 +127,36 @@ public class FirebaseEventRepository implements EventRepository {
 
             imageRef.putFile(imageUri)
                     .addOnSuccessListener(taskSnapshot ->
-                            imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                                saveEventToFirestore(eventId, title, description, location, date, time, maxParticipants, uri.toString(), callback);
-                            }).addOnFailureListener(e -> {
-                                callback.onComplete(false, "Failed to get image URL");
-                            })
-                    )
-                    .addOnFailureListener(e -> callback.onComplete(false, "Failed to upload image"));
+                            imageRef.getDownloadUrl().addOnSuccessListener(uri ->
+                                    saveEventToFirestore(eventId, title, description, location,
+                                            startTimeMillis, maxParticipants,
+                                            deviceId, uri.toString(), callback)
+                            ).addOnFailureListener(e ->
+                                    callback.onComplete(false, "Failed to get image URL")))
+                    .addOnFailureListener(e ->
+                            callback.onComplete(false, "Failed to upload image"));
         } else {
-            saveEventToFirestore(eventId, title, description, location, date, time, maxParticipants, null, callback);
+            saveEventToFirestore(eventId, title, description, location,
+                    startTimeMillis, maxParticipants, deviceId, null, callback);
         }
     }
 
-    private void saveEventToFirestore(String eventId,
-                                      String title,
-                                      String description,
-                                      String location,
-                                      String date,
-                                      String time,
-                                      int maxParticipants,
-                                      String posterUrl,
-                                      UploadCallback callback) {
-
-        long startTimeMillis = 0L;
-        try {
-            String dateTimeStr = date + " " + time; // e.g., "17/11/2025 14:30"
-            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("d/M/yyyy HH:mm");
-            java.util.Date parsedDate = sdf.parse(dateTimeStr);
-            if (parsedDate != null) {
-                startTimeMillis = parsedDate.getTime();
-            }
-        } catch (java.text.ParseException e) {
-            e.printStackTrace();
-        }
+    private void saveEventToFirestore(
+            String eventId,
+            String title,
+            String description,
+            String location,
+            long startTimeMillis,
+            int maxParticipants,
+            String deviceId,
+            String posterUrl,
+            UploadCallback callback
+    ) {
 
         Event event = new Event(
                 eventId,
                 title,
-                "", // organizerName empty for now
+                "",             // organizerName deprecated
                 startTimeMillis,
                 location,
                 maxParticipants,
@@ -186,9 +166,17 @@ public class FirebaseEventRepository implements EventRepository {
                 description
         );
 
+        // DEVICE ID SET HERE
+        event.setOrganizerId(deviceId);
+
+        event.setWaitingList(new ArrayList<>());
+        event.setAttendeesList(new ArrayList<>());
+
         eventsRef.document(eventId)
                 .set(event)
-                .addOnSuccessListener(aVoid -> callback.onComplete(true, "Event posted successfully"))
-                .addOnFailureListener(e -> callback.onComplete(false, "Failed to post event"));
+                .addOnSuccessListener(aVoid ->
+                        callback.onComplete(true, "Event posted successfully"))
+                .addOnFailureListener(e ->
+                        callback.onComplete(false, "Failed to post event"));
     }
-    }
+}
