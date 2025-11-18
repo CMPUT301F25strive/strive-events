@@ -19,6 +19,15 @@ public class Event implements Serializable {
         FINALIZED
     }
 
+    public enum Tag {
+        ART,
+        MUSIC,
+        EDUCATION,
+        SPORTS,
+        PARTY
+    }
+
+
     private String id;
     private String title;
     private String organizerName;
@@ -29,8 +38,9 @@ public class Event implements Serializable {
     private Status status;
     private List<String> waitingList;
     private List<String> attendeesList;
-    private String posterUrl;   // ✅ NEW — stores Firebase image URL
+    private String posterUrl;
     private String description;
+    private Tag tag;
 
     /** REQUIRED FOR FIRESTORE */
     public Event() {
@@ -49,7 +59,8 @@ public class Event implements Serializable {
             int spotsRemaining,
             @NonNull Status status,
             @Nullable String posterUrl,
-            @Nullable String description
+            @Nullable String description,
+            @NonNull Tag tag
     ) {
         this.id = id;
         this.title = title;
@@ -59,6 +70,7 @@ public class Event implements Serializable {
         this.capacity = capacity;
         this.spotsRemaining = spotsRemaining;
         this.status = status;
+        this.tag = tag;
         this.posterUrl = posterUrl;
         this.description = description;
         this.waitingList = new ArrayList<>();
@@ -76,7 +88,7 @@ public class Event implements Serializable {
     public int getSpotsRemaining() { return spotsRemaining; }
     public Status getStatus() { return status != null ? status : Status.REG_OPEN; }
 
-    public String getPosterUrl() { return posterUrl; }   // ✅ NEW getter
+    public String getPosterUrl() { return posterUrl; }
     public String getDescription() { return description; }
 
     public List<String> getWaitingList() {
@@ -95,6 +107,14 @@ public class Event implements Serializable {
 
     public void setAttendeesList(List<String> attendeesList) {
         this.attendeesList = attendeesList != null ? attendeesList : new ArrayList<>();
+    }
+
+    public Tag getTag() {
+        return tag;
+    }
+
+    public void setTag(Tag tag) {
+        this.tag = tag;
     }
 
     /** WAITING LIST METHODS */
