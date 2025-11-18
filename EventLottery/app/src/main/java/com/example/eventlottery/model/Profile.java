@@ -18,6 +18,7 @@ public class Profile {
     private String email;
     private String phone;
     private Role role = Role.USER;        // Default role is USER
+    private boolean getNotifications = true; //Default is true
     private final List<Event> historyEvents = new ArrayList<>(); // For entrants
     private final List<Event> ownedEvents = new ArrayList<>();   // For organizers
     private final String preferences = "";      // Placeholder for user preferences
@@ -27,9 +28,10 @@ public class Profile {
      * @param deviceID unique device ID
      * @param name user name
      * @param email user email
+     * @param getNotifications setting of if the user wants notifications or not
      */
-    public Profile(String deviceID, String name, String email) {
-        this(deviceID, name, email, null); // delegate to full constructor
+    public Profile(String deviceID, String name, String email, boolean getNotifications) {
+        this(deviceID, name, email, null, getNotifications); // delegate to full constructor
     }
 
     /**
@@ -38,9 +40,10 @@ public class Profile {
      * @param name user name
      * @param email user email
      * @param phone user phone
+     * @param getNotifications setting of if the user wants notifications or not
      */
-    public Profile(String deviceID, String name, String email, String phone) {
-        this(deviceID, name, email, phone, Role.USER);
+    public Profile(String deviceID, String name, String email, String phone, boolean getNotifications) {
+        this(deviceID, name, email, phone, Role.USER, getNotifications);
     }
 
     /**
@@ -50,12 +53,14 @@ public class Profile {
      * @param email user email
      * @param phone user phone
      * @param role the role of the user
+     * @param getNotifications setting of if the user wants notifications or not
      */
-    public Profile(String deviceID, String name, String email, String phone, Role role) {
+    public Profile(String deviceID, String name, String email, String phone, Role role, boolean getNotifications) {
         this.deviceID = deviceID;   // From DeviceIdentityService
         this.name = name;
         this.email = email;
         this.phone = phone;
+        this.getNotifications = getNotifications;
         setRole(role);
     }
 
@@ -147,6 +152,22 @@ public class Profile {
      */
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    /**
+     * This method returns the user's notification settings
+     * @return the boolean of the notification settings
+     */
+    public boolean getNotificationSettings() {
+        return getNotifications;
+    }
+
+    /**
+     * This method sets the user's notification settings
+     * @param getNotifications  the boolean of the notification settings
+     */
+    public void setNotificationSettings(boolean getNotifications) {
+        this.getNotifications = getNotifications;
     }
 
     /**

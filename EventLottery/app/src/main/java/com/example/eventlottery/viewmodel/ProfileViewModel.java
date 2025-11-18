@@ -83,6 +83,34 @@ public class ProfileViewModel extends ViewModel {
     }
 
     /**
+     * Updates the notification setting of the user
+     * On success, sets the notification setting of the user to the switch's current state
+     */
+    public void updateNotifications(boolean isChecked) {
+        ProfileUiState cur = uiState.getValue();
+        if (cur == null || cur.getProfile() == null) return;
+
+        Profile profile = cur.getProfile();
+        profile.setNotificationSettings(isChecked);
+
+        repository.saveUser(profile, new ProfileRepository.ProfileCallback() {
+            @Override
+            public void onSuccess(Profile profile) {
+                uiState.postValue(ProfileUiState.success(profile));
+            }
+
+            @Override
+            public void onDeleted() {
+                // Not used in save
+            }
+
+            @Override
+            public void onError(String message) {
+                uiState.postValue(ProfileUiState.error(message));
+            }
+        });
+    }
+    /**
      * Deletes the current profile.
      * On success, sets uiState to deleted, triggering fragment navigation.
      */

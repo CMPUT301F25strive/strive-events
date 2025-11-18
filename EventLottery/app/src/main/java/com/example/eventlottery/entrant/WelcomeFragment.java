@@ -112,7 +112,7 @@ public class WelcomeFragment extends Fragment {
         progressBar.setVisibility(View.VISIBLE);
         hideRegistrationForm();
 
-        Profile newProfile = new Profile(deviceID, name, email, phone);
+        Profile newProfile = new Profile(deviceID, name, email, phone, true);
         profileRepo.saveUser(newProfile, new ProfileRepository.ProfileCallback() {
             @Override
             public void onSuccess(Profile profile) {

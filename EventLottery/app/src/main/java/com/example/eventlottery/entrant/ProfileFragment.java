@@ -71,6 +71,7 @@ public class ProfileFragment extends Fragment {
                 binding.profilePhone.setText(profile.getPhone());
                 binding.menuAdminEntrants.setVisibility(profile.isAdmin() ? View.VISIBLE : View.GONE);
                 binding.adminBadge.setVisibility(profile.isAdmin() ? View.VISIBLE : View.GONE);
+                notificationSwitch.setChecked(profile.getNotificationSettings());
             } else {
                 binding.menuAdminEntrants.setVisibility(View.GONE);
                 binding.adminBadge.setVisibility(View.GONE);
@@ -106,11 +107,12 @@ public class ProfileFragment extends Fragment {
 
         // Notification toggle
         notificationSwitch = binding.notificationSwitch;
-        notificationSwitch.setOnCheckedChangeListener((buttonView, isChecked) ->
-                Toast.makeText(requireContext(),
-                        "Notifications " + (isChecked ? "ON" : "OFF"),
-                        Toast.LENGTH_SHORT).show()
-        );
+        notificationSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            Toast.makeText(requireContext(),
+                    "Notifications " + (isChecked ? "ON" : "OFF"),
+                    Toast.LENGTH_SHORT).show();
+            viewModel.updateNotifications(isChecked);
+        });
 
         // Guidelines page
         binding.menuGuidelines.setOnClickListener(v ->

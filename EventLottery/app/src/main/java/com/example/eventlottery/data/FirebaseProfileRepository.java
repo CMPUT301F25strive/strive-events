@@ -52,10 +52,11 @@ public class FirebaseProfileRepository implements ProfileRepository {
                         String name = doc.getString("name");
                         String email = doc.getString("email");
                         String phone = doc.getString("phone");
+                        boolean notificationSettings = Boolean.TRUE.equals(doc.getBoolean("notificationSettings"));
                         String roleString = doc.getString("role");
                         Profile.Role role = parseRole(roleString);
 
-                        users.add(new Profile(userID, name, email, phone, role));
+                        users.add(new Profile(userID, name, email, phone, role, notificationSettings));
                     }
                     profilesLiveData.postValue(new ArrayList<>(users));
                 }
@@ -96,7 +97,8 @@ public class FirebaseProfileRepository implements ProfileRepository {
                                 doc.getString("name"),
                                 doc.getString("email"),
                                 doc.getString("phone"),
-                                parseRole(doc.getString("role"))
+                                parseRole(doc.getString("role")),
+                                Boolean.TRUE.equals(doc.getBoolean("notificationSettings"))
                         );
                         callback.onSuccess(profile);
                     } else {
@@ -254,12 +256,13 @@ public class FirebaseProfileRepository implements ProfileRepository {
                 return;
             }
 
-            Profile profile = new Profile(deviceID, name, email, phone);
+            Profile profile = new Profile(deviceID, name, email, phone, true);
             Map<String, Object> data = new HashMap<>();
             data.put("deviceID", deviceID);
             data.put("name", name);
             data.put("email", email);
             data.put("phone", phone);
+            data.put("notificationSettings", true);
 
             usersRef.document(deviceID)
                     .set(data)
@@ -280,6 +283,7 @@ public class FirebaseProfileRepository implements ProfileRepository {
         data.put("email", profile.getEmail());
         data.put("phone", profile.getPhone());
         data.put("role", profile.getRole().name());
+        data.put("notificationSettings", profile.getNotificationSettings());
         return data;
     }
 }
