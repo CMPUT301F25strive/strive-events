@@ -35,20 +35,22 @@ public class WaitingListController {
      */
     public void joinWaitingList(String eventID, String userID) {
         Event event = eventRepository.findEventById(eventID);
-        System.out.println("Cannot join waiting list - registration closed");
         if (event == null) {
-            throw new IllegalArgumentException("Event not found: " + eventID);
+            // Event not in local cache yet – avoid crashing
+            System.out.println("joinWaitingList: event not loaded for id=" + eventID);
+            return;
         }
 
         // Only allow joining if registration is open
-        if (event.getStatus() == Event.Status.REG_OPEN) {
-            if (!event.isOnWaitingList(userID)) {
-                event.joinWaitingList(userID);
-                // Update Firebase immediately
-                eventRepository.updateWaitingList(eventID, event.getWaitingList());
-            }
-        } else {
+        if (event.getStatus() != Event.Status.REG_OPEN) {
             System.out.println("Cannot join waiting list - registration closed");
+            return;
+        }
+
+        if (!event.isOnWaitingList(userID)) {
+            event.joinWaitingList(userID);
+            // Update Firebase immediately
+            eventRepository.updateWaitingList(eventID, event.getWaitingList());
         }
     }
 
@@ -60,12 +62,12 @@ public class WaitingListController {
     public void leaveWaitingList(String eventID, String userID) {
         Event event = eventRepository.findEventById(eventID);
         if (event == null) {
-            throw new IllegalArgumentException("Event not found: " + eventID);
+            System.out.println("leaveWaitingList: event not loaded for id=" + eventID);
+            return;
         }
 
         if (event.isOnWaitingList(userID)) {
             event.leaveWaitingList(userID);
-            // Update in Firebase
             eventRepository.updateWaitingList(eventID, event.getWaitingList());
         }
     }
