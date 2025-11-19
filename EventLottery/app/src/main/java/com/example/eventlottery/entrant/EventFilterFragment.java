@@ -11,6 +11,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -97,7 +98,7 @@ public class EventFilterFragment extends DialogFragment {
 
         WindowManager.LayoutParams params = window.getAttributes();
         params.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
-        params.y = 50; // offset from status bar; tweak as needed
+        params.y = 50; // Offset from status bar
         window.setAttributes(params);
     }
 
@@ -172,14 +173,29 @@ public class EventFilterFragment extends DialogFragment {
                 requireContext(),
                 (picker, year, month, day) -> {
                     Calendar c = Calendar.getInstance();
-                    c.set(year, month, day, 0, 0, 0);
-
-                    long millis = c.getTimeInMillis();
 
                     if (isStart) {
+                        // Start of the selected day
+                        c.set(year, month, day, 0, 0, 0);
+                        long millis = c.getTimeInMillis();
+
                         startTime = millis;
                         startDateBtn.setText(format(year, month, day));
                     } else {
+                        // End of the selected day (inclusive)
+                        c.set(year, month, day, 23, 59, 59);
+                        long millis = c.getTimeInMillis();
+
+                        // Validate: end date cannot be before start date
+                        if (startTime != null && millis < startTime) {
+                            Toast.makeText(
+                                    requireContext(),
+                                    "End date cannot be before start date",
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                            return;
+                        }
+
                         endTime = millis;
                         endDateBtn.setText(format(year, month, day));
                     }
