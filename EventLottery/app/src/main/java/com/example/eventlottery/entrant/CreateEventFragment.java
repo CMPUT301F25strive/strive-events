@@ -233,10 +233,10 @@ public class CreateEventFragment extends Fragment {
                 title,
                 description,
                 location,
-                tag,
                 startTimeMillis,
                 maxParticipants,
                 deviceId,
+                selectedTag,
                 (success, message) -> {
                     saveButton.setEnabled(true);
                     saveButton.setText("Post");
