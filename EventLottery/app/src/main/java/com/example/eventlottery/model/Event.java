@@ -21,6 +21,15 @@ public class Event implements Serializable {
         FINALIZED
     }
 
+    public enum Tag {
+        ART,
+        MUSIC,
+        EDUCATION,
+        SPORTS,
+        PARTY
+    }
+
+
     private String id;
     private String title;
 
@@ -36,6 +45,7 @@ public class Event implements Serializable {
     private List<String> attendeesList;
     private String posterUrl;   // Firebase image URL
     private String description;
+    private Tag tag;
 
     /**
      * REQUIRED FOR FIRESTORE
@@ -58,7 +68,8 @@ public class Event implements Serializable {
             int spotsRemaining,
             @NonNull Status status,
             @Nullable String posterUrl,
-            @Nullable String description
+            @Nullable String description,
+            @NonNull Tag tag
     ) {
         this.id = id;
         this.title = title;
@@ -68,6 +79,7 @@ public class Event implements Serializable {
         this.capacity = capacity;
         this.spotsRemaining = spotsRemaining;
         this.status = status;
+        this.tag = tag;
         this.posterUrl = posterUrl;
         this.description = description;
         this.waitingList = new ArrayList<>();
@@ -138,6 +150,14 @@ public class Event implements Serializable {
 
     public void setAttendeesList(List<String> attendeesList) {
         this.attendeesList = attendeesList != null ? attendeesList : new ArrayList<>();
+    }
+
+    public Tag getTag() {
+        return tag;
+    }
+
+    public void setTag(Tag tag) {
+        this.tag = tag;
     }
 
     /**
