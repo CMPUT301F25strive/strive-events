@@ -114,7 +114,7 @@ public class EventListAdapter extends ListAdapter<Event, EventListAdapter.EventV
             }
 
             // === DATE & TIME ===
-            Date date = new Date(event.getStartTimeMillis());
+            Date date = new Date(event.getEventStartTimeMillis());
             binding.eventDate.setText(dateFormat.format(date));
             binding.eventTime.setText(timeFormat.format(date).toLowerCase(Locale.getDefault()));
 
@@ -124,7 +124,7 @@ public class EventListAdapter extends ListAdapter<Event, EventListAdapter.EventV
             // === STATUS ===
             binding.eventStatus.setText(""); // Can add status if needed
 
-            Log.d("EventAdapter", "Event: " + event.getTitle() + ", millis: " + event.getStartTimeMillis());
+            Log.d("EventAdapter", "Event: " + event.getTitle() + ", millis: " + event.getEventStartTimeMillis());
         }
 
         @Override
@@ -143,7 +143,7 @@ public class EventListAdapter extends ListAdapter<Event, EventListAdapter.EventV
         public boolean areContentsTheSame(@NonNull Event oldItem, @NonNull Event newItem) {
             return oldItem.getTitle().equals(newItem.getTitle()) &&
                     oldItem.getVenue().equals(newItem.getVenue()) &&
-                    oldItem.getStartTimeMillis() == newItem.getStartTimeMillis() &&
+                    oldItem.getEventStartTimeMillis() == newItem.getEventStartTimeMillis() &&
                     String.valueOf(oldItem.getPosterUrl()).equals(String.valueOf(newItem.getPosterUrl()));
         }
     };

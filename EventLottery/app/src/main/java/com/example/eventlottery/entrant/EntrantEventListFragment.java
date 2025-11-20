@@ -109,10 +109,10 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
 
         long now = System.currentTimeMillis();
 
-        // Filter open events only to display
+        // TODO: What do we display, open events only or + future events as well?
+        // Filter available or future events open to display
         for (Event e : state.events) {
-            if (e.getStatus() == Event.Status.REG_OPEN
-                    && e.getStartTimeMillis() > now) {
+            if (e.getRegEndTimeMillis() > now) {
                 allEvents.add(e);
             }
         }

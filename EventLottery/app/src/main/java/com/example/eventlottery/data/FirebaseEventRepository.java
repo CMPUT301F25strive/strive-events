@@ -55,6 +55,15 @@ public class FirebaseEventRepository implements EventRepository {
                         event.setWaitingList(new ArrayList<>());
                     if (event.getAttendeesList() == null)
                         event.setAttendeesList(new ArrayList<>());
+
+                    // Monitor the status of event
+                    Event.Status oldStatus = event.getStatus();
+                    event.refreshStatus();
+
+                    // Sync up the change back to Firestore
+                    if (event.getStatus() != oldStatus) {
+                        eventsRef.document(event.getId()).update("status", event.getStatus());
+                    }
                     updated.add(event);
                 }
             }
@@ -125,7 +134,9 @@ public class FirebaseEventRepository implements EventRepository {
             String title,
             String description,
             String location,
-            long startTimeMillis,
+            long eventStartTimeMillis,
+            long regStartTimeMillis,
+            long regEndTimeMillis,
             int maxParticipants,
             @NonNull String deviceId,
             Event.Tag tag,
@@ -143,15 +154,15 @@ public class FirebaseEventRepository implements EventRepository {
                     .addOnSuccessListener(taskSnapshot ->
                             imageRef.getDownloadUrl().addOnSuccessListener(uri ->
                                     saveEventToFirestore(eventId, title, description, location,
-                                            startTimeMillis, maxParticipants,
-                                            deviceId, uri.toString(), tag, callback)
+                                            eventStartTimeMillis, regStartTimeMillis, regEndTimeMillis,
+                                            maxParticipants, deviceId, uri.toString(), tag, callback)
                             ).addOnFailureListener(e ->
                                     callback.onComplete(false, "Failed to get image URL")))
                     .addOnFailureListener(e ->
                             callback.onComplete(false, "Failed to upload image"));
         } else {
-            saveEventToFirestore(eventId, title, description, location,
-                    startTimeMillis, maxParticipants, deviceId, null, tag, callback);
+            saveEventToFirestore(eventId, title, description, location, eventStartTimeMillis, regStartTimeMillis, regEndTimeMillis,
+                    maxParticipants, deviceId, null, tag, callback);
         }
     }
 
@@ -160,7 +171,9 @@ public class FirebaseEventRepository implements EventRepository {
             String title,
             String description,
             String location,
-            long startTimeMillis,
+            long eventStartTimeMillis,
+            long regStartTimeMillis,
+            long regEndTimeMillis,
             int maxParticipants,
             String deviceId,
             String posterUrl,
@@ -172,7 +185,9 @@ public class FirebaseEventRepository implements EventRepository {
                 eventId,
                 title,
                 "", // organizerName empty for now
-                startTimeMillis,
+                eventStartTimeMillis,
+                regStartTimeMillis,
+                regEndTimeMillis,
                 location,
                 maxParticipants,
                 maxParticipants,

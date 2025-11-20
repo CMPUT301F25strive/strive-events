@@ -14,6 +14,7 @@ import java.util.List;
  */
 public class Event implements Serializable {
 
+    // TODO: state machine?
     public enum Status {
         REG_OPEN,
         REG_CLOSED,
@@ -36,7 +37,9 @@ public class Event implements Serializable {
     private String organizerId;
 
     private String organizerName;
-    private long startTimeMillis;
+    private long eventStartTimeMillis;
+    private long regStartTimeMillis;
+    private long regEndTimeMillis;
     private String venue;
     private int capacity;
     private int spotsRemaining;
@@ -62,7 +65,9 @@ public class Event implements Serializable {
             @NonNull String id,
             @NonNull String title,
             @NonNull String organizerName,
-            long startTimeMillis,
+            long eventStartTimeMillis,
+            long regStartTimeMillis,
+            long regEndTimeMillis,
             @NonNull String venue,
             int capacity,
             int spotsRemaining,
@@ -74,7 +79,9 @@ public class Event implements Serializable {
         this.id = id;
         this.title = title;
         this.organizerName = organizerName;
-        this.startTimeMillis = startTimeMillis;
+        this.eventStartTimeMillis = eventStartTimeMillis;
+        this.regStartTimeMillis = regStartTimeMillis;
+        this.regEndTimeMillis = regEndTimeMillis;
         this.venue = venue;
         this.capacity = capacity;
         this.spotsRemaining = spotsRemaining;
@@ -110,8 +117,24 @@ public class Event implements Serializable {
         return organizerId;
     }
 
-    public long getStartTimeMillis() {
-        return startTimeMillis;
+    public long getEventStartTimeMillis() {
+        return eventStartTimeMillis;
+    }
+
+    public long getRegEndTimeMillis() {
+        return regEndTimeMillis;
+    }
+
+    public void setRegEndTimeMillis(long regEndTimeMillis) {
+        this.regEndTimeMillis = regEndTimeMillis;
+    }
+
+    public long getRegStartTimeMillis() {
+        return regStartTimeMillis;
+    }
+
+    public void setRegStartTimeMillis(long regStartTimeMillis) {
+        this.regStartTimeMillis = regStartTimeMillis;
     }
 
     public String getVenue() {
@@ -164,15 +187,27 @@ public class Event implements Serializable {
         this.tag = tag;
     }
 
-    /**
-     * SETTER FOR NEW FIELD
-     */
     public void setOrganizerId(String organizerId) {
         this.organizerId = organizerId;
     }
 
-    public boolean hasStarted() {
-        return System.currentTimeMillis() >= startTimeMillis;
+    public boolean isEventStarted() {
+        return System.currentTimeMillis() >= eventStartTimeMillis;
+    }
+
+    public boolean isRegStarted() {
+        return System.currentTimeMillis() >= regStartTimeMillis;
+    }
+
+    public boolean isRegClosed() {
+        return System.currentTimeMillis() >= regEndTimeMillis;
+    }
+
+    public boolean isRegPeriod() {
+        return getStatus() == Status.REG_OPEN
+                && isRegStarted()
+                && !isRegClosed()
+                && !isEventStarted();
     }
 
     /**
@@ -242,6 +277,40 @@ public class Event implements Serializable {
                 })
                 .addOnFailureListener(e -> callback.onResult("Unknown Organizer"));
     }
+
+    public void refreshStatus() {
+        long now = System.currentTimeMillis();
+
+        // As soon as it starts, it becomes history, and thus eternal ~
+            // Or after all candidates accepted (associated with lottery sys)
+        if (now >= eventStartTimeMillis) {
+            if (status != Status.FINALIZED) {
+                status = Status.FINALIZED;
+            }
+            return; // No need to monitor
+        }
+
+        // Before registration opens, it's closed
+        if (now < regStartTimeMillis && status == Status.REG_OPEN) {
+            status = Status.REG_CLOSED;
+        }
+
+        // Within registration period, it's open
+        if (now >= regStartTimeMillis && now <= regEndTimeMillis
+                && status == Status.REG_CLOSED) {
+            status = Status.REG_OPEN;
+        }
+
+        // After registration end and before event start, it's closed (before draw)
+        if (now >= regEndTimeMillis && status == Status.REG_OPEN) {
+            status = Status.REG_CLOSED;
+        }
+
+        // TODO: figure out what things to do during DRAWN,
+        //  like b/t reg end time and event start time
+        //  or before all attendees are confirmed
+    }
+
 
     /**
      * Callback interface for organizer name result

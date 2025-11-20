@@ -65,42 +65,38 @@ public class MyEventsViewModel extends ViewModel {
         List<Event> filteredEvents = new ArrayList<>();
         if (events == null) return filteredEvents;
 
-        long currentTime = System.currentTimeMillis();
-
         for (Event event : events) {
             boolean isOnWaitingList = event.isOnWaitingList(deviceId);
-            boolean isAttending = event.getAttendeesListSize() > 0 &&
-                    event.getAttendeesList().contains(deviceId);
-
+            boolean isAttending = event.getAttendeesListSize() > 0 && event.getAttendeesList().contains(deviceId);
             boolean isOrganizer = deviceId.equals(event.getOrganizerId());
-
-            boolean hasStarted = event.getStartTimeMillis() <= currentTime;
+            boolean isEventStarted = event.isEventStarted();
             Event.Status status = event.getStatus();
-            switch (segment) {
 
+            switch (segment) {
                 case WAITING_LIST:
-                    // Still on waiting list, event in the future
-                    if (isOnWaitingList && !isAttending && !hasStarted
+                    // Entrant view: still on waiting list, event in the future
+                    if (isOnWaitingList && !isAttending && !isEventStarted
                             && (status != Event.Status.FINALIZED)) {
                         filteredEvents.add(event);
                     }
                     break;
 
                 case ACCEPTED:
-                    // Have confirmed to attend an event that hasn't started yet
-                    if (isAttending && !hasStarted) {
+                    // Entrant view: have confirmed to attend an event that hasn't started yet
+                    if (isAttending && !isEventStarted) {
                         filteredEvents.add(event);
                     }
                     break;
 
                 case HISTORY:
-                    // After the event has started, it always becomes history
-                    if ((isAttending || isOnWaitingList) && hasStarted) {
+                    // Entrant view: after the event has started, it always becomes history
+                    if ((isAttending || isOnWaitingList) && isEventStarted) {
                         filteredEvents.add(event);
                     }
                     break;
 
                 case HOSTED:
+                    // Organizer view: only user's own hosted events here
                     if (isOrganizer) {
                         filteredEvents.add(event);
                     }

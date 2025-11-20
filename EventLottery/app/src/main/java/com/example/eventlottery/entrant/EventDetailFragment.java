@@ -148,7 +148,7 @@ public class EventDetailFragment extends Fragment {
 
         fetchAndDisplayOrganizerName(event.getOrganizerId());
 
-        Date date = new Date(event.getStartTimeMillis());
+        Date date = new Date(event.getEventStartTimeMillis());
         String dateStr = dateFormat.format(date);
         String timeStr = timeFormat.format(date)
                 .toLowerCase(Locale.getDefault());
@@ -179,7 +179,7 @@ public class EventDetailFragment extends Fragment {
         binding.buttonContainer.setVisibility(View.VISIBLE);
         setupJoinButton(event, userID);
 
-        if (event.getStatus() != Event.Status.REG_OPEN || isOrganizer) {
+        if (!event.isRegPeriod() || isOrganizer) {
             binding.joinEventButton.setVisibility(View.GONE);
         }
     }
