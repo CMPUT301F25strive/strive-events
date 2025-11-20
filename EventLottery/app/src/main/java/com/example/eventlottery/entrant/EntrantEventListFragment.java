@@ -112,7 +112,7 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
         // Filter open events only to display
         for (Event e : state.events) {
             if (e.getStatus() == Event.Status.REG_OPEN
-                    && e.getStartTimeMillis() > now) {
+                    && e.getEventStartTimeMillis() > now) {
                 allEvents.add(e);
             }
         }

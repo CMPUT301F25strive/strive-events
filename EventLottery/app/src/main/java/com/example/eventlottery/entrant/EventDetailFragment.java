@@ -148,7 +148,7 @@ public class EventDetailFragment extends Fragment {
 
         fetchAndDisplayOrganizerName(event.getOrganizerId());
 
-        Date date = new Date(event.getStartTimeMillis());
+        Date date = new Date(event.getEventStartTimeMillis());
         String dateStr = dateFormat.format(date);
         String timeStr = timeFormat.format(date)
                 .toLowerCase(Locale.getDefault());

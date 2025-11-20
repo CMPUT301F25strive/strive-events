@@ -36,7 +36,9 @@ public class Event implements Serializable {
     private String organizerId;
 
     private String organizerName;
-    private long startTimeMillis;
+    private long eventStartTimeMillis;
+    private long regStartTimeMillis;
+    private long regEndTimeMillis;
     private String venue;
     private int capacity;
     private int spotsRemaining;
@@ -62,7 +64,9 @@ public class Event implements Serializable {
             @NonNull String id,
             @NonNull String title,
             @NonNull String organizerName,
-            long startTimeMillis,
+            long eventStartTimeMillis,
+            long regStartTimeMillis,
+            long regEndTimeMillis,
             @NonNull String venue,
             int capacity,
             int spotsRemaining,
@@ -74,7 +78,9 @@ public class Event implements Serializable {
         this.id = id;
         this.title = title;
         this.organizerName = organizerName;
-        this.startTimeMillis = startTimeMillis;
+        this.eventStartTimeMillis = eventStartTimeMillis;
+        this.regStartTimeMillis = regStartTimeMillis;
+        this.regEndTimeMillis = regEndTimeMillis;
         this.venue = venue;
         this.capacity = capacity;
         this.spotsRemaining = spotsRemaining;
@@ -110,8 +116,24 @@ public class Event implements Serializable {
         return organizerId;
     }
 
-    public long getStartTimeMillis() {
-        return startTimeMillis;
+    public long getEventStartTimeMillis() {
+        return eventStartTimeMillis;
+    }
+
+    public long getRegEndTimeMillis() {
+        return regEndTimeMillis;
+    }
+
+    public void setRegEndTimeMillis(long regEndTimeMillis) {
+        this.regEndTimeMillis = regEndTimeMillis;
+    }
+
+    public long getRegStartTimeMillis() {
+        return regStartTimeMillis;
+    }
+
+    public void setRegStartTimeMillis(long regStartTimeMillis) {
+        this.regStartTimeMillis = regStartTimeMillis;
     }
 
     public String getVenue() {
@@ -164,15 +186,20 @@ public class Event implements Serializable {
         this.tag = tag;
     }
 
-    /**
-     * SETTER FOR NEW FIELD
-     */
     public void setOrganizerId(String organizerId) {
         this.organizerId = organizerId;
     }
 
-    public boolean hasStarted() {
-        return System.currentTimeMillis() >= startTimeMillis;
+    public boolean isEventStarted() {
+        return System.currentTimeMillis() >= eventStartTimeMillis;
+    }
+
+    public boolean isRegStarted() {
+        return System.currentTimeMillis() >= regStartTimeMillis;
+    }
+
+    public boolean isRegClosed() {
+        return System.currentTimeMillis() >= regEndTimeMillis;
     }
 
     /**

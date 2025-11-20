@@ -25,7 +25,7 @@ public class EventFilter implements Serializable {
     }
 
     public boolean match(Event event) {
-        long eventStart = event.getStartTimeMillis();
+        long eventStart = event.getEventStartTimeMillis();
         Event.Tag eventTag = event.getTag();
 
         // Filter time range
