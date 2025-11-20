@@ -14,6 +14,7 @@ import java.util.List;
  */
 public class Event implements Serializable {
 
+    // TODO: state machine?
     public enum Status {
         REG_OPEN,
         REG_CLOSED,
@@ -200,6 +201,13 @@ public class Event implements Serializable {
 
     public boolean isRegClosed() {
         return System.currentTimeMillis() >= regEndTimeMillis;
+    }
+
+    public boolean isRegPeriod() {
+        return getStatus() == Status.REG_OPEN
+                && isRegStarted()
+                && !isRegClosed()
+                && !isEventStarted();
     }
 
     /**

@@ -179,7 +179,7 @@ public class EventDetailFragment extends Fragment {
         binding.buttonContainer.setVisibility(View.VISIBLE);
         setupJoinButton(event, userID);
 
-        if (event.getStatus() != Event.Status.REG_OPEN || isOrganizer) {
+        if (!event.isRegPeriod() || isOrganizer) {
             binding.joinEventButton.setVisibility(View.GONE);
         }
     }

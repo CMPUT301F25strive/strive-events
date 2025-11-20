@@ -41,12 +41,13 @@ public class WaitingListController {
             return;
         }
 
-        // Only allow joining if registration is open
-        if (event.getStatus() != Event.Status.REG_OPEN) {
-            System.out.println("Cannot join waiting list - registration closed");
+        // Only allow joining within registration period
+        if (!event.isRegPeriod()) {
+            System.out.println("Cannot join waiting list outside of the registration period");
             return;
         }
 
+        // If the user hasn't joined the waiting list, join it
         if (!event.isOnWaitingList(userID)) {
             event.joinWaitingList(userID);
             // Update Firebase immediately
