@@ -106,19 +106,27 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
         binding.eventRefresh.setRefreshing(false);
 
         allEvents.clear();
-        allEvents.addAll(state.events);
+
+        long now = System.currentTimeMillis();
+
+        // Filter open events only to display
+        for (Event e : state.events) {
+            if (e.getStatus() == Event.Status.REG_OPEN
+                    && e.getStartTimeMillis() > now) {
+                allEvents.add(e);
+            }
+        }
 
         applyFilter();
 
         if (state.errorMessage != null) {
             showMessage(state.errorMessage);
-        } else if (state.events.isEmpty()) {
+        } else if (allEvents.isEmpty()) {
             showMessage(getString(R.string.no_events_placeholder));
         } else {
             binding.errorMessage.setVisibility(View.GONE);
         }
     }
-
 
     private void showMessage(@NonNull String message) {
         binding.errorMessage.setText(message);
