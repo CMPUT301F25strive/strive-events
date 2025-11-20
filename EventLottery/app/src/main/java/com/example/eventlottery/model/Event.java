@@ -171,6 +171,10 @@ public class Event implements Serializable {
         this.organizerId = organizerId;
     }
 
+    public boolean hasStarted() {
+        return System.currentTimeMillis() >= startTimeMillis;
+    }
+
     /**
      * WAITING LIST METHODS
      */

@@ -74,22 +74,28 @@ public class MyEventsViewModel extends ViewModel {
 
             boolean isOrganizer = deviceId.equals(event.getOrganizerId());
 
+            boolean hasStarted = event.getStartTimeMillis() <= currentTime;
+            Event.Status status = event.getStatus();
             switch (segment) {
 
                 case WAITING_LIST:
-                    if (isOnWaitingList && !isAttending) {
+                    // Still on waiting list, event in the future
+                    if (isOnWaitingList && !isAttending && !hasStarted
+                            && (status != Event.Status.FINALIZED)) {
                         filteredEvents.add(event);
                     }
                     break;
 
                 case ACCEPTED:
-                    if (isAttending) {
+                    // Have confirmed to attend an event that hasn't started yet
+                    if (isAttending && !hasStarted) {
                         filteredEvents.add(event);
                     }
                     break;
 
                 case HISTORY:
-                    if (isAttending || isOnWaitingList) {
+                    // After the event has started, it always becomes history
+                    if ((isAttending || isOnWaitingList) && hasStarted) {
                         filteredEvents.add(event);
                     }
                     break;
