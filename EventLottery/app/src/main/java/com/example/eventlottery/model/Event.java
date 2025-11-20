@@ -278,6 +278,40 @@ public class Event implements Serializable {
                 .addOnFailureListener(e -> callback.onResult("Unknown Organizer"));
     }
 
+    public void refreshStatus() {
+        long now = System.currentTimeMillis();
+
+        // As soon as it starts, it becomes history, and thus eternal ~
+            // Or after all candidates accepted (associated with lottery sys)
+        if (now >= eventStartTimeMillis) {
+            if (status != Status.FINALIZED) {
+                status = Status.FINALIZED;
+            }
+            return; // No need to monitor
+        }
+
+        // Before registration opens, it's closed
+        if (now < regStartTimeMillis && status == Status.REG_OPEN) {
+            status = Status.REG_CLOSED;
+        }
+
+        // Within registration period, it's open
+        if (now >= regStartTimeMillis && now <= regEndTimeMillis
+                && status == Status.REG_CLOSED) {
+            status = Status.REG_OPEN;
+        }
+
+        // After registration end and before event start, it's closed (before draw)
+        if (now >= regEndTimeMillis && status == Status.REG_OPEN) {
+            status = Status.REG_CLOSED;
+        }
+
+        // TODO: figure out what things to do during DRAWN,
+        //  like b/t reg end time and event start time
+        //  or before all attendees are confirmed
+    }
+
+
     /**
      * Callback interface for organizer name result
      */

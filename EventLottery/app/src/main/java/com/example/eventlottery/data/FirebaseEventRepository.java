@@ -55,6 +55,15 @@ public class FirebaseEventRepository implements EventRepository {
                         event.setWaitingList(new ArrayList<>());
                     if (event.getAttendeesList() == null)
                         event.setAttendeesList(new ArrayList<>());
+
+                    // Monitor the status of event
+                    Event.Status oldStatus = event.getStatus();
+                    event.refreshStatus();
+
+                    // Sync up the change back to Firestore
+                    if (event.getStatus() != oldStatus) {
+                        eventsRef.document(event.getId()).update("status", event.getStatus());
+                    }
                     updated.add(event);
                 }
             }
