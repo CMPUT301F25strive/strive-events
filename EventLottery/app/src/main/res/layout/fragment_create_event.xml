@@ -268,7 +268,7 @@
                     android:id="@+id/editTextRegStartDate"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Registration Start Date"
+                    android:hint="Registration Start Date (keep empty for immediate registration open)"
                     android:focusable="false" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -289,11 +289,12 @@
                     android:id="@+id/editTextRegStartTime"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Registration Start Time"
+                    android:hint="Registration Start Time (keep empty for immediate registration open)"
                     android:focusable="false" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Registration End Date -->
+            <!-- Must be at least 24 hours before the event starts-->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -310,7 +311,7 @@
                     android:id="@+id/editTextRegEndDate"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Registration End Date"
+                    android:hint="Registration End Date (keep empty for default registration close 24 hours before the event starts)"
                     android:focusable="false" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -331,11 +332,11 @@
                     android:id="@+id/editTextRegEndTime"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Registration End Time"
+                    android:hint="Registration End Time (keep empty for default registration close 24 hours before the event starts)"
                     android:focusable="false" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Max Participants -->
+            <!-- Capacity -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -349,10 +350,31 @@
                 app:boxStrokeWidth="2dp">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/editTextMaxParticipants"
+                    android:id="@+id/editTextCapacity"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Max Participants"
+                    android:hint="Capacity"
+                    android:inputType="number" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Waiting List Spots -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:boxBackgroundMode="outline"
+                app:boxCornerRadiusTopStart="16dp"
+                app:boxCornerRadiusTopEnd="16dp"
+                app:boxCornerRadiusBottomStart="16dp"
+                app:boxCornerRadiusBottomEnd="16dp"
+                app:boxStrokeColor="@color/primary"
+                app:boxStrokeWidth="2dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editTextWaitingListSpots"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Waiting List Spots (keep empty for unlimited spots)"
                     android:inputType="number" />
             </com.google.android.material.textfield.TextInputLayout>
 

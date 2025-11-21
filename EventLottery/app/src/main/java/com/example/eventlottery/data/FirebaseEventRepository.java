@@ -137,7 +137,8 @@ public class FirebaseEventRepository implements EventRepository {
             long eventStartTimeMillis,
             long regStartTimeMillis,
             long regEndTimeMillis,
-            int maxParticipants,
+            int capacity,
+            int waitingListSpots,
             @NonNull String deviceId,
             Event.Tag tag,
             @NonNull UploadCallback callback
@@ -155,14 +156,14 @@ public class FirebaseEventRepository implements EventRepository {
                             imageRef.getDownloadUrl().addOnSuccessListener(uri ->
                                     saveEventToFirestore(eventId, title, description, location,
                                             eventStartTimeMillis, regStartTimeMillis, regEndTimeMillis,
-                                            maxParticipants, deviceId, uri.toString(), tag, callback)
+                                            capacity, waitingListSpots, deviceId, uri.toString(), tag, callback)
                             ).addOnFailureListener(e ->
                                     callback.onComplete(false, "Failed to get image URL")))
                     .addOnFailureListener(e ->
                             callback.onComplete(false, "Failed to upload image"));
         } else {
             saveEventToFirestore(eventId, title, description, location, eventStartTimeMillis, regStartTimeMillis, regEndTimeMillis,
-                    maxParticipants, deviceId, null, tag, callback);
+                    capacity, waitingListSpots, deviceId, null, tag, callback);
         }
     }
 
@@ -174,7 +175,8 @@ public class FirebaseEventRepository implements EventRepository {
             long eventStartTimeMillis,
             long regStartTimeMillis,
             long regEndTimeMillis,
-            int maxParticipants,
+            int capacity,
+            int waitingListSpots,
             String deviceId,
             String posterUrl,
             Event.Tag tag,
@@ -189,8 +191,8 @@ public class FirebaseEventRepository implements EventRepository {
                 regStartTimeMillis,
                 regEndTimeMillis,
                 location,
-                maxParticipants,
-                maxParticipants,
+                capacity,
+                waitingListSpots,
                 Event.Status.REG_OPEN,
                 posterUrl,
                 description,

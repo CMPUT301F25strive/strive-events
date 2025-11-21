@@ -35,13 +35,22 @@ public class CreateEventFragment extends Fragment {
 
     private static final int PICK_IMAGE = 10;
 
+    // Event creation lead time: date-based
+    private static final int MIN_EVENT_LEAD_DAYS = 3;   // 3 days
+
+    // Gap between registration close and event start
+    private static final int MIN_REG_DRAWN_GAP_DAYS = 1;    // Literally 1 day
+    private static final long MIN_REG_DRAWN_GAP_MILLIS =
+            MIN_REG_DRAWN_GAP_DAYS * 24L * 60 * 60 * 1000L;    // 1*24h in ms
+
     private ImageView eventPoster;
     private Uri imageUri;
 
     private TextInputEditText editTextTitle, editTextDescription, editTextLocation,
-            editTextEventDate, editTextEventTime, editTextMaxParticipants,
+            editTextEventDate, editTextEventTime,
             editTextRegStartDate, editTextRegStartTime,
-            editTextRegEndDate, editTextRegEndTime;
+            editTextRegEndDate, editTextRegEndTime,
+            editTextCapacity, editTextWaitingListSpots;
     private TextView charCountText;
 
     private Button saveButton;
@@ -79,7 +88,8 @@ public class CreateEventFragment extends Fragment {
         editTextRegEndDate   = view.findViewById(R.id.editTextRegEndDate);
         editTextRegEndTime   = view.findViewById(R.id.editTextRegEndTime);
 
-        editTextMaxParticipants = view.findViewById(R.id.editTextMaxParticipants);
+        editTextCapacity = view.findViewById(R.id.editTextCapacity);
+        editTextWaitingListSpots = view.findViewById(R.id.editTextWaitingListSpots);
         charCountText = view.findViewById(R.id.charCountText);
 
         saveButton = view.findViewById(R.id.buttonSaveEvent);
@@ -282,32 +292,84 @@ public class CreateEventFragment extends Fragment {
         timePicker.show();
     }
 
+    /**
+     * Normalize a Calendar to date-only (time being as 00:00)
+     * @param cal: the Calendar object
+     */
+    private void normalizeToDate(Calendar cal) {
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+    }
+
     private void saveEvent(View root) {
-        // Validation steps
         String title = editTextTitle.getText().toString().trim();
+        // Check if the title of event is given
         if (title.isEmpty()) {
             Toast.makeText(requireContext(), "Title is required", Toast.LENGTH_SHORT).show();
             return;
         }
 
         String description = editTextDescription.getText().toString().trim();
+        // Check if the description of event is given
+        if (description.isEmpty()) {
+            Toast.makeText(requireContext(), "Description is required", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         String location = editTextLocation.getText().toString().trim();
-        String eventDate = editTextEventDate.getText().toString().trim();
-        String eventTime = editTextEventTime.getText().toString().trim();
-        String max = editTextMaxParticipants.getText().toString().trim();
-        int maxParticipants = max.isEmpty() ? 0 : Integer.parseInt(max);
+        // Check if the location of event is given
+        if (location.isEmpty()) {
+            Toast.makeText(requireContext(), "Location is required", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         if (selectedTag == null) {
             Toast.makeText(requireContext(), "Please select a category", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        // Add reasonable time intervals for a well-designed flow: creation -> registration -> sampling -> invitation -> finalization
+        /*
+        Time interval rules:
+        - For event creation (in days):
+            eventStart - now >= MIN_EVENT_LEAD_DAYS
+        - For registration period (in ms):
+            regStart >= now
+            regStart < regEnd
+            defaultRegStart = now
+            defaultRegEnd = eventStart - MIN_REG_DRAWN_GAP
+            eventStart - regEnd >= MIN_REG_DRAWN_GAP
+         */
+        String eventDate = editTextEventDate.getText().toString().trim();
+        String eventTime = editTextEventTime.getText().toString().trim();
         if (eventDate.isEmpty() || eventTime.isEmpty()) {
-            Toast.makeText(requireContext(),
-                    "Event date and time are required", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Event date and time are required", Toast.LENGTH_SHORT).show();
             return;
         }
+
         long eventStartTimeMillis = eventCalendar.getTimeInMillis();
+        long now = System.currentTimeMillis();
+
+        Calendar today = Calendar.getInstance();
+        normalizeToDate(today);
+
+        Calendar eventDateOnly = (Calendar) eventCalendar.clone();
+        normalizeToDate(eventDateOnly);
+
+        Calendar minEventDate = (Calendar) today.clone();
+        minEventDate.add(Calendar.DAY_OF_YEAR, MIN_EVENT_LEAD_DAYS);
+
+        // Enforce event to start at least 3 days from today
+        if (eventDateOnly.before(minEventDate)) {
+            Toast.makeText(
+                    requireContext(),
+                    "Event must start at least " + MIN_EVENT_LEAD_DAYS + " days from today.",
+                    Toast.LENGTH_LONG
+            ).show();
+            return;
+        }
 
         String regStartDateStr = editTextRegStartDate.getText() != null
                 ? editTextRegStartDate.getText().toString().trim() : "";
@@ -327,22 +389,64 @@ public class CreateEventFragment extends Fragment {
             regStartCalendar.setTimeInMillis(regStartTimeMillis);
         } else {
             regStartTimeMillis = regStartCalendar.getTimeInMillis();
+
+            // Ensure registration shouldn't start in the past
+            if (regStartTimeMillis < now) {
+                Toast.makeText(requireContext(), "Registration start time cannot be in the past.", Toast.LENGTH_LONG).show();
+                return;
+            }
         }
 
         if (regEndDateStr.isEmpty() || regEndTimeStr.isEmpty()) {
-            // If registration end not specified, default to event start
-            regEndTimeMillis = eventStartTimeMillis;
+            // If registration end not specified, default to 24h before event starts
+            long defaultRegEndTimeMillis = eventStartTimeMillis - MIN_REG_DRAWN_GAP_MILLIS;
+
+            // Registration end must still be after regStart
+            if (defaultRegEndTimeMillis <= regStartTimeMillis) {
+                Toast.makeText(
+                        requireContext(),
+                        "Invalid registration period. " +
+                                "Please move the event later or registration start earlier.",
+                        Toast.LENGTH_LONG
+                ).show();
+                return;
+            }
+
+            regEndTimeMillis = defaultRegEndTimeMillis;
             regEndCalendar.setTimeInMillis(regEndTimeMillis);
         } else {
             regEndTimeMillis = regEndCalendar.getTimeInMillis();
         }
 
-        // Enforce regStart <= regEnd <= eventStart
-        if (regEndTimeMillis > eventStartTimeMillis) {
-            regEndTimeMillis = eventStartTimeMillis;
+        // Check validity for manually specified inputs
+        // Registration end must still be after regStart
+        if (regStartTimeMillis >= regEndTimeMillis) {
+            Toast.makeText(requireContext(), "Invalid registration period is given.", Toast.LENGTH_LONG).show();
+            return;
         }
-        if (regStartTimeMillis > regEndTimeMillis) {
-            regStartTimeMillis = regEndTimeMillis;
+
+        // Registration end must be at least 24h before event start
+        if (eventStartTimeMillis - regEndTimeMillis < MIN_REG_DRAWN_GAP_MILLIS) {
+            Toast.makeText(requireContext(),
+                    "Registration must close at least 24 hours before the event starts.",
+                    Toast.LENGTH_LONG
+            ).show();
+            return;
+        }
+
+        String waitingListSpotsStr = editTextWaitingListSpots.getText().toString().trim();
+        int waitingListSpots = waitingListSpotsStr.isEmpty()
+                ? -1 : Integer.parseInt(waitingListSpotsStr);   // -1 for unlimited
+
+        String capacityStr = editTextCapacity.getText().toString().trim();
+        if (capacityStr.isEmpty()) {
+            Toast.makeText(requireContext(), "Capacity is required", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        int capacity = Integer.parseInt(capacityStr);
+        if (capacity <= 0) {
+            Toast.makeText(requireContext(), "Invalid capacity of event", Toast.LENGTH_SHORT).show();
+            return;
         }
 
         saveButton.setEnabled(false);
@@ -361,7 +465,8 @@ public class CreateEventFragment extends Fragment {
                 eventStartTimeMillis,
                 regStartTimeMillis,
                 regEndTimeMillis,
-                maxParticipants,
+                capacity,
+                waitingListSpots,
                 deviceId,
                 selectedTag,
                 (success, message) -> {

@@ -41,8 +41,8 @@ public class Event implements Serializable {
     private long regStartTimeMillis;
     private long regEndTimeMillis;
     private String venue;
-    private int capacity;
-    private int spotsRemaining;
+    private int capacity;   // The number to sample
+    private int waitingListSpots;   // 0 == unlimited spots
     private Status status;
     private List<String> waitingList;
     private List<String> attendeesList;
@@ -70,7 +70,7 @@ public class Event implements Serializable {
             long regEndTimeMillis,
             @NonNull String venue,
             int capacity,
-            int spotsRemaining,
+            int waitingListSpots,
             @NonNull Status status,
             @Nullable String posterUrl,
             @Nullable String description,
@@ -84,7 +84,7 @@ public class Event implements Serializable {
         this.regEndTimeMillis = regEndTimeMillis;
         this.venue = venue;
         this.capacity = capacity;
-        this.spotsRemaining = spotsRemaining;
+        this.waitingListSpots = waitingListSpots;
         this.status = status;
         this.tag = tag;
         this.posterUrl = posterUrl;
@@ -145,8 +145,8 @@ public class Event implements Serializable {
         return capacity;
     }
 
-    public int getSpotsRemaining() {
-        return spotsRemaining;
+    public int getwaitingListSpots() {
+        return waitingListSpots;
     }
 
     public Status getStatus() {
@@ -230,6 +230,11 @@ public class Event implements Serializable {
 
     public int getWaitingListSize() {
         return getWaitingList().size();
+    }
+
+    public boolean isWaitingListFull() {
+        if (waitingListSpots < 0) return false; // Let -1 represent unlimited
+        return getWaitingListSize() >= waitingListSpots;
     }
 
     /**
