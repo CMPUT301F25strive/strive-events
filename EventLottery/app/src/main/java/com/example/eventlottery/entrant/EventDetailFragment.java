@@ -172,7 +172,7 @@ public class EventDetailFragment extends Fragment {
         );
 
         // Total waiting list spots ( -1 == unlimited)
-        int waitingListSpots = event.getwaitingListSpots();
+        int waitingListSpots = event.getWaitingListSpots();
         if (waitingListSpots < 0) {
             binding.eventDetailWaitingListSpots.setText(
                     getString(R.string.event_detail_waiting_list_spots_unlimited_format)

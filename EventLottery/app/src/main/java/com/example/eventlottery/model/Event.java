@@ -3,6 +3,7 @@ package com.example.eventlottery.model;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.Serializable;
@@ -108,6 +109,7 @@ public class Event implements Serializable {
         return title != null ? title : "";
     }
 
+    @Exclude
     public String getOrganizerName() {
         return organizerName != null ? organizerName : "";
     }
@@ -144,7 +146,7 @@ public class Event implements Serializable {
         return capacity;
     }
 
-    public int getwaitingListSpots() {
+    public int getWaitingListSpots() {
         return waitingListSpots;
     }
 
@@ -190,18 +192,23 @@ public class Event implements Serializable {
         this.organizerId = organizerId;
     }
 
+    @Exclude
     public boolean isEventStarted() {
         return System.currentTimeMillis() >= eventStartTimeMillis;
     }
 
+    @Exclude
     public boolean isRegOpen() {
         return status == Status.REG_OPEN;
     }
 
+    @Exclude
     public boolean isDrawn() { return status == Status.DRAWN; }
 
+    @Exclude
     public boolean isFinalized() { return status == Status.FINALIZED; }
 
+    @Exclude
     public boolean isRegClosed() {
         return status == Status.REG_CLOSED;
     }
@@ -224,10 +231,12 @@ public class Event implements Serializable {
         return getWaitingList().contains(deviceId);
     }
 
+    @Exclude
     public int getWaitingListSize() {
         return getWaitingList().size();
     }
 
+    @Exclude
     public boolean isWaitingListFull() {
         if (waitingListSpots < 0) return false; // Let -1 represent unlimited
         return getWaitingListSize() >= waitingListSpots;
@@ -247,36 +256,9 @@ public class Event implements Serializable {
         getAttendeesList().remove(deviceId);
     }
 
+    @Exclude
     public int getAttendeesListSize() {
         return getAttendeesList().size();
-    }
-
-    /**
-     * Asynchronously fetches the organizer's current profile name
-     * using the organizerId stored in this event.
-     *
-     * @param callback returns the organizer name, or "Unknown Organizer" on error.
-     */
-    public void fetchOrganizerName(ProfileNameCallback callback) {
-        if (organizerId == null || organizerId.trim().isEmpty()) {
-            callback.onResult("Unknown Organizer");
-            return;
-        }
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        db.collection("profiles")
-                .document(organizerId)
-                .get()
-                .addOnSuccessListener(snapshot -> {
-                    if (snapshot.exists()) {
-                        String name = snapshot.getString("name");
-                        callback.onResult(name != null ? name : "Unknown Organizer");
-                    } else {
-                        callback.onResult("Unknown Organizer");
-                    }
-                })
-                .addOnFailureListener(e -> callback.onResult("Unknown Organizer"));
     }
 
     public void refreshStatus() {
