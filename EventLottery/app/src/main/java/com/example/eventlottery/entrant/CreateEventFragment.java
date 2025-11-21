@@ -286,7 +286,8 @@ public class CreateEventFragment extends Fragment {
                 },
                 currentHour,
                 currentMinute,
-                true   // 24-hour format (true) or 12-hour AM/PM format (false)
+                false   // 12h format is convenient to set lol
+                // 24-hour format (true) or 12-hour AM/PM format (false)
         );
 
         timePicker.show();
@@ -350,7 +351,6 @@ public class CreateEventFragment extends Fragment {
         }
 
         long eventStartTimeMillis = eventCalendar.getTimeInMillis();
-        long now = System.currentTimeMillis();
 
         Calendar today = Calendar.getInstance();
         normalizeToDate(today);
@@ -382,18 +382,19 @@ public class CreateEventFragment extends Fragment {
 
         long regStartTimeMillis;
         long regEndTimeMillis;
+        long now = System.currentTimeMillis();
 
         if (regStartDateStr.isEmpty() || regStartTimeStr.isEmpty()) {
             // If registration start not specified, default to now
-            regStartTimeMillis = System.currentTimeMillis();
+            regStartTimeMillis = now;
             regStartCalendar.setTimeInMillis(regStartTimeMillis);
         } else {
             regStartTimeMillis = regStartCalendar.getTimeInMillis();
 
-            // Ensure registration shouldn't start in the past
+            // Enforce the registration start time to be "now"
             if (regStartTimeMillis < now) {
-                Toast.makeText(requireContext(), "Registration start time cannot be in the past.", Toast.LENGTH_LONG).show();
-                return;
+                regStartTimeMillis = now;
+                regStartCalendar.setTimeInMillis(regStartTimeMillis);
             }
         }
 
@@ -401,7 +402,7 @@ public class CreateEventFragment extends Fragment {
             // If registration end not specified, default to 24h before event starts
             long defaultRegEndTimeMillis = eventStartTimeMillis - MIN_REG_DRAWN_GAP_MILLIS;
 
-            // Registration end must still be after regStart
+            // Registration end must still be after registration start
             if (defaultRegEndTimeMillis <= regStartTimeMillis) {
                 Toast.makeText(
                         requireContext(),
@@ -437,6 +438,10 @@ public class CreateEventFragment extends Fragment {
         String waitingListSpotsStr = editTextWaitingListSpots.getText().toString().trim();
         int waitingListSpots = waitingListSpotsStr.isEmpty()
                 ? -1 : Integer.parseInt(waitingListSpotsStr);   // -1 for unlimited
+        if (waitingListSpots == 0) {
+            Toast.makeText(requireContext(), "Invalid waiting list spots", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         String capacityStr = editTextCapacity.getText().toString().trim();
         if (capacityStr.isEmpty()) {

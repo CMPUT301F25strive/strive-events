@@ -21,10 +21,16 @@
     <string name="event_detail_organizer_format">Organized by %1$s</string>
     <string name="event_detail_datetime_format">%1$s · %2$s</string>
     <string name="event_detail_capacity_format">Capacity: %1$d</string>
-    <string name="event_detail_spots_format">Spots left: %1$d</string>
+    <string name="event_detail_waiting_list_spots_format">Total waiting list spots: %1$d</string>
+    <string name="event_detail_waiting_list_spots_unlimited_format">Total waiting list spots: Unlimited</string>
     <string name="event_detail_description_label">Description</string>
+    <string name="event_detail_waiting_list_count_format">On waitlist: %1$d</string>
+    <string name="event_detail_reg_period_format">Registration: %1$s – %2$s</string>
+    <string name="event_detail_tag_format">Category: %1$s</string>
+    <string name="event_detail_status_format">Status: %1$s</string>
+    <string name="unknown">N/A</string>
     <string name="profile_picture">Profile picture</string>
-    <string name="event_detail_description_placeholder">No description provided yet.</string>
+    <string name="event_detail_description_placeholder">Description: %1$s</string>
     <string name="profile_menu_guidelines">Lottery Guidelines</string>
     <string name="event_detail_spots_placeholder">Spots remaining: --</string>
     <string name="profile_menu_admin_entrants">Entrants</string>
@@ -40,8 +46,6 @@
     <string name="delete_event_confirm_body">This removes the event for all entrants. This action cannot be undone.</string>
     <string name="delete_event_success">Event deleted</string>
     <string name="delete_event_failure">Failed to delete event</string>
-    <string name="event_detail_waiting_list_count_format">On waitlist: %1$d</string>
-    <string name="event_waiting_list_content_description">Number of entrants on waiting list</string>
     <string name="no_my_events_placeholder">You have not joined any events yet.</string>
     <string name="error_field_required">This field is required</string>
     <string name="admin_entrants_title">Entrants</string>

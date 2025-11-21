@@ -148,6 +148,7 @@ public class EventDetailFragment extends Fragment {
 
         fetchAndDisplayOrganizerName(event.getOrganizerId());
 
+        // Event date/time
         Date date = new Date(event.getEventStartTimeMillis());
         String dateStr = dateFormat.format(date);
         String timeStr = timeFormat.format(date)
@@ -157,19 +158,107 @@ public class EventDetailFragment extends Fragment {
                 getString(R.string.event_detail_datetime_format, dateStr, timeStr)
         );
 
+        // Venue (Location)
         binding.eventDetailVenue.setText(event.getVenue());
+
+        // Capacity
         binding.eventDetailCapacity.setText(
                 getString(R.string.event_detail_capacity_format, event.getCapacity())
         );
+
+        // Waiting list count
         binding.eventDetailWaitingListCount.setText(
                 getString(R.string.event_detail_waiting_list_count_format, event.getWaitingListSize())
         );
 
-        binding.eventDetailDescription.setText(
-                !TextUtils.isEmpty(event.getDescription())
-                        ? event.getDescription()
-                        : getString(R.string.event_detail_description_placeholder)
+        // Total waiting list spots ( -1 == unlimited)
+        int waitingListSpots = event.getwaitingListSpots();
+        if (waitingListSpots < 0) {
+            binding.eventDetailWaitingListSpots.setText(
+                    getString(R.string.event_detail_waiting_list_spots_unlimited_format)
+            );
+        } else {
+            binding.eventDetailWaitingListSpots.setText(
+                    getString(R.string.event_detail_waiting_list_spots_format, waitingListSpots)
+            );
+        }
+
+        // Registration period (reg start & reg end)
+        long regStartMillis = event.getRegStartTimeMillis();
+        long regEndMillis   = event.getRegEndTimeMillis();
+        Date regStartDate = new Date(regStartMillis);
+        Date regEndDate   = new Date(regEndMillis);
+
+        // Parse the date and time
+        String regStartStr = dateFormat.format(regStartDate) + " · " +
+                timeFormat.format(regStartDate).toLowerCase(Locale.getDefault());
+        String regEndStr = dateFormat.format(regEndDate) + " · " +
+                timeFormat.format(regEndDate).toLowerCase(Locale.getDefault());
+
+        binding.eventDetailRegPeriod.setText(
+                getString(R.string.event_detail_reg_period_format, regStartStr, regEndStr)
         );
+
+        // Tag
+        String tagDisplay = getDisplayTag(event.getTag());
+        binding.eventDetailTag.setText(
+                getString(R.string.event_detail_tag_format, tagDisplay)
+        );
+
+        // Status
+        String statusDisplay = getDisplayStatus(event);
+        binding.eventDetailStatus.setText(
+                getString(R.string.event_detail_status_format, statusDisplay)
+        );
+
+        // Description
+        binding.eventDetailDescription.setText(
+                getString(R.string.event_detail_description_placeholder, event.getDescription())
+        );
+    }
+
+    /**
+     * This method renders the tag of event from Event.Tag enum identifier
+     * to its meaning as a String.
+     * @param tag: the tag identifier of Event.Tag
+     * @return the corresponding String format
+     */
+    private String getDisplayTag(@Nullable Event.Tag tag) {
+        // If tag is missing
+        if (tag == null) return "Other";
+
+        // Render the given tag
+        switch (tag) {
+            case ART:        return "Art";
+            case MUSIC:      return "Music";
+            case EDUCATION:  return "Education";
+            case SPORTS:     return "Sports";
+            case PARTY:      return "Party";
+            // If mismatched, return the exact enum constant name as a String
+            default:         return tag.name();
+        }
+    }
+
+    /**
+     * This method renders the status of event from Event.Status enum identifier
+     * to its corresponding meaning as a String.
+     * @param event: the status identifier of Event.Status
+     * @return the corresponding String format
+     */
+    private String getDisplayStatus(@NonNull Event event) {
+        Event.Status status = event.getStatus();
+        // If status is missing
+        if (status == null) return "Unknown";
+
+        // Render the given status
+        switch (status) {
+            case REG_OPEN:      return "Registration open";
+            case REG_CLOSED:    return "Registration closed";
+            case DRAWN:         return "Lottery drawn";
+            case FINALIZED:     return "Finalized";
+            // If mismatched, return the exact enum constant name as a String
+            default:            return status.name();
+        }
     }
 
     // ------------------------------------------------------------------------------
@@ -179,8 +268,15 @@ public class EventDetailFragment extends Fragment {
         binding.buttonContainer.setVisibility(View.VISIBLE);
         setupJoinButton(event, userID);
 
-        if (!event.isRegPeriod() || isOrganizer) {
+        // Cannot join if the event is out of registration period, the waiting list is full, or it's their own event
+        if (!event.isRegOpen() || event.isWaitingListFull() || isOrganizer) {
             binding.joinEventButton.setVisibility(View.GONE);
+        }
+
+        // If already in the waiting list, we can always leave before status.DRAWN
+        if (event.isOnWaitingList(userID)
+                && (event.isRegOpen() || event.isRegClosed())) {
+            binding.joinEventButton.setVisibility(View.VISIBLE);
         }
     }
     private void configAdminButton(){

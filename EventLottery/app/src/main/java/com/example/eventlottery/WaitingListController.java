@@ -41,9 +41,9 @@ public class WaitingListController {
             return;
         }
 
-        // Only allow joining within registration period
-        if (!event.isRegPeriod()) {
-            System.out.println("Cannot join waiting list outside of the registration period");
+        // Only allow joining within registration period and when the waiting list has spots
+        if (!event.isRegOpen() || event.isWaitingListFull()) {
+            System.out.println("Cannot join waiting list");
             return;
         }
 
@@ -71,29 +71,5 @@ public class WaitingListController {
             event.leaveWaitingList(userID);
             eventRepository.updateWaitingList(eventID, event.getWaitingList());
         }
-    }
-
-    /**
-     * This methods the number of entrants on the waiting list
-     * @param eventID: ID of the event
-     * @return the number of entrants on the list
-     */
-    public int getWaitingListCount(String eventID) {
-        Event event = eventRepository.findEventById(eventID);
-        if (event == null) {
-            throw new IllegalArgumentException("Event not found: " + eventID);
-        }
-        return event.getWaitingListSize();
-    }
-
-    /**
-     * This methods displays the map of the locations of all the entrants in the waiting list
-     * @param eventID: ID of the event
-     * @param userID: ID of the user
-     */
-    public boolean isOnWaitingList(String eventID, String userID) {
-        Event event = eventRepository.findEventById(eventID);
-        if (event == null) return false;
-        return event.isOnWaitingList(userID);
     }
 }

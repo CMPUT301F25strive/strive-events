@@ -14,7 +14,6 @@ import java.util.List;
  */
 public class Event implements Serializable {
 
-    // TODO: state machine?
     public enum Status {
         REG_OPEN,
         REG_CLOSED,
@@ -42,7 +41,7 @@ public class Event implements Serializable {
     private long regEndTimeMillis;
     private String venue;
     private int capacity;   // The number to sample
-    private int waitingListSpots;   // 0 == unlimited spots
+    private int waitingListSpots;   // Total spots; 0 == unlimited spots
     private Status status;
     private List<String> waitingList;
     private List<String> attendeesList;
@@ -195,19 +194,16 @@ public class Event implements Serializable {
         return System.currentTimeMillis() >= eventStartTimeMillis;
     }
 
-    public boolean isRegStarted() {
-        return System.currentTimeMillis() >= regStartTimeMillis;
+    public boolean isRegOpen() {
+        return status == Status.REG_OPEN;
     }
+
+    public boolean isDrawn() { return status == Status.DRAWN; }
+
+    public boolean isFinalized() { return status == Status.FINALIZED; }
 
     public boolean isRegClosed() {
-        return System.currentTimeMillis() >= regEndTimeMillis;
-    }
-
-    public boolean isRegPeriod() {
-        return getStatus() == Status.REG_OPEN
-                && isRegStarted()
-                && !isRegClosed()
-                && !isEventStarted();
+        return status == Status.REG_CLOSED;
     }
 
     /**
@@ -300,10 +296,16 @@ public class Event implements Serializable {
             status = Status.REG_CLOSED;
         }
 
-        // Within registration period, it's open
-        if (now >= regStartTimeMillis && now <= regEndTimeMillis
-                && status == Status.REG_CLOSED) {
-            status = Status.REG_OPEN;
+        // Within registration period
+        if (now >= regStartTimeMillis && now <= regEndTimeMillis) {
+            // If the waiting list is not full, it's open
+            if (!isWaitingListFull() && status == Status.REG_CLOSED) {
+                status = Status.REG_OPEN;
+            }
+            // Otherwise, it's still closed
+            else if (isWaitingListFull() && status == Status.REG_OPEN) {
+                status = Status.REG_CLOSED;
+            }
         }
 
         // After registration end and before event start, it's closed (before draw)
@@ -315,7 +317,6 @@ public class Event implements Serializable {
         //  like b/t reg end time and event start time
         //  or before all attendees are confirmed
     }
-
 
     /**
      * Callback interface for organizer name result
