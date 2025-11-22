@@ -1,5 +1,6 @@
 package com.example.eventlottery;
 
+import static com.example.eventlottery.model.Event.Status.REG_OPEN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import android.content.Context;
@@ -21,11 +22,12 @@ import java.util.NoSuchElementException;
 public class InvitationTest {
 
     private Profile mockProfile(String id, String name, String email, String phone) {
-        return new Profile(id, name, email, "");
+        return new Profile(id, name, email, true);
     }
 
     private Event mockEvent() {
-        return new Event("1", "Valorant", "Tenz", 0,"Home", 200, 200, Event.Status.REG_OPEN, 1, "Tournament");
+        return new Event("1", "Valorant Tournament", "Tenz",
+                1024, 526, 886, "Los Angeles", 2, 2, REG_OPEN, "", "A Valorant Tournament hosted by Tenz for a prize of $1000", Event.Tag.PARTY);
     }
 
     @Test

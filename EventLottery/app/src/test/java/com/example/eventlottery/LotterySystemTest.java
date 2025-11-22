@@ -1,5 +1,6 @@
 package com.example.eventlottery;
 
+import static com.example.eventlottery.model.Event.Status.REG_OPEN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -19,20 +20,19 @@ import java.util.Set;
  * This is a test class for Lottery system
  */
 public class LotterySystemTest {
-    Event event = new Event("1", "Valorant Tournament", "Tenz", 0,
-            "Los Angeles", 3, 200, Event.Status.REG_OPEN, 1,
-            "A Valorant Tournament hosted by Tenz for a prize of $1000");
+    Event event = new Event("1", "Valorant Tournament", "Tenz",
+            1024, 526, 886, "Los Angeles", 2, 2, REG_OPEN, "", "A Valorant Tournament hosted by Tenz for a prize of $1000", Event.Tag.PARTY);
 
     Profile userProfile_1 = new Profile("1BC123456789", "John Doe",
-            "johndoe@example.com", "123-456-7890");
+            "johndoe@example.com", true);
     Profile userProfile_2 = new Profile("2BC123456789", "John Doe",
-            "johndoe@example.com", "123-456-7890");
+            "johndoe@example.com", true);
     Profile userProfile_3 = new Profile("3BC123456789", "John Doe",
-            "johndoe@example.com", "123-456-7890");
+            "johndoe@example.com", true);
     Profile userProfile_4 = new Profile("4BC123456789", "John Doe",
-            "johndoe@example.com", "123-456-7890");
+            "johndoe@example.com", true);
     Profile userProfile_5 = new Profile("5BC123456789", "John Doe",
-            "johndoe@example.com", "123-456-7890");
+            "johndoe@example.com", true);
 
 
     /**

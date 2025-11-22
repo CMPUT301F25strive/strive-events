@@ -16,7 +16,7 @@ public class EntrantProfileTest {
      */
     @Test
     public void testUpdatePersonalInfo() {
-        Profile entrant = new Profile("LOL player", "lol@gmail.com", "911");
+        Profile entrant = new Profile("LOL player", "lol@gmail.com", "911", true);
         entrant.updatePersonalInfo("Valorant player", "val@gmail.com", "");
 
         assertEquals("Valorant player", entrant.getName());

@@ -1,5 +1,6 @@
 package com.example.eventlottery;
 
+import static com.example.eventlottery.model.Event.Status.REG_OPEN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -14,11 +15,10 @@ import org.junit.Test;
  * This is a test class for waiting list
  */
 public class WaitingListTest {
-    Event event = new Event("1", "Valorant Tournament", "Tenz", 0,
-            "Los Angeles", 200, 200, Event.Status.REG_OPEN, 1,
-            "A Valorant Tournament hosted by Tenz for a prize of $1000");
+    Event event = new Event("1", "Valorant Tournament", "Tenz",
+            1024, 526, 886, "Los Angeles", 2, 2, REG_OPEN, "", "A Valorant Tournament hosted by Tenz for a prize of $1000", Event.Tag.PARTY);
     Profile userProfile = new Profile("ABC123456789", "John Doe",
-            "johndoe@example.com", "123-456-7890"
+            "johndoe@example.com", true
     );
 
     /**

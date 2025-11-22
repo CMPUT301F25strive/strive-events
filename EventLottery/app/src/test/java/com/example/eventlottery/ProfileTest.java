@@ -15,7 +15,7 @@ import org.junit.Test;
  */
 public class ProfileTest {
     Profile userProfile = new Profile("ABC123456789", "John Doe",
-            "johndoe@example.com", "123-456-7890"
+            "johndoe@example.com", true
     );
 
     /**
@@ -27,7 +27,7 @@ public class ProfileTest {
         assertEquals("ABC123456789",userProfile.getDeviceID());
         assertEquals("John Doe",userProfile.getName());
         assertEquals("johndoe@example.com",userProfile.getEmail());
-        assertEquals("123-456-7890",userProfile.getPhone());
+        assertEquals(null,userProfile.getPhone());
     }
 
     /**

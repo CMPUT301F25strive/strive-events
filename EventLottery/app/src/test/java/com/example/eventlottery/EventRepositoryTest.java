@@ -1,5 +1,6 @@
 package com.example.eventlottery;
 
+import static com.example.eventlottery.model.Event.Status.REG_OPEN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
@@ -17,7 +18,8 @@ public class EventRepositoryTest {
      * @return the mock event
      */
     private Event mockEvent() {
-        return new Event("1", "Valorant", "Tenz", 0,"Home", 200, 200, Event.Status.REG_OPEN, 1, "Tournament");
+        return new Event("1", "Valorant Tournament", "Tenz",
+                1024, 526, 886, "Los Angeles", 2, 2, REG_OPEN, "", "A Valorant Tournament hosted by Tenz for a prize of $1000", Event.Tag.PARTY);
     }
 
     /**
@@ -43,7 +45,7 @@ public class EventRepositoryTest {
         eventRepo.add(event1);
         assertEquals(1, eventRepo.getSize());
 
-        Event event2 = new Event("2", "LOL", "T1", 0, "Stage", 250, 200, Event.Status.REG_OPEN, 2, "Worlds");
+        Event event2 = new Event("2", "LOL", "T1", 0, 10, 20, "Stage", 250, 200, Event.Status.REG_OPEN, "", "Worlds", Event.Tag.PARTY);
         eventRepo.add(event2);
         assertEquals(2, eventRepo.getSize());
     }
@@ -57,9 +59,9 @@ public class EventRepositoryTest {
         MockEventRepository eventRepo = mockEventRepo();
         assertEquals(1, eventRepo.getSize());
         Event event1 = eventRepo.getEvent("1");
-        assertEquals("Valorant", event1.getTitle());
-        assertEquals("Home", event1.getVenue());
-        assertEquals(200, event1.getCapacity());
+        assertEquals("Valorant Tournament", event1.getTitle());
+        assertEquals("Los Angeles", event1.getVenue());
+        assertEquals(2, event1.getCapacity());
     }
 
     /**

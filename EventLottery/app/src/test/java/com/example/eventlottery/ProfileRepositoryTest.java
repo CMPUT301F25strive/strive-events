@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class ProfileRepositoryTest {
     private Profile mockProfile() {
-        return new Profile("123123", "Tyson", "tyson3@ualberta.ca", "123-456-7890");
+        return new Profile("123123", "Tyson", "tyson3@ualberta.ca", false);
     }
 
     private MockProfileRepository mockProfileRepo() {
@@ -36,7 +36,7 @@ public class ProfileRepositoryTest {
         assertEquals("123123", profile.getDeviceID());
         assertEquals("Tyson", profile.getName());
         assertEquals("tyson3@ualberta.ca", profile.getEmail());
-        assertEquals("123-456-7890", profile.getPhone());
+        assertEquals(null, profile.getPhone());
     }
 
     /**
