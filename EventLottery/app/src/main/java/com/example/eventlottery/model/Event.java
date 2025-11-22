@@ -122,6 +122,10 @@ public class Event implements Serializable {
         return eventStartTimeMillis;
     }
 
+    public void setEventStartTimeMillis(long eventStartTimeMillis) {
+        this.eventStartTimeMillis = eventStartTimeMillis;
+    }
+
     public long getRegEndTimeMillis() {
         return regEndTimeMillis;
     }
@@ -148,6 +152,10 @@ public class Event implements Serializable {
 
     public int getWaitingListSpots() {
         return waitingListSpots;
+    }
+
+    public void setWaitingListSpots(int waitingListSpots) {
+        this.waitingListSpots = waitingListSpots;
     }
 
     public Status getStatus() {
@@ -254,6 +262,10 @@ public class Event implements Serializable {
 
     public void leaveAttendeesList(String deviceId) {
         getAttendeesList().remove(deviceId);
+    }
+
+    public boolean isOnAttendeesList(String deviceId) {
+        return getAttendeesList().contains(deviceId);
     }
 
     @Exclude
