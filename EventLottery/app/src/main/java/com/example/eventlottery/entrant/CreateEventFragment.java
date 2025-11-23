@@ -3,11 +3,14 @@ package com.example.eventlottery.entrant;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 
 import android.provider.MediaStore;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,11 +28,17 @@ import androidx.navigation.Navigation;
 import com.example.eventlottery.R;
 import com.example.eventlottery.data.FirebaseEventRepository;
 import com.example.eventlottery.model.Event;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.chip.ChipGroup;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 
 import java.util.Calendar;
 import java.util.Locale;
+
 
 public class CreateEventFragment extends Fragment {
 
@@ -516,14 +525,54 @@ public class CreateEventFragment extends Fragment {
                 waitingListSpots,
                 deviceId,
                 selectedTag,
-                (success, message) -> {
+                (success, message, eventId) -> {
                     saveButton.setEnabled(true);
                     saveButton.setText("Post");
                     Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
                     if (success) {
                         Navigation.findNavController(root).navigateUp();
+                        //QR Code generator
+                        generateQRCode(eventId);
                     }
                 }
         );
+
+
     }
+
+    public void generateQRCode(String eventID) {
+        String qrLink = "event/" + eventID;
+        int width = 600;
+        int height = 600;
+        
+        try {
+            QRCodeWriter encoder = new QRCodeWriter();
+            BitMatrix bitMatrix = encoder.encode(qrLink, BarcodeFormat.QR_CODE, width, height);
+
+            Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
+
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height; y++) {
+                    bitmap.setPixel(x, y, bitMatrix.get(x, y) ? Color.BLACK : Color.WHITE);
+                }
+            }
+
+            showQrDialog(bitmap);
+        }catch (Exception e){
+            Toast.makeText(requireContext(), "QR generation failed: " + e, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void showQrDialog(Bitmap qrBitmap) {
+        ImageView image = new ImageView(requireContext());
+        image.setImageBitmap(qrBitmap);
+        image.setPadding(50, 50, 50, 50);
+
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Event QR Code")
+                .setView(image)
+                .setPositiveButton("Close", null)
+                .show();
+    }
+
 }

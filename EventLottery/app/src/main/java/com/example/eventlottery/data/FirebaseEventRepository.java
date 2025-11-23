@@ -126,7 +126,7 @@ public class FirebaseEventRepository implements EventRepository {
     // UPLOAD NEW EVENT
     // ============================================================
     public interface UploadCallback {
-        void onComplete(boolean success, String message);
+        void onComplete(boolean success, String message, String eventID);
     }
 
     public void uploadEvent(
@@ -158,9 +158,9 @@ public class FirebaseEventRepository implements EventRepository {
                                             eventStartTimeMillis, regStartTimeMillis, regEndTimeMillis,
                                             capacity, waitingListSpots, deviceId, uri.toString(), tag, callback)
                             ).addOnFailureListener(e ->
-                                    callback.onComplete(false, "Failed to get image URL")))
+                                    callback.onComplete(false, "Failed to get image URL", null)))
                     .addOnFailureListener(e ->
-                            callback.onComplete(false, "Failed to upload image"));
+                            callback.onComplete(false, "Failed to upload image", eventId));
         } else {
             saveEventToFirestore(eventId, title, description, location, eventStartTimeMillis, regStartTimeMillis, regEndTimeMillis,
                     capacity, waitingListSpots, deviceId, null, tag, callback);
@@ -208,8 +208,8 @@ public class FirebaseEventRepository implements EventRepository {
         eventsRef.document(eventId)
                 .set(event)
                 .addOnSuccessListener(aVoid ->
-                        callback.onComplete(true, "Event posted successfully"))
+                        callback.onComplete(true, "Event posted successfully",eventId))
                 .addOnFailureListener(e ->
-                        callback.onComplete(false, "Failed to post event"));
+                        callback.onComplete(false, "Failed to post event", eventId));
     }
 }

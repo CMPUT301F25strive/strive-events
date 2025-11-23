@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     id("com.google.gms.google-services")
+    id("androidx.navigation.safeargs") version "2.7.0"
 }
 
 android {
@@ -57,4 +58,8 @@ dependencies {
     // Glide (image loading)
     implementation("com.github.bumptech.glide:glide:4.16.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
+
+    // QR Scanner
+    implementation(libs.qr.scanner)
+
 }

@@ -1,5 +1,6 @@
 package com.example.eventlottery.entrant;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings.Secure;
 import android.util.Log;
@@ -13,22 +14,30 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.eventlottery.R;
+import com.example.eventlottery.data.EventRepository;
 import com.example.eventlottery.data.ProfileRepository;
 import com.example.eventlottery.data.RepositoryProvider;
 import com.example.eventlottery.databinding.FragmentProfileBinding;
+import com.example.eventlottery.model.Event;
 import com.example.eventlottery.model.Profile;
 import com.example.eventlottery.viewmodel.ProfileViewModel;
 import com.example.eventlottery.viewmodel.ProfileViewModelFactory;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
 public class ProfileFragment extends Fragment {
 
     private FragmentProfileBinding binding;
     private ProfileViewModel viewModel;
     private Switch notificationSwitch;
+    private EventRepository eventRepo;
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -44,6 +53,7 @@ public class ProfileFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         ProfileRepository repo = RepositoryProvider.getProfileRepository();
+        eventRepo = RepositoryProvider.getEventRepository();
         ProfileViewModelFactory factory = new ProfileViewModelFactory(repo);
         viewModel = new ViewModelProvider(requireActivity(), factory).get(ProfileViewModel.class);
 
@@ -120,6 +130,18 @@ public class ProfileFragment extends Fragment {
                         .navigate(R.id.action_profileFragment_to_profileGuidelinesFragment)
         );
 
+        // QR code scanner
+        binding.qrShortcut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                IntentIntegrator intentIntegrator = IntentIntegrator.forSupportFragment(ProfileFragment.this);
+                intentIntegrator.setOrientationLocked(true);
+                intentIntegrator.setPrompt("Scan a QR Code");
+                intentIntegrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
+                intentIntegrator.initiateScan();
+            }
+        });
+
         setupBottomNav();
     }
 
@@ -146,4 +168,41 @@ public class ProfileFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
+
+    //QR Code activity after a scan
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        if (result == null) return;
+
+        if (result.getContents() == null) {
+            Toast.makeText(requireContext(), "Scan cancelled", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String scanned = result.getContents();
+        Event event = extractEvent(scanned);
+
+        if (event == null || event.getId() == null) {
+            Toast.makeText(requireContext(), "Invalid QR Code", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Navigate to the specific event's details
+        NavDirections action =
+                ProfileFragmentDirections.actionProfileFragmentToEventDetailFragment(event);
+        Navigation.findNavController(requireView()).navigate(action);
+    }
+
+    private Event extractEvent(String scanned) {
+        if (scanned == null) return null;
+        // Only getting valid QR codes
+        if (scanned.startsWith("event/")) {
+            return eventRepo.findEventById(scanned.substring("event/".length()).trim());
+        }
+        return null;
+    }
+
 }
