@@ -39,6 +39,15 @@
             android:id="@+id/action_entrantEventListFragment_to_myEventsFragment"
             app:destination="@id/myEventsFragment" />
 
+        <action
+            android:id="@+id/action_entrantEventListFragment_to_eventDetailFragmentSpecific"
+            app:destination="@id/eventDetailFragment" >
+            <argument
+                android:name="event"
+                app:argType="com.example.eventlottery.model.Event"
+                app:nullable="false"/>
+        </action>
+
         <!-- NEW: Navigate to CreateEventFragment -->
         <action
             android:id="@+id/action_entrantEventListFragment_to_createEventFragment"
@@ -129,6 +138,7 @@
         <action
             android:id="@+id/action_myEventsFragment_to_eventDetailFragment"
             app:destination="@id/eventDetailFragment" />
+
     </fragment>
 
     <!-- Lottery Guidelines Fragment -->

@@ -25,6 +25,7 @@ import com.example.eventlottery.data.RepositoryProvider;
 import com.example.eventlottery.databinding.FragmentProfileBinding;
 import com.example.eventlottery.model.Event;
 import com.example.eventlottery.model.Profile;
+import com.example.eventlottery.model.QRScanner;
 import com.example.eventlottery.viewmodel.ProfileViewModel;
 import com.example.eventlottery.viewmodel.ProfileViewModelFactory;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -36,7 +37,7 @@ public class ProfileFragment extends Fragment {
     private FragmentProfileBinding binding;
     private ProfileViewModel viewModel;
     private Switch notificationSwitch;
-    private EventRepository eventRepo;
+    private QRScanner qrScanner;
 
 
     @Override
@@ -53,9 +54,9 @@ public class ProfileFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         ProfileRepository repo = RepositoryProvider.getProfileRepository();
-        eventRepo = RepositoryProvider.getEventRepository();
         ProfileViewModelFactory factory = new ProfileViewModelFactory(repo);
         viewModel = new ViewModelProvider(requireActivity(), factory).get(ProfileViewModel.class);
+        qrScanner = new QRScanner();
 
         // Get device ID
         String deviceID = Secure.getString(requireContext().getContentResolver(), Secure.ANDROID_ID);
@@ -134,11 +135,7 @@ public class ProfileFragment extends Fragment {
         binding.qrShortcut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                IntentIntegrator intentIntegrator = IntentIntegrator.forSupportFragment(ProfileFragment.this);
-                intentIntegrator.setOrientationLocked(true);
-                intentIntegrator.setPrompt("Scan a QR Code");
-                intentIntegrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
-                intentIntegrator.initiateScan();
+                qrScanner.startScanner(ProfileFragment.this);
             }
         });
 
@@ -183,7 +180,7 @@ public class ProfileFragment extends Fragment {
         }
 
         String scanned = result.getContents();
-        Event event = extractEvent(scanned);
+        Event event = qrScanner.extractEvent(scanned);
 
         if (event == null || event.getId() == null) {
             Toast.makeText(requireContext(), "Invalid QR Code", Toast.LENGTH_SHORT).show();
@@ -196,13 +193,5 @@ public class ProfileFragment extends Fragment {
         Navigation.findNavController(requireView()).navigate(action);
     }
 
-    private Event extractEvent(String scanned) {
-        if (scanned == null) return null;
-        // Only getting valid QR codes
-        if (scanned.startsWith("event/")) {
-            return eventRepo.findEventById(scanned.substring("event/".length()).trim());
-        }
-        return null;
-    }
 
 }

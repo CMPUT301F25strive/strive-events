@@ -1,5 +1,6 @@
 package com.example.eventlottery.entrant;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,14 +11,19 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.eventlottery.R;
 import com.example.eventlottery.databinding.FragmentEventListBinding;
 import com.example.eventlottery.model.Event;
 import com.example.eventlottery.model.EventFilter;
+import com.example.eventlottery.model.QRScanner;
 import com.example.eventlottery.viewmodel.EntrantEventListViewModel;
 import com.example.eventlottery.viewmodel.EntrantEventListViewModelFactory;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +38,7 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
     private EventListAdapter adapter;
     private EventFilter filter = new EventFilter();
     private final List<Event> allEvents = new ArrayList<>();
+    private QRScanner qrScanner;
 
     @Override
     public void onResume() {
@@ -53,6 +60,7 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
         super.onViewCreated(view, savedInstanceState);
         setupRecycler();
         setupBottomNav();
+        qrScanner = new QRScanner();
 //        binding.pageHeader.setText(R.string.home_page_header);
 
         viewModel = new ViewModelProvider(this, new EntrantEventListViewModelFactory())
@@ -75,6 +83,14 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
                 NavHostFragment.findNavController(this)
                         .navigate(R.id.action_entrantEventListFragment_to_createEventFragment)
         );
+
+        // QR code scanner
+        binding.qrShortcut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                qrScanner.startScanner(EntrantEventListFragment.this);
+            }
+        });
     }
     private void setupRecycler() {
         adapter = new EventListAdapter(this);
@@ -164,6 +180,34 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
             }
         }
         adapter.submitList(filtered);
+    }
+
+
+    //QR Code activity after a scan
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        if (result == null) return;
+
+        if (result.getContents() == null) {
+            Toast.makeText(requireContext(), "Scan cancelled", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String scanned = result.getContents();
+        Event event = qrScanner.extractEvent(scanned);
+
+        if (event == null || event.getId() == null) {
+            Toast.makeText(requireContext(), "Invalid QR Code", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Navigate to the specific event's details
+        NavDirections action =
+                EntrantEventListFragmentDirections.actionEntrantEventListFragmentToEventDetailFragmentSpecific(event);
+        Navigation.findNavController(requireView()).navigate(action);
     }
 
 }
