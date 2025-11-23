@@ -139,6 +139,15 @@
             android:id="@+id/action_myEventsFragment_to_eventDetailFragment"
             app:destination="@id/eventDetailFragment" />
 
+        <action
+            android:id="@+id/action_myEventsFragment_to_eventDetailFragmentSpecific"
+            app:destination="@id/eventDetailFragment" >
+            <argument
+                android:name="event"
+                app:argType="com.example.eventlottery.model.Event"
+                app:nullable="false"/>
+        </action>
+
     </fragment>
 
     <!-- Lottery Guidelines Fragment -->
