@@ -109,13 +109,25 @@ public class Event implements Serializable {
         return title != null ? title : "";
     }
 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     @Exclude
     public String getOrganizerName() {
         return organizerName != null ? organizerName : "";
     }
 
+    public void setOrganizerName(String organizerName) {
+        this.organizerName = organizerName;
+    }
+
     public String getOrganizerId() {
         return organizerId;
+    }
+
+    public void setOrganizerId(String organizerId) {
+        this.organizerId = organizerId;
     }
 
     public long getEventStartTimeMillis() {
@@ -146,8 +158,16 @@ public class Event implements Serializable {
         return venue != null ? venue : "";
     }
 
+    public void setVenue(String venue) {
+        this.venue = venue;
+    }
+
     public int getCapacity() {
         return capacity;
+    }
+
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
     }
 
     public int getWaitingListSpots() {
@@ -162,12 +182,24 @@ public class Event implements Serializable {
         return status != null ? status : Status.REG_OPEN;
     }
 
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
     public String getPosterUrl() {
         return posterUrl;
     }
 
+    public void setPosterUrl(String posterUrl) {
+        this.posterUrl = posterUrl;
+    }
+
     public String getDescription() {
         return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public List<String> getWaitingList() {
@@ -194,10 +226,6 @@ public class Event implements Serializable {
 
     public void setTag(Tag tag) {
         this.tag = tag;
-    }
-
-    public void setOrganizerId(String organizerId) {
-        this.organizerId = organizerId;
     }
 
     @Exclude
