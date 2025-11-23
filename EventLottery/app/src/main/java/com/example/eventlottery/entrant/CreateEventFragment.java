@@ -1,4 +1,4 @@
-package com.example.eventlottery.ui.createevent;
+package com.example.eventlottery.entrant;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -134,19 +134,19 @@ public class CreateEventFragment extends Fragment {
 
         // Event start
         editTextEventDate.setOnClickListener(v ->
-                showDatePicker(editTextEventDate, eventCalendar));
+                showDatePicker(editTextEventDate, editTextEventTime,eventCalendar));
         editTextEventTime.setOnClickListener(v ->
                 showTimePicker(editTextEventTime, editTextEventDate, eventCalendar));
 
         // Registration starts
         editTextRegStartDate.setOnClickListener(v ->
-                showDatePicker(editTextRegStartDate, regStartCalendar));
+                showDatePicker(editTextRegStartDate, editTextRegStartTime, regStartCalendar));
         editTextRegStartTime.setOnClickListener(v ->
                 showTimePicker(editTextRegStartTime, editTextRegStartDate, regStartCalendar));
 
         // Registration ends
         editTextRegEndDate.setOnClickListener(v ->
-                showDatePicker(editTextRegEndDate, regEndCalendar));
+                showDatePicker(editTextRegEndDate, editTextRegEndTime, regEndCalendar));
         editTextRegEndTime.setOnClickListener(v ->
                 showTimePicker(editTextRegEndTime, editTextRegEndDate, regEndCalendar));
 
@@ -172,10 +172,12 @@ public class CreateEventFragment extends Fragment {
 
     /**
      * Generic date picker used for dates of event and its registration period
-     * @param targetDateField: the TextInputEditText object
+     * @param targetDateField: the TextInputEditText object for date
+     * @param relatedTimeField: the TextInputEditText object for time
      * @param targetCalendar: the Calendar object
      */
     private void showDatePicker(TextInputEditText targetDateField,
+                                TextInputEditText relatedTimeField,
                                 @Nullable Calendar targetCalendar) {
         Calendar now = Calendar.getInstance();
 
@@ -197,6 +199,21 @@ public class CreateEventFragment extends Fragment {
                             day, month + 1, year    // month is 0-based
                     );
                     targetDateField.setText(formatted);
+
+                    // If the related time is empty, set it to default time
+                    if (relatedTimeField != null
+                            && relatedTimeField.getText() != null
+                            && relatedTimeField.getText().toString().trim().isEmpty()) {
+
+                        // Set the time to be 00:00
+                        if (targetCalendar != null) {
+                            targetCalendar.set(Calendar.HOUR_OF_DAY, 0);
+                            targetCalendar.set(Calendar.MINUTE, 0);
+                            targetCalendar.set(Calendar.SECOND, 0);
+                            targetCalendar.set(Calendar.MILLISECOND, 0);
+                        }
+                        relatedTimeField.setText("00:00");
+                    }
                 },
                 now.get(Calendar.YEAR),
                 now.get(Calendar.MONTH),
@@ -283,6 +300,31 @@ public class CreateEventFragment extends Fragment {
                             selectedHour, selectedMinute
                     );
                     targetTimeField.setText(formatted);
+
+                    // If the related date is empty, set default date to today
+                    if (relatedDateField != null
+                            && relatedDateField.getText() != null
+                            && relatedDateField.getText().toString().trim().isEmpty()) {
+
+                        // Get today's date
+                        int year = now.get(Calendar.YEAR);
+                        int month = now.get(Calendar.MONTH);
+                        int day = now.get(Calendar.DAY_OF_MONTH);
+
+                        // Set the date
+                        if (targetCalendar != null) {
+                            targetCalendar.set(Calendar.YEAR, year);
+                            targetCalendar.set(Calendar.MONTH, month);
+                            targetCalendar.set(Calendar.DAY_OF_MONTH, day);
+                        }
+                        // Format today's date
+                        formatted = String.format(
+                                Locale.getDefault(),    // Use device's locale for formatting
+                                "%02d/%02d/%04d",   // Format: DD/MM/YYYY
+                                day, month + 1, year    // month is 0-based
+                        );
+                        relatedDateField.setText(formatted);
+                    }
                 },
                 currentHour,
                 currentMinute,

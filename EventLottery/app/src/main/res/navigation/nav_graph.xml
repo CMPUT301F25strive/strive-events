@@ -148,7 +148,7 @@
 
     <fragment
         android:id="@+id/createEventFragment"
-        android:name="com.example.eventlottery.ui.createevent.CreateEventFragment"
+        android:name="com.example.eventlottery.entrant.CreateEventFragment"
         android:label="Create Event"
         tools:layout="@layout/fragment_create_event" />
 

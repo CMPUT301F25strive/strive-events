@@ -6,7 +6,7 @@
     android:id="@+id/editProfileRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".entrant.EditProfileFragment">
+    tools:context=".entrant.ProfileEditFragment">
 
     <!-- === CLEAN TOP BAR (no tint, black text, consistent height) === -->
     <androidx.constraintlayout.widget.ConstraintLayout
