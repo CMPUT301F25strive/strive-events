@@ -63,17 +63,34 @@
             android:orientation="vertical"
             android:paddingBottom="24dp">
 
-            <!-- Poster -->
-            <ImageView
-                android:id="@+id/eventDetailPoster"
+            <!-- Poster with admin remove overlay -->
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:contentDescription="@string/event_poster_content_description"
-                android:scaleType="centerCrop"
-                android:src="@drawable/poster_swim"
-                android:background="@drawable/detail_poster_outline"
-                android:outlineProvider="background"
-                android:clipToOutline="true" />
+                android:layout_height="200dp">
+
+                <ImageView
+                    android:id="@+id/eventDetailPoster"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/event_poster_content_description"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/poster_swim"
+                    android:background="@drawable/detail_poster_outline"
+                    android:outlineProvider="background"
+                    android:clipToOutline="true" />
+
+                <ImageButton
+                    android:id="@+id/posterRemoveButton"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_gravity="top|end"
+                    android:layout_margin="8dp"
+                    android:background="@drawable/circle_bg"
+                    android:padding="4dp"
+                    android:src="@drawable/ic_close_24"
+                    android:contentDescription="@string/admin_poster_delete_content_description"
+                    android:visibility="gone" />
+            </FrameLayout>
 
             <!-- Title -->
             <TextView

@@ -122,6 +122,25 @@ public class FirebaseEventRepository implements EventRepository {
                 .addOnFailureListener(Throwable::printStackTrace);
     }
 
+    @Override
+    public void removeEventPoster(String eventId) {
+        StorageReference imageRef = storage.getReference()
+                .child("event_posters/" + eventId + ".jpg");
+
+        imageRef.delete()
+                .addOnSuccessListener(unused -> clearPosterReference(eventId))
+                .addOnFailureListener(e -> {
+                    e.printStackTrace();
+                    clearPosterReference(eventId);
+                });
+    }
+
+    private void clearPosterReference(String eventId) {
+        eventsRef.document(eventId)
+                .update("posterUrl", null)
+                .addOnFailureListener(Throwable::printStackTrace);
+    }
+
     // ============================================================
     // UPLOAD NEW EVENT
     // ============================================================

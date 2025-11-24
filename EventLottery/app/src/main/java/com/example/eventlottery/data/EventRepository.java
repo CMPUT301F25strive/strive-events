@@ -42,5 +42,10 @@ public interface EventRepository {
      */
     void deleteEvent(String eventId);
 
+    /**
+     * Remove the poster associated with an event.
+     */
+    void removeEventPoster(String eventId);
+
 
 }

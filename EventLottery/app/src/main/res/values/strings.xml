@@ -63,6 +63,12 @@
     <string name="admin_entrant_role_format">Role: %1$s</string>
     <string name="profile_role_label">Role</string>
     <string name="organizer_feature_required">Organizer access required to create events.</string>
+    <string name="admin_poster_delete_button">Remove Poster</string>
+    <string name="admin_poster_delete_content_description">Remove event poster</string>
+    <string name="admin_poster_delete_confirm_title">Remove event poster?</string>
+    <string name="admin_poster_delete_confirm_body">This permanently deletes the uploaded image and reverts to the default placeholder.</string>
+    <string name="admin_poster_delete_success">Poster removed</string>
+    <string name="admin_poster_delete_error">Failed to remove poster</string>
     <string-array name="event_tags">
         <item>Art</item>
         <item>Music</item>
