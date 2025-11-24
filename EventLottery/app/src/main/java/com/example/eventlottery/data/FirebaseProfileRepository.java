@@ -256,12 +256,13 @@ public class FirebaseProfileRepository implements ProfileRepository {
                 return;
             }
 
-            Profile profile = new Profile(deviceID, name, email, phone, true);
+            Profile profile = new Profile(deviceID, name, email, phone, Profile.Role.USER, true);
             Map<String, Object> data = new HashMap<>();
             data.put("deviceID", deviceID);
             data.put("name", name);
             data.put("email", email);
             data.put("phone", phone);
+            data.put("role", Profile.Role.USER.name());
             data.put("notificationSettings", true);
 
             usersRef.document(deviceID)

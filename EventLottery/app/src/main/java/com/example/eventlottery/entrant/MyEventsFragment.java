@@ -20,6 +20,7 @@ import com.example.eventlottery.R;
 import com.example.eventlottery.databinding.FragmentMyEventsBinding;
 import com.example.eventlottery.model.Event;
 import com.example.eventlottery.model.QRScanner;
+import com.example.eventlottery.organizer.OrganizerGate;
 import com.example.eventlottery.viewmodel.MyEventsViewModel;
 import com.example.eventlottery.viewmodel.MyEventsViewModelFactory;
 import com.google.android.material.button.MaterialButton;
@@ -53,6 +54,7 @@ public class MyEventsFragment extends Fragment implements EventListAdapter.Liste
         setupBottomNav();
         setupToggleGroup();
         qrScanner = new QRScanner();
+        updateOrganizerActions();
 
         viewModel = new ViewModelProvider(this,
                 new MyEventsViewModelFactory(requireContext()))
@@ -76,6 +78,12 @@ public class MyEventsFragment extends Fragment implements EventListAdapter.Liste
                 qrScanner.startScanner(MyEventsFragment.this);
             }
         });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateOrganizerActions();
     }
 
     private void setupRecycler() {
@@ -193,6 +201,12 @@ public class MyEventsFragment extends Fragment implements EventListAdapter.Liste
 
         binding.errorMessage.setText(message);
         binding.errorMessage.setVisibility(View.VISIBLE);
+    }
+
+    private void updateOrganizerActions() {
+        if (binding == null) return;
+        boolean canOrganize = OrganizerGate.hasOrganizerAccess(requireContext());
+        binding.fabAddEvent.setVisibility(canOrganize ? View.VISIBLE : View.GONE);
     }
 
     @Override

@@ -139,6 +139,23 @@
                     android:inputType="phone"/>
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- Role selector (visible for admins only) -->
+            <TextView
+                android:id="@+id/roleLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/profile_role_label"
+                android:textStyle="bold"
+                android:layout_marginTop="20dp"
+                android:visibility="gone"/>
+
+            <Spinner
+                android:id="@+id/roleSelector"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:spinnerMode="dropdown"/>
+
             <!-- Save button -->
             <Button
                 android:id="@+id/buttonSave"
