@@ -20,6 +20,7 @@ import com.example.eventlottery.databinding.FragmentEventListBinding;
 import com.example.eventlottery.model.Event;
 import com.example.eventlottery.model.EventFilter;
 import com.example.eventlottery.model.QRScanner;
+import com.example.eventlottery.organizer.OrganizerGate;
 import com.example.eventlottery.viewmodel.EntrantEventListViewModel;
 import com.example.eventlottery.viewmodel.EntrantEventListViewModelFactory;
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -47,6 +48,7 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
             binding.bottomNavigation.setSelectedItemId(-1); // deselect first
             binding.bottomNavigation.setSelectedItemId(R.id.nav_home);
         });
+        updateOrganizerActions();
     }
     @Nullable
     @Override
@@ -62,6 +64,7 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
         setupBottomNav();
         qrScanner = new QRScanner();
 //        binding.pageHeader.setText(R.string.home_page_header);
+        updateOrganizerActions();
 
         viewModel = new ViewModelProvider(this, new EntrantEventListViewModelFactory())
                 .get(EntrantEventListViewModel.class);
@@ -91,6 +94,12 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
                 qrScanner.startScanner(EntrantEventListFragment.this);
             }
         });
+    }
+
+    private void updateOrganizerActions() {
+        if (binding == null) return;
+        boolean canOrganize = OrganizerGate.hasOrganizerAccess(requireContext());
+        binding.fabAddEvent.setVisibility(canOrganize ? View.VISIBLE : View.GONE);
     }
     private void setupRecycler() {
         adapter = new EventListAdapter(this);

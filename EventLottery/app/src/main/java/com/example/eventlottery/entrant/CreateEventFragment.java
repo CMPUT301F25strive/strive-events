@@ -24,11 +24,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.eventlottery.R;
 import com.example.eventlottery.data.FirebaseEventRepository;
 import com.example.eventlottery.model.Event;
 import com.example.eventlottery.model.EventTimeValidator;
+import com.example.eventlottery.organizer.OrganizerGate;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.chip.ChipGroup;
@@ -76,6 +78,12 @@ public class CreateEventFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+
+        if (!OrganizerGate.hasOrganizerAccess(requireContext())) {
+            Toast.makeText(requireContext(), R.string.organizer_feature_required, Toast.LENGTH_SHORT).show();
+            NavHostFragment.findNavController(this).popBackStack();
+            return;
+        }
 
         firebaseRepo = new FirebaseEventRepository();
 

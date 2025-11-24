@@ -5,6 +5,8 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -30,6 +32,12 @@ public class AdminEditProfileFragment extends Fragment {
     private FragmentEditProfileBinding binding;
     private ProfileRepository profileRepository;
     private Profile targetProfile;
+    private Profile.Role[] roleOptions = new Profile.Role[]{
+            Profile.Role.USER,
+            Profile.Role.ORGANIZER,
+            Profile.Role.ADMIN
+    };
+    private Profile.Role selectedRole = Profile.Role.USER;
 
     @Nullable
     @Override
@@ -54,6 +62,8 @@ public class AdminEditProfileFragment extends Fragment {
         binding.adminDeleteButton.setVisibility(View.VISIBLE);
         binding.adminDeleteButton.setOnClickListener(v -> confirmDelete());
 
+        setupRoleSelector();
+
         String profileId = null;
         if (getArguments() != null) {
             profileId = getArguments().getString(ARG_PROFILE_ID);
@@ -77,6 +87,11 @@ public class AdminEditProfileFragment extends Fragment {
                 binding.editTextName.setText(profile.getName());
                 binding.editTextEmail.setText(profile.getEmail());
                 binding.editTextPhone.setText(profile.getPhone());
+                selectedRole = profile.getRole();
+                int index = findRoleIndex(selectedRole);
+                if (index >= 0) {
+                    binding.roleSelector.setSelection(index);
+                }
             }
 
             @Override
@@ -115,6 +130,7 @@ public class AdminEditProfileFragment extends Fragment {
         binding.editTextEmail.setError(null);
 
         targetProfile.updatePersonalInfo(name, email, phone);
+        targetProfile.setRole(selectedRole);
         profileRepository.saveUser(targetProfile, new ProfileRepository.ProfileCallback() {
             @Override
             public void onSuccess(Profile profile) {
@@ -130,6 +146,38 @@ public class AdminEditProfileFragment extends Fragment {
                 Toast.makeText(requireContext(), R.string.admin_profile_edit_error, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void setupRoleSelector() {
+        binding.roleLabel.setVisibility(View.VISIBLE);
+        binding.roleSelector.setVisibility(View.VISIBLE);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                requireContext(),
+                R.array.profile_role_entries,
+                android.R.layout.simple_spinner_item
+        );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.roleSelector.setAdapter(adapter);
+        binding.roleSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position >= 0 && position < roleOptions.length) {
+                    selectedRole = roleOptions[position];
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) { }
+        });
+    }
+
+    private int findRoleIndex(Profile.Role role) {
+        for (int i = 0; i < roleOptions.length; i++) {
+            if (roleOptions[i] == role) {
+                return i;
+            }
+        }
+        return 0;
     }
 
     @Override
