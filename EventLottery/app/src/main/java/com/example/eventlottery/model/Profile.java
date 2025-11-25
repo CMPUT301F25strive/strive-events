@@ -10,6 +10,7 @@ import java.util.List;
 public class Profile {
     public enum Role {
         USER,
+        ORGANIZER,
         ADMIN
     }
 
@@ -88,6 +89,13 @@ public class Profile {
      */
     public boolean isAdmin() {
         return role == Role.ADMIN;
+    }
+
+    /**
+     * @return true if the profile can access organizer capabilities
+     */
+    public boolean isOrganizer() {
+        return role == Role.ORGANIZER || role == Role.ADMIN;
     }
 
     /**

@@ -38,7 +38,7 @@
             android:background="@android:color/transparent"
             android:contentDescription="@string/qr_shortcut_content_description"
             android:padding="4dp"
-            android:src="@drawable/ic_qr_code_24"
+            android:src="@drawable/ic_scanner_24"
             android:tint="@color/black"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"

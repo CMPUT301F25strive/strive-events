@@ -125,7 +125,7 @@ public class EventDetailFragment extends Fragment {
 
         bindEvent(event);
         setupActionButtons(event, deviceId);
-        configAdminButton();
+        configAdminButtons(event);
 
         final String eventId = event.getId();
 
@@ -135,6 +135,7 @@ public class EventDetailFragment extends Fragment {
                 currentEvent = updated;
                 bindEvent(updated);
                 setupActionButtons(updated, deviceId);
+                configAdminButtons(updated);
             }
         });
     }
@@ -286,11 +287,10 @@ public class EventDetailFragment extends Fragment {
             binding.joinEventButton.setVisibility(View.VISIBLE);
         }
     }
-    private void configAdminButton(){
-        if ((!isAdmin && !isOrganizer)) {
-            binding.adminDeleteButton.setVisibility(View.GONE);
-        }else {
-            binding.adminDeleteButton.setVisibility(View.VISIBLE);
+    private void configAdminButtons(@NonNull Event event){
+        boolean canDeleteEvent = isAdmin || isOrganizer;
+        binding.adminDeleteButton.setVisibility(canDeleteEvent ? View.VISIBLE : View.GONE);
+        if (canDeleteEvent) {
             binding.adminDeleteButton.setOnClickListener(v -> {
                 if (currentEvent == null) return;
                 new MaterialAlertDialogBuilder(requireContext())
@@ -300,6 +300,14 @@ public class EventDetailFragment extends Fragment {
                         .setPositiveButton(R.string.delete_event, (dialog, which) -> performDelete())
                         .show();
             });
+        }
+
+        boolean canRemovePoster = isAdmin && !TextUtils.isEmpty(event.getPosterUrl());
+        binding.posterRemoveButton.setVisibility(canRemovePoster ? View.VISIBLE : View.GONE);
+        if (canRemovePoster) {
+            binding.posterRemoveButton.setOnClickListener(v -> confirmPosterRemoval());
+        } else {
+            binding.posterRemoveButton.setOnClickListener(null);
         }
     }
     private void setupJoinButton(@NonNull Event event, String userID) {
@@ -355,6 +363,27 @@ public class EventDetailFragment extends Fragment {
             NavHostFragment.findNavController(this).popBackStack();
         } catch (Exception e) {
             Toast.makeText(requireContext(), "Failed to delete event", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void confirmPosterRemoval() {
+        if (!isAdmin || currentEvent == null) return;
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.admin_poster_delete_confirm_title)
+                .setMessage(R.string.admin_poster_delete_confirm_body)
+                .setNegativeButton(android.R.string.cancel, null)
+                .setPositiveButton(R.string.admin_poster_delete_button, (dialog, which) -> performPosterRemoval())
+                .show();
+    }
+
+    private void performPosterRemoval() {
+        if (currentEvent == null) return;
+        try {
+            eventRepository.removeEventPoster(currentEvent.getId());
+            binding.eventDetailPoster.setImageResource(R.drawable.event_image_placeholder);
+            Toast.makeText(requireContext(), R.string.admin_poster_delete_success, Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Toast.makeText(requireContext(), R.string.admin_poster_delete_error, Toast.LENGTH_SHORT).show();
         }
     }
 

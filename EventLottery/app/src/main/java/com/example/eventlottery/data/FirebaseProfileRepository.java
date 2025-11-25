@@ -8,12 +8,16 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.eventlottery.model.Profile;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,11 +29,13 @@ import java.util.Map;
  * This provides search/browse for admin.
  */
 public class FirebaseProfileRepository implements ProfileRepository {
+    private static final String TAG = "FirebaseProfileRepo";
     private final List<Profile> users = new ArrayList<>();
     private final MutableLiveData<List<Profile>> profilesLiveData = new MutableLiveData<>(new ArrayList<>());
     private FirebaseFirestore db;
 
     private CollectionReference usersRef;
+    private CollectionReference eventsRef;
 
     /**
      * This is full constructor of FirebaseProfileRepository that has all necessary initialization for the firebase implementation
@@ -37,6 +43,7 @@ public class FirebaseProfileRepository implements ProfileRepository {
     public FirebaseProfileRepository() {
         db = FirebaseFirestore.getInstance();
         usersRef = db.collection("users");  // Single collection for all roles
+        eventsRef = db.collection("events");
 
         usersRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
@@ -135,16 +142,202 @@ public class FirebaseProfileRepository implements ProfileRepository {
     }
 
     /**
-     * This methods deletes a user's profile from the firebase repository for profiles
+     * This methods deletes a user's profile and its dependencies from the firebase repository
      * @param deviceID: the device ID of the user whose profile will be deleted
      * @param callback : ensures deletion of user's profile
      */
     @Override
-    public void deleteUser(String deviceID, @NonNull ProfileCallback callback) {
-        usersRef.document(deviceID)
-                .delete()
-                .addOnSuccessListener(aVoid -> callback.onDeleted())
-                .addOnFailureListener(e -> callback.onError(e.getMessage()));
+    public void deleteUser(@NonNull String deviceID, @NonNull ProfileCallback callback) {
+        // Delete all events hosted by the user
+        Task<Void> deleteHostedEventsTask = eventsRef
+                .whereEqualTo("organizerId", deviceID)
+                .get()
+                .continueWithTask(task -> {
+                    if (!task.isSuccessful()) {
+                        throw task.getException();
+                    }
+
+                    QuerySnapshot snapshot = task.getResult();
+                    if (snapshot == null || snapshot.isEmpty()) {
+                        return Tasks.forResult(null);
+                    }
+
+                    WriteBatch batch = db.batch();
+                    for (DocumentSnapshot doc : snapshot) {
+                        batch.delete(doc.getReference());
+                    }
+                    return batch.commit();
+                });
+
+        // Remove this user from all waiting lists
+        Task<Void> removeFromWaitingListsTask = eventsRef
+                .whereArrayContains("waitingList", deviceID)
+                .get()
+                .continueWithTask(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.w(TAG,
+                                "Failed to query waiting lists for user: " + deviceID,
+                                task.getException());
+                        return Tasks.forResult(null);
+                    }
+
+                    QuerySnapshot snapshot = task.getResult();
+                    if (snapshot == null || snapshot.isEmpty()) {
+                        return Tasks.forResult(null);
+                    }
+
+                    WriteBatch batch = db.batch();
+                    boolean hasChanges = false;
+
+                    for (DocumentSnapshot doc : snapshot) {
+                        @SuppressWarnings("unchecked")
+                        List<String> waiting = (List<String>) doc.get("waitingList");
+                        if (waiting != null && waiting.contains(deviceID)) {
+                            List<String> updated = new ArrayList<>(waiting);
+                            if (updated.remove(deviceID)) {
+                                batch.update(doc.getReference(), "waitingList", updated);
+                                hasChanges = true;
+                            }
+                        }
+                    }
+
+                    return hasChanges ? batch.commit() : Tasks.forResult(null);
+                });
+
+        // Remove this user from all invited lists
+        Task<Void> removeFromInvitedListsTask = eventsRef
+                .whereArrayContains("invitedList", deviceID)
+                .get()
+                .continueWithTask(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.w(TAG,
+                                "Failed to query invited lists for user: " + deviceID,
+                                task.getException());
+                        return Tasks.forResult(null);
+                    }
+
+                    QuerySnapshot snapshot = task.getResult();
+                    if (snapshot == null || snapshot.isEmpty()) {
+                        return Tasks.forResult(null);
+                    }
+
+                    WriteBatch batch = db.batch();
+                    boolean hasChanges = false;
+
+                    for (DocumentSnapshot doc : snapshot) {
+                        @SuppressWarnings("unchecked")
+                        List<String> selected =
+                                (List<String>) doc.get("invitedList");
+                        if (selected != null && selected.contains(deviceID)) {
+                            List<String> updated = new ArrayList<>(selected);
+                            if (updated.remove(deviceID)) {
+                                batch.update(doc.getReference(),
+                                        "invitedList", updated);
+                                hasChanges = true;
+                            }
+                        }
+                    }
+
+                    return hasChanges ? batch.commit() : Tasks.forResult(null);
+                });
+
+        // Remove this user from all attendees lists
+        Task<Void> removeFromAttendeesListsTask = eventsRef
+                .whereArrayContains("attendeesList", deviceID)
+                .get()
+                .continueWithTask(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.w(TAG,
+                                "Failed to query attendees lists for user: " + deviceID,
+                                task.getException());
+                        return Tasks.forResult(null);
+                    }
+
+                    QuerySnapshot snapshot = task.getResult();
+                    if (snapshot == null || snapshot.isEmpty()) {
+                        return Tasks.forResult(null);
+                    }
+
+                    WriteBatch batch = db.batch();
+                    boolean hasChanges = false;
+
+                    for (DocumentSnapshot doc : snapshot) {
+                        @SuppressWarnings("unchecked")
+                        List<String> attendees =
+                                (List<String>) doc.get("attendeesList");
+                        if (attendees != null && attendees.contains(deviceID)) {
+                            List<String> updated = new ArrayList<>(attendees);
+                            if (updated.remove(deviceID)) {
+                                batch.update(doc.getReference(),
+                                        "attendeesList", updated);
+                                hasChanges = true;
+                            }
+                        }
+                    }
+
+                    return hasChanges ? batch.commit() : Tasks.forResult(null);
+                });
+
+        // Remove this user from all canceled lists
+        Task<Void> removeFromCanceledListsTask = eventsRef
+                .whereArrayContains("canceledList", deviceID)
+                .get()
+                .continueWithTask(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.w(TAG,
+                                "Failed to query canceled lists for user: " + deviceID,
+                                task.getException());
+                        return Tasks.forResult(null);
+                    }
+
+                    QuerySnapshot snapshot = task.getResult();
+                    if (snapshot == null || snapshot.isEmpty()) {
+                        return Tasks.forResult(null);
+                    }
+
+                    WriteBatch batch = db.batch();
+                    boolean hasChanges = false;
+
+                    for (DocumentSnapshot doc : snapshot) {
+                        @SuppressWarnings("unchecked")
+                        List<String> attendees =
+                                (List<String>) doc.get("canceledList");
+                        if (attendees != null && attendees.contains(deviceID)) {
+                            List<String> updated = new ArrayList<>(attendees);
+                            if (updated.remove(deviceID)) {
+                                batch.update(doc.getReference(),
+                                        "canceledList", updated);
+                                hasChanges = true;
+                            }
+                        }
+                    }
+
+                    return hasChanges ? batch.commit() : Tasks.forResult(null);
+                });
+
+        // When all cleanup is done, delete the user document
+        Tasks.whenAll(deleteHostedEventsTask,
+                        removeFromWaitingListsTask,
+                        removeFromInvitedListsTask,
+                        removeFromAttendeesListsTask,
+                        removeFromCanceledListsTask)
+                .addOnSuccessListener(ignored -> {
+                    usersRef.document(deviceID)
+                            .delete()
+                            .addOnSuccessListener(aVoid -> {
+                                Log.i(TAG, "Successfully deleted user: " + deviceID);
+                                callback.onDeleted();
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.e(TAG, "Failed to delete user document: " + deviceID, e);
+                                callback.onError("Failed to delete user profile: " + e.getMessage());
+                            });
+                })
+                .addOnFailureListener(e -> {
+                    String msg = e.getMessage() != null ? e.getMessage() : "Unknown error";
+                    Log.e(TAG, "Failed to clean up user dependencies for: " + deviceID, e);
+                    callback.onError("Failed to clean up user dependencies: " + msg);
+                });
     }
 
     /**
@@ -256,12 +449,13 @@ public class FirebaseProfileRepository implements ProfileRepository {
                 return;
             }
 
-            Profile profile = new Profile(deviceID, name, email, phone, true);
+            Profile profile = new Profile(deviceID, name, email, phone, Profile.Role.USER, true);
             Map<String, Object> data = new HashMap<>();
             data.put("deviceID", deviceID);
             data.put("name", name);
             data.put("email", email);
             data.put("phone", phone);
+            data.put("role", Profile.Role.USER.name());
             data.put("notificationSettings", true);
 
             usersRef.document(deviceID)

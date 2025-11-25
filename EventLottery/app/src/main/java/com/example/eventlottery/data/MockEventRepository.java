@@ -39,8 +39,17 @@ public class MockEventRepository implements EventRepository {
         throw new IllegalArgumentException("Event not found: " + eventID);
     }
 
+    @Override
     public void deleteEvent(String eventID) {
         events.removeIf(e -> Objects.equals(e.getId(), eventID));
+    }
+
+    @Override
+    public void removeEventPoster(String eventId) {
+        Event event = findEventById(eventId);
+        if (event != null) {
+            event.setPosterUrl(null);
+        }
     }
 
     public int getSize() {
