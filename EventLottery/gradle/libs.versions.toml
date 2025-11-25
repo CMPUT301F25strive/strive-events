@@ -11,6 +11,8 @@ navigationUi = "2.9.5"
 archCoreTesting = "2.2.0"
 firebaseStorage = "22.0.1"
 qrScanner = "4.3.0"
+firebaseMessaging = "25.0.1"
+firebaseFunctions = "22.1.0"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -24,6 +26,8 @@ navigation-ui = { group = "androidx.navigation", name = "navigation-ui", version
 arch-core-testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "archCoreTesting" }
 firebase-storage = { group = "com.google.firebase", name = "firebase-storage", version.ref = "firebaseStorage" }
 qr-scanner = {group = "com.journeyapps", name = "zxing-android-embedded", version.ref = "qrScanner"}
+firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebaseMessaging" }
+firebase-functions = { group = "com.google.firebase", name = "firebase-functions", version.ref = "firebaseFunctions" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

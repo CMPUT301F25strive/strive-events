@@ -287,6 +287,17 @@
                     android:textColor="@android:color/white"
                     android:layout_marginTop="8dp" />
 
+                <!-- Send Notification -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/sendNotificationButton"
+                    style="@style/Widget.Material3.Button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Send Notification"
+                    app:backgroundTint="@color/primary"
+                    android:textColor="@android:color/white"
+                    android:layout_marginTop="8dp" />
+
                 <!-- Admin Delete Button -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/adminDeleteButton"

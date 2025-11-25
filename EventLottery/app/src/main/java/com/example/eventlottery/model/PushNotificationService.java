@@ -3,70 +3,100 @@ package com.example.eventlottery.model;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Build;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 
 import com.example.eventlottery.R;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 /**
- * Minimal helper for creating the notification channel and dispatching event invitations.
- * Encapsulating this logic keeps repository/service classes free from Android framework details.
+ * Service to send and listen for push notifications using Firestore.
  */
 public class PushNotificationService {
+
     private final Context context;
-    private static final String CHANNEL_ID = "event_channel_id";
-    private static final int NOTIFICATION_ID = 1;
+    private final FirebaseFirestore firestore;
+    private static final String CHANNEL_ID = "event_lottery_notifications";
 
-
-    /**
-     * Builds a notification helper bound to the provided context.
-     *
-     * @param context Android context used to access system services
-     */
     public PushNotificationService(Context context) {
         this.context = context;
+        this.firestore = FirebaseFirestore.getInstance();
         createNotificationChannel();
     }
 
     /**
-     * creates a channel for the notifications
+     * This method sends a push notification by storing it in Firestore.
+     * @param senderId the device ID of the sender
+     * @param receiverId the device ID of the receiver
+     * @param message the notification message
      */
-    private void createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "Event Notifications";
-            String description = "Notifications for event invitations";
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
-            channel.setDescription(description);
-
-            NotificationManager notificationManager =
-                    context.getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-        }
+    public void sendNotification(String senderId, String receiverId, String message) {
+        firestore.collection("notifications")
+                .add(new NotificationData(senderId, receiverId, message));
     }
 
     /**
-     * Sends a notification summarizing the event invitation to the user.
-     *
-     * @param title   title for the notification
-     * @param message message for the notification
+     * This method listens for incoming notifications sent to this device.
+     * @param deviceId the current device ID
      */
-    public void sendNotification(String title, String message) {
+    public void listenForNotifications(String deviceId) {
+        firestore.collection("notifications")
+                .whereEqualTo("receiverId", deviceId)
+                .whereEqualTo("delivered", false)
+                .addSnapshotListener((snapshots, error) -> {
+                    if (error != null || snapshots == null) return;
+
+                    for (DocumentSnapshot doc : snapshots.getDocuments()) {
+                        String message = doc.getString("message");
+                        showNotification(message);
+                        doc.getReference().update("delivered", true);
+                    }
+                });
+    }
+
+    /**
+     * This method shows a local notification popup with the given message.
+     * @param message the notification message
+     */
+    private void showNotification(String message) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_notification)
-                .setContentTitle(title)
+                .setContentTitle("Event Lottery")
                 .setContentText(message)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setAutoCancel(true)
-                .setStyle(new NotificationCompat.BigTextStyle().bigText(message));
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setAutoCancel(true);
+
+        NotificationManager notificationManager =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
         if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS)
-                != android.content.pm.PackageManager.PERMISSION_GRANTED) {
-            return;
+                != PackageManager.PERMISSION_GRANTED) return;
+
+        notificationManager.notify((int) System.currentTimeMillis(), builder.build());
+    }
+
+    /**
+     * This method creates the notification channel used for sending notifications.
+     */
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "Event Lottery Notifications";
+            String description = "Notifications for Event Lottery";
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+
+            NotificationChannel channel =
+                    new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+
+            NotificationManager manager =
+                    (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            if (manager != null) {
+                manager.createNotificationChannel(channel);
+            }
         }
-        NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, builder.build());
     }
 }

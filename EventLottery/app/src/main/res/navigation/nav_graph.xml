@@ -111,11 +111,14 @@
         android:label="Event Detail"
         tools:layout="@layout/fragment_event_detail">
 
+        <action
+            android:id="@+id/action_eventDetailFragment_to_sendNotificationFragment"
+            app:destination="@id/sendNotificationFragment" />
+
         <argument
             android:name="event"
             app:argType="com.example.eventlottery.model.Event"
             app:nullable="false" />
-
     </fragment>
     <!-- My Events Fragment -->
     <fragment
@@ -179,5 +182,11 @@
         android:name="com.example.eventlottery.entrant.CreateEventFragment"
         android:label="Create Event"
         tools:layout="@layout/fragment_create_event" />
+
+    <fragment
+        android:id="@+id/sendNotificationFragment"
+        android:name="com.example.eventlottery.entrant.SendNotificationFragment"
+        android:label="Send Notification"
+        tools:layout="@layout/fragment_send_notifications" />
 
 </navigation>
