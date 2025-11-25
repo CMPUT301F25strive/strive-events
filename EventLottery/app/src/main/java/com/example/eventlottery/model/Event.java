@@ -4,7 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.firebase.firestore.Exclude;
-import com.google.firebase.firestore.FirebaseFirestore;
+
+import org.checkerframework.checker.units.qual.A;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -44,8 +45,10 @@ public class Event implements Serializable {
     private int capacity;   // The number to sample
     private int waitingListSpots;   // Total spots; 0 == unlimited spots
     private Status status;
-    private List<String> waitingList;
-    private List<String> attendeesList;
+    private List<String> waitingList;   // For entrants signing up for the event
+    private List<String> attendeesList; // For selected entrants accepting to attend
+    private List<String> invitedList;  // For selected entrants from Lottery System
+    private List<String> canceledList;  // For selected entrants declining to attend
     private String posterUrl;   // Firebase image URL
     private String description;
     private Tag tag;
@@ -91,6 +94,8 @@ public class Event implements Serializable {
         this.description = description;
         this.waitingList = new ArrayList<>();
         this.attendeesList = new ArrayList<>();
+        this.canceledList = new ArrayList<>();
+        this.invitedList = new ArrayList<>();
     }
 
     /**
@@ -209,6 +214,24 @@ public class Event implements Serializable {
 
     public void setWaitingList(List<String> waitingList) {
         this.waitingList = waitingList != null ? waitingList : new ArrayList<>();
+    }
+
+    public List<String> getInvitedList() {
+        if (invitedList == null) invitedList = new ArrayList<>();
+        return invitedList;
+    }
+
+    public void setInvitedList(List<String> selectedEntrants) {
+        this.invitedList = selectedEntrants != null ? selectedEntrants : new ArrayList<>();
+    }
+
+    public List<String> getCanceledList() {
+        if (canceledList == null) canceledList = new ArrayList<>();
+        return canceledList;
+    }
+
+    public void setCanceledList(List<String> canceledList) {
+        this.canceledList = canceledList != null ? canceledList : new ArrayList<>();
     }
 
     public List<String> getAttendeesList() {
