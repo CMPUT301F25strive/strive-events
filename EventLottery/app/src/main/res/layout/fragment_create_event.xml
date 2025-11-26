@@ -19,7 +19,6 @@
         android:background="@android:color/transparent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <!-- Back button -->
         <ImageButton
             android:id="@+id/backButton"
             android:layout_width="36dp"
@@ -32,7 +31,6 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
 
-        <!-- Center title -->
         <TextView
             android:id="@+id/appNameText"
             android:layout_width="wrap_content"
@@ -63,13 +61,13 @@
             android:padding="20dp"
             android:gravity="center_horizontal">
 
-            <!-- Event Poster (full width like text fields) -->
-            <!-- Event Poster (full width like text fields, rounded corners) -->
+            <!-- Event Poster Placeholder with Rounded Corners -->
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
+                android:clipToOutline="true"
                 android:background="@drawable/rounded_image_bg"
                 android:clickable="true"
                 android:focusable="true"
@@ -82,7 +80,8 @@
                     android:scaleType="centerCrop"
                     android:adjustViewBounds="true"
                     android:contentDescription="Event Poster"
-                    android:src="@drawable/event_image_placeholder" />
+                    android:src="@drawable/event_image_placeholder"
+                    android:clipToOutline="true"/>
             </FrameLayout>
 
             <!-- Title -->
@@ -102,7 +101,7 @@
                     android:id="@+id/editTextTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Title" />
+                    android:hint="Title"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Description -->
@@ -128,7 +127,6 @@
                     android:gravity="top|start"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Character Counter -->
             <TextView
                 android:id="@+id/charCountText"
                 android:layout_width="wrap_content"
@@ -139,7 +137,7 @@
                 android:layout_gravity="end"
                 android:layout_marginTop="4dp" />
 
-            <!-- Tag chips -->
+            <!-- Tags -->
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/tagChipGroupForCreating"
                 android:layout_width="match_parent"
@@ -153,7 +151,7 @@
                     android:layout_height="wrap_content"
                     style="@style/Widget.MaterialComponents.Chip.Choice"
                     android:checkable="true"
-                    android:text="Art" />
+                    android:text="Art"/>
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip_music"
@@ -161,7 +159,7 @@
                     android:layout_height="wrap_content"
                     style="@style/Widget.MaterialComponents.Chip.Choice"
                     android:checkable="true"
-                    android:text="Music" />
+                    android:text="Music"/>
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip_education"
@@ -169,7 +167,7 @@
                     android:layout_height="wrap_content"
                     style="@style/Widget.MaterialComponents.Chip.Choice"
                     android:checkable="true"
-                    android:text="Education" />
+                    android:text="Education"/>
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip_sports"
@@ -177,7 +175,7 @@
                     android:layout_height="wrap_content"
                     style="@style/Widget.MaterialComponents.Chip.Choice"
                     android:checkable="true"
-                    android:text="Sports" />
+                    android:text="Sports"/>
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip_party"
@@ -185,8 +183,7 @@
                     android:layout_height="wrap_content"
                     style="@style/Widget.MaterialComponents.Chip.Choice"
                     android:checkable="true"
-                    android:text="Party" />
-
+                    android:text="Party"/>
             </com.google.android.material.chip.ChipGroup>
 
             <!-- Location -->
@@ -206,10 +203,11 @@
                     android:id="@+id/editTextLocation"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Location" />
+                    android:hint="Location"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Event Start Date -->
+            <!-- Event / Registration Date & Time Fields -->
+            <!-- Event Date -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -221,16 +219,14 @@
                 app:boxCornerRadiusBottomEnd="16dp"
                 app:boxStrokeColor="@color/primary"
                 app:boxStrokeWidth="2dp">
-
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/editTextEventDate"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Event Start Date"
-                    android:focusable="false" />
+                    android:focusable="false"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Event Start Time -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -242,16 +238,15 @@
                 app:boxCornerRadiusBottomEnd="16dp"
                 app:boxStrokeColor="@color/primary"
                 app:boxStrokeWidth="2dp">
-
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/editTextEventTime"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Event Start Time"
-                    android:focusable="false" />
+                    android:focusable="false"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Registration Start Date -->
+            <!-- Registration Start Date/Time -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -263,16 +258,14 @@
                 app:boxCornerRadiusBottomEnd="16dp"
                 app:boxStrokeColor="@color/primary"
                 app:boxStrokeWidth="2dp">
-
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/editTextRegStartDate"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Registration Start Date (keep empty for immediate registration open)"
-                    android:focusable="false" />
+                    android:hint="Registration Start Date"
+                    android:focusable="false"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Registration Start Time -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -284,17 +277,15 @@
                 app:boxCornerRadiusBottomEnd="16dp"
                 app:boxStrokeColor="@color/primary"
                 app:boxStrokeWidth="2dp">
-
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/editTextRegStartTime"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Registration Start Time (keep empty for immediate registration open)"
-                    android:focusable="false" />
+                    android:hint="Registration Start Time"
+                    android:focusable="false"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Registration End Date -->
-            <!-- Must be at least 24 hours before the event starts-->
+            <!-- Registration End Date/Time -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -306,16 +297,14 @@
                 app:boxCornerRadiusBottomEnd="16dp"
                 app:boxStrokeColor="@color/primary"
                 app:boxStrokeWidth="2dp">
-
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/editTextRegEndDate"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Registration End Date (keep empty for default registration close 24 hours before the event starts)"
-                    android:focusable="false" />
+                    android:hint="Registration End Date"
+                    android:focusable="false"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Registration End Time -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -327,13 +316,12 @@
                 app:boxCornerRadiusBottomEnd="16dp"
                 app:boxStrokeColor="@color/primary"
                 app:boxStrokeWidth="2dp">
-
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/editTextRegEndTime"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Registration End Time (keep empty for default registration close 24 hours before the event starts)"
-                    android:focusable="false" />
+                    android:hint="Registration End Time"
+                    android:focusable="false"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Capacity -->
@@ -348,16 +336,15 @@
                 app:boxCornerRadiusBottomEnd="16dp"
                 app:boxStrokeColor="@color/primary"
                 app:boxStrokeWidth="2dp">
-
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/editTextCapacity"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Capacity"
-                    android:inputType="number" />
+                    android:inputType="number"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Waiting List Spots -->
+            <!-- Waiting List -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -369,13 +356,12 @@
                 app:boxCornerRadiusBottomEnd="16dp"
                 app:boxStrokeColor="@color/primary"
                 app:boxStrokeWidth="2dp">
-
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/editTextWaitingListSpots"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Waiting List Spots (keep empty for unlimited spots)"
-                    android:inputType="number" />
+                    android:hint="Waiting List Spots"
+                    android:inputType="number"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Save Button -->
@@ -386,9 +372,7 @@
                 android:text="Post"
                 android:layout_marginTop="24dp"
                 android:backgroundTint="@color/primary"
-                android:textColor="@color/white" />
-
+                android:textColor="@color/white"/>
         </LinearLayout>
     </ScrollView>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

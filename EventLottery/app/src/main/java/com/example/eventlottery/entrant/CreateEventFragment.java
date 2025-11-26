@@ -7,10 +7,8 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-
 import android.provider.MediaStore;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,13 +33,11 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.chip.ChipGroup;
 import com.google.zxing.BarcodeFormat;
-import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 
 import java.util.Calendar;
 import java.util.Locale;
-
 
 public class CreateEventFragment extends Fragment {
 
@@ -78,7 +74,6 @@ public class CreateEventFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-
         if (!OrganizerGate.hasOrganizerAccess(requireContext())) {
             Toast.makeText(requireContext(), R.string.organizer_feature_required, Toast.LENGTH_SHORT).show();
             NavHostFragment.findNavController(this).popBackStack();
@@ -87,6 +82,12 @@ public class CreateEventFragment extends Fragment {
 
         firebaseRepo = new FirebaseEventRepository();
 
+        initViews(view);
+        setupTagSelection();
+        setupListeners();
+    }
+
+    private void initViews(View view) {
         eventPoster = view.findViewById(R.id.eventPoster);
         editTextTitle = view.findViewById(R.id.editTextTitle);
         editTextDescription = view.findViewById(R.id.editTextDescription);
@@ -97,16 +98,15 @@ public class CreateEventFragment extends Fragment {
         editTextRegStartTime = view.findViewById(R.id.editTextRegStartTime);
         editTextRegEndDate   = view.findViewById(R.id.editTextRegEndDate);
         editTextRegEndTime   = view.findViewById(R.id.editTextRegEndTime);
-
         editTextCapacity = view.findViewById(R.id.editTextCapacity);
         editTextWaitingListSpots = view.findViewById(R.id.editTextWaitingListSpots);
         charCountText = view.findViewById(R.id.charCountText);
-
         saveButton = view.findViewById(R.id.buttonSaveEvent);
         backButton = view.findViewById(R.id.backButton);
         tagChipGroup = view.findViewById(R.id.tagChipGroupForCreating);
+    }
 
-        // Tag selection
+    private void setupTagSelection() {
         tagChipGroup.setOnCheckedStateChangeListener((group, checkedIds) -> {
             if (checkedIds.isEmpty()) {
                 selectedTag = null;
@@ -129,11 +129,12 @@ public class CreateEventFragment extends Fragment {
                 selectedTag = null;
             }
         });
+    }
 
+    private void setupListeners() {
         eventPoster.setOnClickListener(v -> openGallery());
         backButton.setOnClickListener(v -> requireActivity().onBackPressed());
 
-        // Description
         editTextDescription.addTextChangedListener(new android.text.TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -142,228 +143,103 @@ public class CreateEventFragment extends Fragment {
             @Override public void afterTextChanged(android.text.Editable s) {}
         });
 
-        // Event start
-        editTextEventDate.setOnClickListener(v ->
-                showDatePicker(editTextEventDate, editTextEventTime,eventCalendar));
-        editTextEventTime.setOnClickListener(v ->
-                showTimePicker(editTextEventTime, editTextEventDate, eventCalendar));
+        // Event date/time
+        editTextEventDate.setOnClickListener(v -> showDatePicker(editTextEventDate, editTextEventTime, eventCalendar));
+        editTextEventTime.setOnClickListener(v -> showTimePicker(editTextEventTime, editTextEventDate, eventCalendar));
 
-        // Registration starts
-        editTextRegStartDate.setOnClickListener(v ->
-                showDatePicker(editTextRegStartDate, editTextRegStartTime, regStartCalendar));
-        editTextRegStartTime.setOnClickListener(v ->
-                showTimePicker(editTextRegStartTime, editTextRegStartDate, regStartCalendar));
+        // Registration date/time
+        editTextRegStartDate.setOnClickListener(v -> showDatePicker(editTextRegStartDate, editTextRegStartTime, regStartCalendar));
+        editTextRegStartTime.setOnClickListener(v -> showTimePicker(editTextRegStartTime, editTextRegStartDate, regStartCalendar));
+        editTextRegEndDate.setOnClickListener(v -> showDatePicker(editTextRegEndDate, editTextRegEndTime, regEndCalendar));
+        editTextRegEndTime.setOnClickListener(v -> showTimePicker(editTextRegEndTime, editTextRegEndDate, regEndCalendar));
 
-        // Registration ends
-        editTextRegEndDate.setOnClickListener(v ->
-                showDatePicker(editTextRegEndDate, editTextRegEndTime, regEndCalendar));
-        editTextRegEndTime.setOnClickListener(v ->
-                showTimePicker(editTextRegEndTime, editTextRegEndDate, regEndCalendar));
-
-        // Save button
-        saveButton.setOnClickListener(v -> saveEvent(view));
+        saveButton.setOnClickListener(v -> saveEvent(v));
     }
 
     private void openGallery() {
-        Intent intent = new Intent(Intent.ACTION_PICK,
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, PICK_IMAGE);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         if (requestCode == PICK_IMAGE && data != null) {
             imageUri = data.getData();
             eventPoster.setImageURI(imageUri);
         }
     }
 
-    /**
-     * Generic date picker used for dates of event and its registration period
-     * @param targetDateField: the TextInputEditText object for date
-     * @param relatedTimeField: the TextInputEditText object for time
-     * @param targetCalendar: the Calendar object
-     */
-    private void showDatePicker(TextInputEditText targetDateField,
-                                TextInputEditText relatedTimeField,
-                                @Nullable Calendar targetCalendar) {
+    private void showDatePicker(TextInputEditText dateField, TextInputEditText timeField, Calendar calendar) {
         Calendar now = Calendar.getInstance();
-
-        // Create and configure the date picker dialog
-        DatePickerDialog datePicker = new DatePickerDialog(
-                requireContext(),
+        DatePickerDialog datePicker = new DatePickerDialog(requireContext(),
                 (view, year, month, day) -> {
-                    if (targetCalendar != null) {
-                        // Update the target calendar with the selected date
-                        targetCalendar.set(Calendar.YEAR, year);
-                        targetCalendar.set(Calendar.MONTH, month);
-                        targetCalendar.set(Calendar.DAY_OF_MONTH, day);
-                    }
-
-                    // Format the selected date
-                    String formatted = String.format(
-                            Locale.getDefault(),    // Use device's locale for formatting
-                            "%02d/%02d/%04d",   // Format: DD/MM/YYYY
-                            day, month + 1, year    // month is 0-based
-                    );
-                    targetDateField.setText(formatted);
-
-                    // If the related time is empty, set it to default time
-                    if (relatedTimeField != null
-                            && relatedTimeField.getText() != null
-                            && relatedTimeField.getText().toString().trim().isEmpty()) {
-
-                        // Set the time to be 00:00
-                        if (targetCalendar != null) {
-                            targetCalendar.set(Calendar.HOUR_OF_DAY, 0);
-                            targetCalendar.set(Calendar.MINUTE, 0);
-                            targetCalendar.set(Calendar.SECOND, 0);
-                            targetCalendar.set(Calendar.MILLISECOND, 0);
-                        }
-                        relatedTimeField.setText("00:00");
+                    calendar.set(year, month, day);
+                    String formatted = String.format(Locale.getDefault(), "%02d/%02d/%04d", day, month + 1, year);
+                    dateField.setText(formatted);
+                    if (timeField.getText().toString().trim().isEmpty()) {
+                        calendar.set(Calendar.HOUR_OF_DAY, 0);
+                        calendar.set(Calendar.MINUTE, 0);
+                        timeField.setText("00:00");
                     }
                 },
-                now.get(Calendar.YEAR),
-                now.get(Calendar.MONTH),
-                now.get(Calendar.DAY_OF_MONTH)
-        );
-
-        // Disallow all dates before today
+                now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));
         datePicker.getDatePicker().setMinDate(now.getTimeInMillis());
         datePicker.show();
     }
 
-    /**
-     * Generic time picker used for time of event and registration period
-     * @param targetTimeField: the TextInputEditText object for time
-     * @param relatedDateField: the TextInputEditText object for date
-     * @param targetCalendar: the Calendar object
-     */
-    private void showTimePicker(TextInputEditText targetTimeField,
-                                TextInputEditText relatedDateField,
-                                @Nullable Calendar targetCalendar) {
-
-        // Get current time to use as default values
+    private void showTimePicker(TextInputEditText timeField, TextInputEditText dateField, Calendar calendar) {
         Calendar now = Calendar.getInstance();
-        int currentHour = now.get(Calendar.HOUR_OF_DAY);    // 24-hour format (0-23)
-        int currentMinute = now.get(Calendar.MINUTE);
+        int hour = now.get(Calendar.HOUR_OF_DAY);
+        int minute = now.get(Calendar.MINUTE);
 
-        // Read the selected date to check if it's the current day (today)
         Calendar selectedDate = Calendar.getInstance();
-        String dateText = relatedDateField.getText() != null
-                ? relatedDateField.getText().toString().trim() : "";
-
-        // Parse the string of date
+        String dateText = dateField.getText().toString().trim();
         if (!dateText.isEmpty()) {
             String[] parts = dateText.split("/");
-            if (parts.length == 3) {
-                try {
-                    int day = Integer.parseInt(parts[0]);
-                    int month = Integer.parseInt(parts[1]) - 1; // 0-based month
-                    int year = Integer.parseInt(parts[2]);
-                    selectedDate.set(year, month, day);
-                } catch (NumberFormatException ignored) {
-                    // If fail to parse, default to current date
-                    selectedDate.setTime(now.getTime());
-                }
-            } else {
-                // If the date format is invalid, default to current date
+            try {
+                int day = Integer.parseInt(parts[0]);
+                int month = Integer.parseInt(parts[1]) - 1;
+                int year = Integer.parseInt(parts[2]);
+                selectedDate.set(year, month, day);
+            } catch (NumberFormatException ignored) {
                 selectedDate.setTime(now.getTime());
             }
-        } else {
-            // If no date selected, default to current date
-            selectedDate.setTime(now.getTime());
         }
 
-        // Create and configure the time picker dialog
-        TimePickerDialog timePicker = new TimePickerDialog(
-                requireContext(),
+        TimePickerDialog timePicker = new TimePickerDialog(requireContext(),
                 (view, selectedHour, selectedMinute) -> {
-
-                    // Check if the selected date is today
                     boolean isToday = selectedDate.get(Calendar.YEAR) == now.get(Calendar.YEAR)
                             && selectedDate.get(Calendar.DAY_OF_YEAR) == now.get(Calendar.DAY_OF_YEAR);
 
-                    // If the selected date is today, block past times
-                    if (isToday &&
-                            (selectedHour < currentHour || (selectedHour == currentHour && selectedMinute < currentMinute))
-                    ) {
-                        Toast.makeText(requireContext(),
-                                "Cannot select past time", Toast.LENGTH_SHORT).show();
-                        return; // Cancel selection and exit
+                    if (isToday && (selectedHour < hour || (selectedHour == hour && selectedMinute < minute))) {
+                        Toast.makeText(requireContext(), "Cannot select past time", Toast.LENGTH_SHORT).show();
+                        return;
                     }
 
-                    if (targetCalendar != null) {
-                        // Update the target calendar with the selected time
-                        targetCalendar.set(Calendar.HOUR_OF_DAY, selectedHour);
-                        targetCalendar.set(Calendar.MINUTE, selectedMinute);
-                        targetCalendar.set(Calendar.SECOND, 0);
-                        targetCalendar.set(Calendar.MILLISECOND, 0);
+                    calendar.set(Calendar.HOUR_OF_DAY, selectedHour);
+                    calendar.set(Calendar.MINUTE, selectedMinute);
+
+                    timeField.setText(String.format(Locale.getDefault(), "%02d:%02d", selectedHour, selectedMinute));
+
+                    if (dateField.getText().toString().trim().isEmpty()) {
+                        dateField.setText(String.format(Locale.getDefault(), "%02d/%02d/%04d",
+                                now.get(Calendar.DAY_OF_MONTH),
+                                now.get(Calendar.MONTH) + 1,
+                                now.get(Calendar.YEAR)));
+                        calendar.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));
                     }
-
-                    // Format the selected time
-                    String formatted = String.format(
-                            Locale.getDefault(),
-                            "%02d:%02d",    // Format: HH:MM (24-hour format)
-                            selectedHour, selectedMinute
-                    );
-                    targetTimeField.setText(formatted);
-
-                    // If the related date is empty, set default date to today
-                    if (relatedDateField != null
-                            && relatedDateField.getText() != null
-                            && relatedDateField.getText().toString().trim().isEmpty()) {
-
-                        // Get today's date
-                        int year = now.get(Calendar.YEAR);
-                        int month = now.get(Calendar.MONTH);
-                        int day = now.get(Calendar.DAY_OF_MONTH);
-
-                        // Set the date
-                        if (targetCalendar != null) {
-                            targetCalendar.set(Calendar.YEAR, year);
-                            targetCalendar.set(Calendar.MONTH, month);
-                            targetCalendar.set(Calendar.DAY_OF_MONTH, day);
-                        }
-                        // Format today's date
-                        formatted = String.format(
-                                Locale.getDefault(),    // Use device's locale for formatting
-                                "%02d/%02d/%04d",   // Format: DD/MM/YYYY
-                                day, month + 1, year    // month is 0-based
-                        );
-                        relatedDateField.setText(formatted);
-                    }
-                },
-                currentHour,
-                currentMinute,
-                false   // 12h format is convenient to set lol
-                // 24-hour format (true) or 12-hour AM/PM format (false)
-        );
-
+                }, hour, minute, false);
         timePicker.show();
     }
 
     private void saveEvent(View root) {
         String title = editTextTitle.getText().toString().trim();
-        // Check if the title of event is given
-        if (title.isEmpty()) {
-            Toast.makeText(requireContext(), "Title is required", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
         String description = editTextDescription.getText().toString().trim();
-        // Check if the description of event is given
-        if (description.isEmpty()) {
-            Toast.makeText(requireContext(), "Description is required", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
         String location = editTextLocation.getText().toString().trim();
-        // Check if the location of event is given
-        if (location.isEmpty()) {
-            Toast.makeText(requireContext(), "Location is required", Toast.LENGTH_SHORT).show();
+
+        if (title.isEmpty() || description.isEmpty() || location.isEmpty()) {
+            Toast.makeText(requireContext(), "Title, description, and location are required", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -372,175 +248,77 @@ public class CreateEventFragment extends Fragment {
             return;
         }
 
-        // Add reasonable time intervals for a well-designed flow: creation -> registration -> sampling -> invitation -> finalization
-        /*
-        Time interval rules:
-        - For event creation (in days):
-            eventStart - now >= MIN_EVENT_LEAD_DAYS
-        - For registration period (in ms):
-            regStart >= now
-            regStart < regEnd
-            defaultRegStart = now
-            defaultRegEnd = eventStart - MIN_REG_DRAWN_GAP
-            eventStart - regEnd >= MIN_REG_DRAWN_GAP
-         */
-        String eventDate = editTextEventDate.getText().toString().trim();
-        String eventTime = editTextEventTime.getText().toString().trim();
-        if (eventDate.isEmpty() || eventTime.isEmpty()) {
-            Toast.makeText(requireContext(), "Event date and time are required", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        long eventStartTimeMillis = eventCalendar.getTimeInMillis();
-        Calendar today = Calendar.getInstance();
-
-        // Enforce event to start at least MIN_EVENT_LEAD_DAYS days from today
-        if (!EventTimeValidator.isEventDateValid(today, eventCalendar)) {
-            Toast.makeText(
-                    requireContext(),
-                    "Event must start at least " + EventTimeValidator.MIN_EVENT_LEAD_DAYS + " days from today.",
-                    Toast.LENGTH_LONG
-            ).show();
-            return;
-        }
-
-        String regStartDateStr = editTextRegStartDate.getText() != null
-                ? editTextRegStartDate.getText().toString().trim() : "";
-        String regStartTimeStr = editTextRegStartTime.getText() != null
-                ? editTextRegStartTime.getText().toString().trim() : "";
-        String regEndDateStr = editTextRegEndDate.getText() != null
-                ? editTextRegEndDate.getText().toString().trim() : "";
-        String regEndTimeStr = editTextRegEndTime.getText() != null
-                ? editTextRegEndTime.getText().toString().trim() : "";
-
-        long regStartTimeMillis;
-        long regEndTimeMillis;
+        long eventStartTime = eventCalendar.getTimeInMillis();
         long now = System.currentTimeMillis();
+        long regStart = regStartCalendar.getTimeInMillis();
+        long regEnd = regEndCalendar.getTimeInMillis();
 
-        if (regStartDateStr.isEmpty() || regStartTimeStr.isEmpty()) {
-            // If registration start not specified, default to now
-            regStartTimeMillis = now;
-            regStartCalendar.setTimeInMillis(regStartTimeMillis);
-        } else {
-            regStartTimeMillis = regStartCalendar.getTimeInMillis();
-
-            // Enforce the registration start time to be "now" (since user needs time to fill out the form)
-            if (regStartTimeMillis < now) {
-                regStartTimeMillis = now;
-                regStartCalendar.setTimeInMillis(regStartTimeMillis);
-            }
-        }
-
-        if (regEndDateStr.isEmpty() || regEndTimeStr.isEmpty()) {
-            // If registration end not specified, default to 24h before event starts
-            long defaultRegEndTimeMillis = eventStartTimeMillis - EventTimeValidator.MIN_REG_DRAWN_GAP_MILLIS;
-
-            // Registration end must still be after registration start
-            if (!EventTimeValidator.isRegPeriodValid(regStartTimeMillis, defaultRegEndTimeMillis, eventStartTimeMillis)) {
-                Toast.makeText(
-                        requireContext(),
-                        "Invalid registration period. " +
-                                "Please move the event later or registration start earlier.",
-                        Toast.LENGTH_LONG
-                ).show();
-                return;
-            }
-
-            regEndTimeMillis = defaultRegEndTimeMillis;
-            regEndCalendar.setTimeInMillis(regEndTimeMillis);
-        } else {
-            regEndTimeMillis = regEndCalendar.getTimeInMillis();
-        }
-
-        // Check validity for manually specified inputs
-        // Registration end must still be after regStart
-        if (regStartTimeMillis >= regEndTimeMillis) {
-            Toast.makeText(requireContext(), "Invalid registration period is given.", Toast.LENGTH_LONG).show();
-            return;
-        }
-
-        // Registration end must be at least MIN_REG_DRAWN_GAP_MILLIS before event start
-        if (eventStartTimeMillis - regEndTimeMillis < EventTimeValidator.MIN_REG_DRAWN_GAP_MILLIS) {
+        if (!EventTimeValidator.isEventDateValid(Calendar.getInstance(), eventCalendar)) {
             Toast.makeText(requireContext(),
-                    "Registration must close at least 24 hours before the event starts.",
-                    Toast.LENGTH_LONG
-            ).show();
+                    "Event must start at least " + EventTimeValidator.MIN_EVENT_LEAD_DAYS + " days from today.",
+                    Toast.LENGTH_LONG).show();
             return;
         }
 
-        String waitingListSpotsStr = editTextWaitingListSpots.getText().toString().trim();
-        int waitingListSpots = waitingListSpotsStr.isEmpty()
-                ? -1 : Integer.parseInt(waitingListSpotsStr);   // -1 for unlimited
-        if (waitingListSpots == 0 || waitingListSpots < -1) {
-            Toast.makeText(requireContext(), "Invalid waiting list spots", Toast.LENGTH_SHORT).show();
+        if (regStart < now) regStart = now;
+        if (regEnd <= regStart || eventStartTime - regEnd < EventTimeValidator.MIN_REG_DRAWN_GAP_MILLIS) {
+            Toast.makeText(requireContext(),
+                    "Invalid registration period. Registration must close at least 24h before event starts.",
+                    Toast.LENGTH_LONG).show();
             return;
         }
 
-        String capacityStr = editTextCapacity.getText().toString().trim();
-        if (capacityStr.isEmpty()) {
-            Toast.makeText(requireContext(), "Capacity is required", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        int capacity = Integer.parseInt(capacityStr);
-        if (capacity <= 0) {
-            Toast.makeText(requireContext(), "Invalid capacity of event", Toast.LENGTH_SHORT).show();
-            return;
+        int capacity;
+        try { capacity = Integer.parseInt(editTextCapacity.getText().toString().trim()); }
+        catch (NumberFormatException e) { Toast.makeText(requireContext(), "Invalid capacity", Toast.LENGTH_SHORT).show(); return; }
+
+        int waitingList = -1;
+        String waitingListStr = editTextWaitingListSpots.getText().toString().trim();
+        if (!waitingListStr.isEmpty()) {
+            try { waitingList = Integer.parseInt(waitingListStr); }
+            catch (NumberFormatException e) { Toast.makeText(requireContext(), "Invalid waiting list spots", Toast.LENGTH_SHORT).show(); return; }
         }
 
         saveButton.setEnabled(false);
         saveButton.setText("Posting...");
 
-        // DEVICE ID
-        String deviceId =
-                Settings.Secure.getString(requireContext().getContentResolver(),
-                        Settings.Secure.ANDROID_ID);
+        String deviceId = Settings.Secure.getString(requireContext().getContentResolver(), Settings.Secure.ANDROID_ID);
 
-        firebaseRepo.uploadEvent(
-                imageUri,
-                title,
-                description,
-                location,
-                eventStartTimeMillis,
-                regStartTimeMillis,
-                regEndTimeMillis,
-                capacity,
-                waitingListSpots,
-                deviceId,
-                selectedTag,
-                (success, message, eventId) -> {
-                    saveButton.setEnabled(true);
-                    saveButton.setText("Post");
-                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
-                    if (success) {
-                        Navigation.findNavController(root).navigateUp();
-                        //QR Code generator
-                        generateQRCode(eventId);
+        firebaseRepo.uploadEvent(imageUri, title, description, location, eventStartTime,
+                regStart, regEnd, capacity, waitingList, deviceId, selectedTag, new FirebaseEventRepository.UploadCallback() {
+                    @Override
+                    public void onProgress(double progress) {
+                        saveButton.setText(String.format("Posting... %.0f%%", progress * 100));
                     }
-                }
-        );
 
-
+                    @Override
+                    public void onComplete(boolean success, String message, String eventID) {
+                        saveButton.setEnabled(true);
+                        saveButton.setText("Post");
+                        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+                        if (success && eventID != null) {
+                            Navigation.findNavController(root).navigateUp();
+                            generateQRCode(eventID);
+                        }
+                    }
+                });
     }
 
-    public void generateQRCode(String eventID) {
-        String qrLink = "event/" + eventID;
-        int width = 600;
-        int height = 600;
-        
+    private void generateQRCode(String eventID) {
         try {
-            QRCodeWriter encoder = new QRCodeWriter();
-            BitMatrix bitMatrix = encoder.encode(qrLink, BarcodeFormat.QR_CODE, width, height);
+            String qrLink = "event/" + eventID;
+            int size = 600;
+            QRCodeWriter writer = new QRCodeWriter();
+            BitMatrix bitMatrix = writer.encode(qrLink, BarcodeFormat.QR_CODE, size, size);
 
-            Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
-
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
+            Bitmap bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.RGB_565);
+            for (int x = 0; x < size; x++) {
+                for (int y = 0; y < size; y++) {
                     bitmap.setPixel(x, y, bitMatrix.get(x, y) ? Color.BLACK : Color.WHITE);
                 }
             }
-
             showQrDialog(bitmap);
-        }catch (Exception e){
+        } catch (Exception e) {
             Toast.makeText(requireContext(), "QR generation failed: " + e, Toast.LENGTH_LONG).show();
         }
     }
@@ -556,5 +334,4 @@ public class CreateEventFragment extends Fragment {
                 .setPositiveButton("Close", null)
                 .show();
     }
-
 }

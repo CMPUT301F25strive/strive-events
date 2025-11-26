@@ -14,10 +14,14 @@ import androidx.core.app.ActivityCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.cloudinary.android.MediaManager;
 import com.example.eventlottery.data.FirebaseProfileRepository;
 import com.example.eventlottery.data.ProfileRepository;
 import com.example.eventlottery.databinding.ActivityMainBinding;
 import com.example.eventlottery.model.PushNotificationService;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -64,6 +68,12 @@ public class MainActivity extends AppCompatActivity {
 
         requestNotificationPermission();
         startListeningForNotifications();
+
+
+        // Cloudinary init
+        Map config = new HashMap();
+        config.put("cloud_name", "daytyu3kd");
+        MediaManager.init(this, config);
     }
 
     /**

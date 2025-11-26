@@ -20,10 +20,11 @@
             android:id="@+id/eventPoster"
             android:layout_width="128dp"
             android:layout_height="128dp"
-            android:background="@drawable/event_image_placeholder"
             android:contentDescription="@string/event_poster_content_description"
-            android:scaleType="centerCrop"
             android:src="@drawable/poster_puppy"
+            android:scaleType="centerCrop"
+            android:clipToOutline="true"
+            android:background="@drawable/event_image_placeholder"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

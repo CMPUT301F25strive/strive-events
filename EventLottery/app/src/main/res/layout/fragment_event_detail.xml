@@ -75,6 +75,7 @@
                     android:contentDescription="@string/event_poster_content_description"
                     android:scaleType="centerCrop"
                     android:src="@drawable/poster_swim"
+                    android:elevation="2dp"
                     android:background="@drawable/detail_poster_outline"
                     android:outlineProvider="background"
                     android:clipToOutline="true" />

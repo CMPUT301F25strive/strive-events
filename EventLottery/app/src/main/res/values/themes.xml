@@ -56,5 +56,9 @@
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">36dp</item> <!-- big pill-style -->
     </style>
+    <style name="RoundedCorners16dp">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
 
 </resources>
