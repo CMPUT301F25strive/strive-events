@@ -40,30 +40,33 @@ public class LotterySystem {
 
     /**
      * This is the class that draws a replacement when an entrant on the winners list declined, so one spot will open up for another user.
-     * @param waitingList the waiting list of the event.
-     * @param currentWinners the winners from the first draw.
-     * @param declinedWinner the user that declines the invitation
-     * @return a list of new winners list, with the declined user removed, and new entrants added.
+     * @param waitingList: a list of ID for entrants signing up for the event
+     * @param invitedList: a list of ID for selected entrants from Lottery System
+     * @param attendeesList: a list of ID for selected entrants accepting to attend
+     * @param canceledList: a list of ID for selected entrants declining to attend
+     * @return: the ID of a winner for replacement
      */
-    public static List<String> drawReplacement(List<String> waitingList, List<String> currentWinners, String declinedWinner) {
-        List<String> updatedWinners = new ArrayList<>(currentWinners);
-        updatedWinners.remove(declinedWinner);
+    public static String drawReplacement(
+            List<String> waitingList,
+            List<String> invitedList,
+            List<String> attendeesList,
+            List<String> canceledList
+    ) {
+        List<String> pool = new ArrayList<>(waitingList);
 
-        List<String> availableEntrants = new ArrayList<>(waitingList);
-        availableEntrants.removeAll(updatedWinners);
-        availableEntrants.remove(declinedWinner);
+        // Exclude anyone already been invited
+        pool.removeAll(invitedList);
+        pool.removeAll(attendeesList);
+        pool.removeAll(canceledList);
 
-        if (availableEntrants.isEmpty()) {
-            System.out.println("No available entrants.");
-            return updatedWinners;
+        // Check if still potential entrants waiting for joining
+        if (pool.isEmpty()) {
+            // If no one is available, return null
+            return null;
         }
 
         Random random = new Random();
-        String replacement = availableEntrants.get(random.nextInt(availableEntrants.size()));
-
-        updatedWinners.add(replacement);
-
-        return updatedWinners;
+        return pool.get(random.nextInt(pool.size()));
     }
 
 }

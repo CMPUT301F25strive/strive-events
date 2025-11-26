@@ -43,7 +43,7 @@ public class Event implements Serializable {
     private long regEndTimeMillis;
     private String venue;
     private int capacity;   // The number to sample
-    private int waitingListSpots;   // Total spots; 0 == unlimited spots
+    private int waitingListSpots;   // Total spots; -1 == unlimited spots
     private Status status;
     private List<String> waitingList;   // For entrants signing up for the event
     private List<String> attendeesList; // For selected entrants accepting to attend
@@ -328,12 +328,19 @@ public class Event implements Serializable {
         long now = System.currentTimeMillis();
 
         // As soon as it starts, it becomes history, and thus eternal ~
-            // Or after all candidates accepted (associated with lottery sys)
-        if (now >= eventStartTimeMillis) {
+            // Or after all invited entrants accepted
+        if (now >= eventStartTimeMillis || getAttendeesListSize() == capacity) {
             if (status != Status.FINALIZED) {
                 status = Status.FINALIZED;
             }
             return; // No need to monitor
+        }
+
+        // DRAWN is set after the initial sampling.
+        //  It is b/t reg end time and event start time
+        //  and before all attendees are confirmed
+        if (status == Status.DRAWN && !isEventStarted() && now > regEndTimeMillis) {
+            return; // Freeze DRAWN status
         }
 
         // Before registration opens, it's closed
@@ -357,10 +364,6 @@ public class Event implements Serializable {
         if (now >= regEndTimeMillis && status == Status.REG_OPEN) {
             status = Status.REG_CLOSED;
         }
-
-        // TODO: figure out what things to do during DRAWN,
-        //  like b/t reg end time and event start time
-        //  or before all attendees are confirmed
     }
 
     /**

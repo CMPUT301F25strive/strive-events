@@ -11,6 +11,7 @@ import com.cloudinary.android.MediaManager;
 import com.cloudinary.android.callback.ErrorInfo;
 import com.cloudinary.android.callback.UploadCallback;
 import com.example.eventlottery.model.Event;
+import com.example.eventlottery.model.LotterySystem;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -73,6 +74,59 @@ public class FirebaseEventRepository implements EventRepository {
     public void updateWaitingList(String eventID, List<String> waitingList) {
         eventsRef.document(eventID).update("waitingList", waitingList).addOnFailureListener(Throwable::printStackTrace);
     }
+
+    /**
+     * This method updates the list of invited entrants for an event.
+     *
+     * @param eventID     : unique ID of the event
+     * @param invitedList : the list of invited entrant IDs
+     */
+    @Override
+    public void updateInvitedList(String eventID, List<String> invitedList) {
+
+    }
+
+    /**
+     * This method uses the Lottery System to draw automatically
+     * @param eventID : unique ID of the event
+     */
+    public void autoDraw(String eventID) {
+        long now = System.currentTimeMillis();
+        Event event = findEventById(eventID);
+        if (event == null) return;
+
+        // Run the initial draw only if time period is satisfied and no previous draw
+        if (now >= event.getRegEndTimeMillis()
+                && !event.isEventStarted()
+                && event.getStatus() != Event.Status.DRAWN) {
+
+            List<String> winners = LotterySystem.drawRounds(
+                    event.getWaitingList(),
+                    event.getCapacity()
+            );
+
+            // Set acquired data and update the status to DRAWN
+            event.setInvitedList(winners);
+            event.setStatus(Event.Status.DRAWN);
+            updateInvitedList(eventID, winners);    // Firebase update
+        }
+        // If time period satisfied and already in DRAWN status, it's a replacement draw
+        else if (event.isDrawn()) {
+            // Draw a single winner for replacement each time
+            String winner = LotterySystem.drawReplacement(
+                    event.getWaitingList(),
+                    event.getInvitedList(),
+                    event.getAttendeesList(),
+                    event.getCanceledList()
+            );
+
+            List<String> updatedWinners = event.getInvitedList();
+            updatedWinners.add(winner);
+            event.setInvitedList(updatedWinners);
+        }
+
+    }
+
 
     @Override
     public void deleteEvent(String eventId) {
