@@ -47,7 +47,7 @@ public class Event implements Serializable {
     private Status status;
     private List<String> waitingList;   // For entrants signing up for the event
     private List<String> attendeesList; // For selected entrants accepting to attend
-    private List<String> invitedList;  // For selected entrants from Lottery System
+    private List<String> invitedList;  // For entrants who have ever been selected from Lottery System (02.06.01)
     private List<String> canceledList;  // For selected entrants declining to attend
     private String posterUrl;   // Firebase image URL
     private String description;

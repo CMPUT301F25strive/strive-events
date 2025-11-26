@@ -5,68 +5,36 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * This is a class representing as the lottery System. It has 2 functions.
- * 1. draw the initial lottery winners
- * 2. draw replacement lottery when a user declines the invitation.
+ * This is a class representing the Lottery System.
  */
 
 public class LotterySystem {
     /**
      * This is the drawRounds function. It randomly select the winners from the waiting list.
-     * @param waitingList the waiting list containing a list of deviceID.
-     * @param capacity the number to be drawn from the pool
+     * @param pool the waiting list containing a list of deviceID.
+     * @param number the number to be drawn from the pool
      * @return a list of deviceID that wins the lottery.
      */
-    public  static List<String> drawRounds(List<String> waitingList, int capacity){
-
-        // If the number of capacity is larger than the number of waiting list, all the people in the waiting list will be selected.
-        if (waitingList.size() <= capacity){
-            return waitingList;
+    public  static List<String> drawRounds(List<String> pool, int number){
+        // If the number is larger than the size of pool,
+        // all the people in the pool will be selected.
+        if (pool.size() <= number){
+            return pool;
         }
 
         Random random = new Random();
         List<String> winners = new ArrayList<>();
 
-        while (winners.size() < capacity){
-            int index = random.nextInt(waitingList.size());
-            String winner = waitingList.get(index);
+        // Keep sampling winners until reaching the desired number
+        while (winners.size() < number){
+            int index = random.nextInt(pool.size());
+            String winner = pool.get(index);
 
+            // Invite the winner who hasn't been invited
             if (!winners.contains(winner)){
                 winners.add(winner);
             }
         }
         return winners;
     }
-
-    /**
-     * This is the class that draws a replacement when an entrant on the winners list declined, so one spot will open up for another user.
-     * @param waitingList: a list of ID for entrants signing up for the event
-     * @param invitedList: a list of ID for selected entrants from Lottery System
-     * @param attendeesList: a list of ID for selected entrants accepting to attend
-     * @param canceledList: a list of ID for selected entrants declining to attend
-     * @return: the ID of a winner for replacement
-     */
-    public static String drawReplacement(
-            List<String> waitingList,
-            List<String> invitedList,
-            List<String> attendeesList,
-            List<String> canceledList
-    ) {
-        List<String> pool = new ArrayList<>(waitingList);
-
-        // Exclude anyone already been invited
-        pool.removeAll(invitedList);
-        pool.removeAll(attendeesList);
-        pool.removeAll(canceledList);
-
-        // Check if still potential entrants waiting for joining
-        if (pool.isEmpty()) {
-            // If no one is available, return null
-            return null;
-        }
-
-        Random random = new Random();
-        return pool.get(random.nextInt(pool.size()));
-    }
-
 }

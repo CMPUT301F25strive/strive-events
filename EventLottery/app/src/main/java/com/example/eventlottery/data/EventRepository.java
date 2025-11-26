@@ -44,6 +44,10 @@ public interface EventRepository {
      */
     void updateInvitedList(String eventID, List<String> invitedList);
 
+    void updateAttendeesList(String eventID, List<String> attendeesList);
+
+    void updateCanceledList(String eventID, List<String> canceledList);
+
     /**
      * Remove an event from the catalogue.
      */

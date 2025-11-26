@@ -44,6 +44,7 @@ public class FirebaseEventRepository implements EventRepository {
                     if (event.getWaitingList() == null) event.setWaitingList(new ArrayList<>());
                     if (event.getAttendeesList() == null) event.setAttendeesList(new ArrayList<>());
                     Event.Status oldStatus = event.getStatus();
+                    autoDraw(event.getId());    // The initial draw
                     event.refreshStatus();
                     if (event.getStatus() != oldStatus) {
                         eventsRef.document(event.getId()).update("status", event.getStatus());
@@ -86,6 +87,16 @@ public class FirebaseEventRepository implements EventRepository {
 
     }
 
+    @Override
+    public void updateAttendeesList(String eventID, List<String> attendeesList) {
+
+    }
+
+    @Override
+    public void updateCanceledList(String eventID, List<String> canceledList) {
+
+    }
+
     /**
      * This method uses the Lottery System to draw automatically
      * @param eventID : unique ID of the event
@@ -95,36 +106,52 @@ public class FirebaseEventRepository implements EventRepository {
         Event event = findEventById(eventID);
         if (event == null) return;
 
-        // Run the initial draw only if time period is satisfied and no previous draw
-        if (now >= event.getRegEndTimeMillis()
-                && !event.isEventStarted()
-                && event.getStatus() != Event.Status.DRAWN) {
+        // Only run between reg end and event start
+        if (now < event.getRegEndTimeMillis() || now >= event.getEventStartTimeMillis()) {
+            return;
+        }
 
-            List<String> winners = LotterySystem.drawRounds(
-                    event.getWaitingList(),
-                    event.getCapacity()
-            );
+        // Get the copy of all lists
+        List<String> invited = new ArrayList<>(event.getInvitedList());
+        List<String> attended = new ArrayList<>(event.getAttendeesList());
+        List<String> canceled = new ArrayList<>(event.getCanceledList());
 
-            // Set acquired data and update the status to DRAWN
-            event.setInvitedList(winners);
+        // Get the pending entrants who haven't made the decision
+        List<String> pending = new ArrayList<>(invited);
+        pending.removeAll(attended);
+        pending.removeAll(canceled);
+        int openSlots = event.getCapacity() - attended.size() - pending.size();
+
+        if (openSlots <= 0) {
+            // If no more slots to fill, do nothing
+            return;
+        }
+
+        // Make a sampling pool for entrants who have never been invited
+        List<String> pool = new ArrayList<>(event.getWaitingList());
+        pool.removeAll(invited);
+        pool.removeAll(attended);
+        pool.removeAll(canceled);
+
+        if (pool.isEmpty()) {
+            // If no one left to invite, do nothing
+            return;
+        }
+
+        // Run a draw for the specified open slots
+        List<String> winners = LotterySystem.drawRounds(pool, openSlots);
+
+        // Add those winners to the invited list
+        invited.addAll(winners);
+        event.setInvitedList(invited);
+
+        // Set status to DRAWN if no previous draws made
+        if (event.getStatus() != Event.Status.DRAWN) {
             event.setStatus(Event.Status.DRAWN);
-            updateInvitedList(eventID, winners);    // Firebase update
-        }
-        // If time period satisfied and already in DRAWN status, it's a replacement draw
-        else if (event.isDrawn()) {
-            // Draw a single winner for replacement each time
-            String winner = LotterySystem.drawReplacement(
-                    event.getWaitingList(),
-                    event.getInvitedList(),
-                    event.getAttendeesList(),
-                    event.getCanceledList()
-            );
-
-            List<String> updatedWinners = event.getInvitedList();
-            updatedWinners.add(winner);
-            event.setInvitedList(updatedWinners);
         }
 
+        // Persist invited list to Firebase
+        updateInvitedList(eventID, invited);
     }
 
 

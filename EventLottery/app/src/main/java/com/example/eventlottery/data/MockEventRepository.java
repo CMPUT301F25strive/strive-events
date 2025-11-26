@@ -80,6 +80,16 @@ public class MockEventRepository implements EventRepository {
 
     }
 
+    @Override
+    public void updateAttendeesList(String eventID, List<String> attendeesList) {
+
+    }
+
+    @Override
+    public void updateCanceledList(String eventID, List<String> canceledList) {
+
+    }
+
     /**
      * This method uses the Lottery System to draw automatically
      *
