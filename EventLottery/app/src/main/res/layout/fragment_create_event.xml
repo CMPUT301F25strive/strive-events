@@ -412,6 +412,12 @@
                 android:layout_height="wrap_content"
                 android:text="Post"
                 android:layout_marginTop="24dp"
+                android:padding="16dp"
+                app:backgroundTint="@color/primary"
+                android:layout_marginBottom="20dp"
+
+                app:cornerRadius="30dp"
+                app:elevation="12dp"
                 android:backgroundTint="@color/primary"
                 android:textColor="@color/white"/>
         </LinearLayout>
