@@ -80,12 +80,6 @@ public class EventDetailFragment extends Fragment {
         profileRepository = RepositoryProvider.getProfileRepository();
         waitingListController = new WaitingListController(eventRepository, profileRepository);
 
-        // send notification button in the event details screen
-        binding.sendNotificationButton.setOnClickListener(v ->
-                NavHostFragment.findNavController(this)
-                        .navigate(R.id.action_eventDetailFragment_to_sendNotificationFragment)
-        );
-
         binding.backButton.setOnClickListener(v ->
                 NavHostFragment.findNavController(this).popBackStack()
         );
@@ -138,6 +132,19 @@ public class EventDetailFragment extends Fragment {
                 configAdminButtons(updated);
             }
         });
+        if (currentEvent != null && currentEvent.isGeolocationEnabled()) {
+            Toast.makeText(requireContext(), "Geolocation is required for this event", Toast.LENGTH_SHORT).show();
+        }
+        // send notification button in the event details screen
+        if (isAdmin || isOrganizer) {
+            binding.sendNotificationButton.setVisibility(View.VISIBLE);
+            binding.sendNotificationButton.setOnClickListener(v ->
+                    NavHostFragment.findNavController(this)
+                            .navigate(R.id.action_eventDetailFragment_to_sendNotificationFragment)
+            );
+        } else {
+            binding.sendNotificationButton.setVisibility(View.GONE);
+        }
     }
 
     // ------------------------------------------------------------------------------
@@ -287,6 +294,7 @@ public class EventDetailFragment extends Fragment {
             binding.joinEventButton.setVisibility(View.VISIBLE);
         }
     }
+
     private void configAdminButtons(@NonNull Event event){
         boolean canDeleteEvent = isAdmin || isOrganizer;
         binding.adminDeleteButton.setVisibility(canDeleteEvent ? View.VISIBLE : View.GONE);
