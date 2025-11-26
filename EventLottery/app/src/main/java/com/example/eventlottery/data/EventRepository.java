@@ -60,7 +60,7 @@ public interface EventRepository {
 
     /**
      * This method uses the Lottery System to draw automatically
-     * @param eventID: unique ID of the event
+     * @param event: event object
      */
-    void autoDraw(String eventID);
+    void autoDraw(Event event);
 }

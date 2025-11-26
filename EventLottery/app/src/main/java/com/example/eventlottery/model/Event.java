@@ -52,6 +52,7 @@ public class Event implements Serializable {
     private String posterUrl;   // Firebase image URL
     private String description;
     private Tag tag;
+    private boolean geolocationEnabled;
 
     /**
      * REQUIRED FOR FIRESTORE
@@ -257,6 +258,11 @@ public class Event implements Serializable {
     }
 
     @Exclude
+    public boolean isRegEnd() {
+        return System.currentTimeMillis() > regEndTimeMillis;
+    }
+
+    @Exclude
     public boolean isRegOpen() {
         return status == Status.REG_OPEN;
     }
@@ -371,5 +377,9 @@ public class Event implements Serializable {
      */
     public interface ProfileNameCallback {
         void onResult(String name);
+    }
+    public boolean isGeolocationEnabled() { return geolocationEnabled; }
+    public void setGeolocationEnabled(boolean geolocationEnabled) {
+        this.geolocationEnabled = geolocationEnabled;
     }
 }

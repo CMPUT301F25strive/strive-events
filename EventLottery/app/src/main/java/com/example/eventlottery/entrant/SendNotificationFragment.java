@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -29,7 +30,8 @@ public class SendNotificationFragment extends Fragment implements EntrantAdapter
 
     private RecyclerView entrantsRecyclerView;
     private EditText messageInput;
-    private Button backButton, sendNotificationButton;
+    private Button sendNotificationButton;
+    private ImageButton backButton;
 
     private ProfileRepository profileRepository;
     private EntrantAdapter adapter;

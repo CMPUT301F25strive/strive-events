@@ -93,10 +93,10 @@ public class MockEventRepository implements EventRepository {
     /**
      * This method uses the Lottery System to draw automatically
      *
-     * @param eventID : unique ID of the event
+     * @param event : event object
      */
     @Override
-    public void autoDraw(String eventID) {
+    public void autoDraw(Event event) {
 
     }
 }

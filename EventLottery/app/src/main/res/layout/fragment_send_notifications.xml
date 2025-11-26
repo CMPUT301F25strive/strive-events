@@ -1,60 +1,119 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/sendNotificationRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
     tools:context=".entrant.SendNotificationFragment">
 
-    <!-- Back Button -->
-    <Button
-        android:id="@+id/backButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Back" />
-
-    <!-- Message Input -->
-    <EditText
-        android:id="@+id/messageInput"
+    <!-- === TOP BAR (EXACT SAME AS EVENT DETAIL) === -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/topBarLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Enter notification message"
-        android:layout_marginTop="16dp" />
+        android:layout_height="56dp"
+        android:paddingTop="16dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <!-- Send Notification Button -->
-    <Button
-        android:id="@+id/sendNotificationButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Send Notification"
-        android:layout_marginTop="8dp" />
+        <ImageButton
+            android:id="@+id/backButton"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/back"
+            android:padding="4dp"
+            android:src="@drawable/ic_baseline_chevron_left_36"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
-    <!-- Empty view if no entrants -->
-    <TextView
-        android:id="@+id/emptyView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="No entrants found"
-        android:visibility="gone"
-        android:gravity="center"
-        android:padding="16dp"
-        android:textSize="16sp"
-        android:textColor="@android:color/darker_gray" />
+        <TextView
+            android:id="@+id/appNameText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Make Announcement"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:gravity="center"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Entrants RecyclerView -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/entrantsRecyclerView"
+    <!-- === SCROLL CONTENT === -->
+    <ScrollView
+        android:id="@+id/scrollArea"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="8dp"
-        android:clipToPadding="false"
-        android:scrollbars="vertical" />
+        android:layout_marginTop="56dp"
+        android:paddingStart="20dp"
+        android:paddingTop="12dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="100dp"
+        app:layout_constraintTop_toBottomOf="@id/topBarLayout"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-</LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
+            <!-- MESSAGE INPUT -->
+            <EditText
+                android:id="@+id/messageInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Enter notification message"
+                android:layout_marginTop="16dp" />
 
+            <!-- Empty view -->
+            <TextView
+                android:id="@+id/emptyView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No entrants found"
+                android:visibility="gone"
+                android:gravity="center"
+                android:padding="16dp"
+                android:textSize="16sp"
+                android:textColor="@android:color/darker_gray" />
 
+            <!-- RecyclerView -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/entrantsRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:nestedScrollingEnabled="false"
+                android:layout_marginTop="8dp" />
 
+        </LinearLayout>
+    </ScrollView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/sendNotificationButton"
+        style="@style/Widget.Material3.Button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Notify"
+        android:textColor="@android:color/white"
+        android:padding="16dp"
+        app:backgroundTint="@color/primary"
+
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="20dp"
+
+        app:cornerRadius="30dp"
+        app:elevation="12dp"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
