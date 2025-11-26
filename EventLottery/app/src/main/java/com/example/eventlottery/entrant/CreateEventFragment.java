@@ -170,68 +170,171 @@ public class CreateEventFragment extends Fragment {
         }
     }
 
-    private void showDatePicker(TextInputEditText dateField, TextInputEditText timeField, Calendar calendar) {
+    /**
+     * Generic date picker used for dates of event and its registration period
+     * @param targetDateField: the TextInputEditText object for date
+     * @param relatedTimeField: the TextInputEditText object for time
+     * @param targetCalendar: the Calendar object
+     */
+    private void showDatePicker(TextInputEditText targetDateField,
+                                TextInputEditText relatedTimeField,
+                                @Nullable Calendar targetCalendar) {
         Calendar now = Calendar.getInstance();
-        DatePickerDialog datePicker = new DatePickerDialog(requireContext(),
+
+        // Create and configure the date picker dialog
+        DatePickerDialog datePicker = new DatePickerDialog(
+                requireContext(),
                 (view, year, month, day) -> {
-                    calendar.set(year, month, day);
-                    String formatted = String.format(Locale.getDefault(), "%02d/%02d/%04d", day, month + 1, year);
-                    dateField.setText(formatted);
-                    if (timeField.getText().toString().trim().isEmpty()) {
-                        calendar.set(Calendar.HOUR_OF_DAY, 0);
-                        calendar.set(Calendar.MINUTE, 0);
-                        timeField.setText("00:00");
+                    if (targetCalendar != null) {
+                        // Update the target calendar with the selected date
+                        targetCalendar.set(Calendar.YEAR, year);
+                        targetCalendar.set(Calendar.MONTH, month);
+                        targetCalendar.set(Calendar.DAY_OF_MONTH, day);
+                    }
+
+                    // Format the selected date
+                    String formatted = String.format(
+                            Locale.getDefault(),    // Use device's locale for formatting
+                            "%02d/%02d/%04d",   // Format: DD/MM/YYYY
+                            day, month + 1, year    // month is 0-based
+                    );
+                    targetDateField.setText(formatted);
+
+                    // If the related time is empty, set it to default time
+                    if (relatedTimeField != null
+                            && relatedTimeField.getText() != null
+                            && relatedTimeField.getText().toString().trim().isEmpty()) {
+
+                        // Set the time to be 00:00
+                        if (targetCalendar != null) {
+                            targetCalendar.set(Calendar.HOUR_OF_DAY, 0);
+                            targetCalendar.set(Calendar.MINUTE, 0);
+                            targetCalendar.set(Calendar.SECOND, 0);
+                            targetCalendar.set(Calendar.MILLISECOND, 0);
+                        }
+                        relatedTimeField.setText("00:00");
                     }
                 },
-                now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));
+                now.get(Calendar.YEAR),
+                now.get(Calendar.MONTH),
+                now.get(Calendar.DAY_OF_MONTH)
+        );
+
+        // Disallow all dates before today
         datePicker.getDatePicker().setMinDate(now.getTimeInMillis());
         datePicker.show();
     }
 
-    private void showTimePicker(TextInputEditText timeField, TextInputEditText dateField, Calendar calendar) {
-        Calendar now = Calendar.getInstance();
-        int hour = now.get(Calendar.HOUR_OF_DAY);
-        int minute = now.get(Calendar.MINUTE);
+    /**
+     * Generic time picker used for time of event and registration period
+     * @param targetTimeField: the TextInputEditText object for time
+     * @param relatedDateField: the TextInputEditText object for date
+     * @param targetCalendar: the Calendar object
+     */
+    private void showTimePicker(TextInputEditText targetTimeField,
+                                TextInputEditText relatedDateField,
+                                @Nullable Calendar targetCalendar) {
 
+        // Get current time to use as default values
+        Calendar now = Calendar.getInstance();
+        int currentHour = now.get(Calendar.HOUR_OF_DAY);    // 24-hour format (0-23)
+        int currentMinute = now.get(Calendar.MINUTE);
+
+        // Read the selected date to check if it's the current day (today)
         Calendar selectedDate = Calendar.getInstance();
-        String dateText = dateField.getText().toString().trim();
+        String dateText = relatedDateField.getText() != null
+                ? relatedDateField.getText().toString().trim() : "";
+
+        // Parse the string of date
         if (!dateText.isEmpty()) {
             String[] parts = dateText.split("/");
-            try {
-                int day = Integer.parseInt(parts[0]);
-                int month = Integer.parseInt(parts[1]) - 1;
-                int year = Integer.parseInt(parts[2]);
-                selectedDate.set(year, month, day);
-            } catch (NumberFormatException ignored) {
+            if (parts.length == 3) {
+                try {
+                    int day = Integer.parseInt(parts[0]);
+                    int month = Integer.parseInt(parts[1]) - 1; // 0-based month
+                    int year = Integer.parseInt(parts[2]);
+                    selectedDate.set(year, month, day);
+                } catch (NumberFormatException ignored) {
+                    // If fail to parse, default to current date
+                    selectedDate.setTime(now.getTime());
+                }
+            } else {
+                // If the date format is invalid, default to current date
                 selectedDate.setTime(now.getTime());
             }
+        } else {
+            // If no date selected, default to current date
+            selectedDate.setTime(now.getTime());
         }
 
-        TimePickerDialog timePicker = new TimePickerDialog(requireContext(),
+        // Create and configure the time picker dialog
+        TimePickerDialog timePicker = new TimePickerDialog(
+                requireContext(),
                 (view, selectedHour, selectedMinute) -> {
+
+                    // Check if the selected date is today
                     boolean isToday = selectedDate.get(Calendar.YEAR) == now.get(Calendar.YEAR)
                             && selectedDate.get(Calendar.DAY_OF_YEAR) == now.get(Calendar.DAY_OF_YEAR);
 
-                    if (isToday && (selectedHour < hour || (selectedHour == hour && selectedMinute < minute))) {
-                        Toast.makeText(requireContext(), "Cannot select past time", Toast.LENGTH_SHORT).show();
-                        return;
+                    // If the selected date is today, block past times
+                    if (isToday &&
+                            (selectedHour < currentHour || (selectedHour == currentHour && selectedMinute < currentMinute))
+                    ) {
+                        Toast.makeText(requireContext(),
+                                "Cannot select past time", Toast.LENGTH_SHORT).show();
+                        return; // Cancel selection and exit
                     }
 
-                    calendar.set(Calendar.HOUR_OF_DAY, selectedHour);
-                    calendar.set(Calendar.MINUTE, selectedMinute);
-
-                    timeField.setText(String.format(Locale.getDefault(), "%02d:%02d", selectedHour, selectedMinute));
-
-                    if (dateField.getText().toString().trim().isEmpty()) {
-                        dateField.setText(String.format(Locale.getDefault(), "%02d/%02d/%04d",
-                                now.get(Calendar.DAY_OF_MONTH),
-                                now.get(Calendar.MONTH) + 1,
-                                now.get(Calendar.YEAR)));
-                        calendar.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));
+                    if (targetCalendar != null) {
+                        // Update the target calendar with the selected time
+                        targetCalendar.set(Calendar.HOUR_OF_DAY, selectedHour);
+                        targetCalendar.set(Calendar.MINUTE, selectedMinute);
+                        targetCalendar.set(Calendar.SECOND, 0);
+                        targetCalendar.set(Calendar.MILLISECOND, 0);
                     }
-                }, hour, minute, false);
+
+                    // Format the selected time
+                    String formatted = String.format(
+                            Locale.getDefault(),
+                            "%02d:%02d",    // Format: HH:MM (24-hour format)
+                            selectedHour, selectedMinute
+                    );
+                    targetTimeField.setText(formatted);
+
+                    // If the related date is empty, set default date to today
+                    if (relatedDateField != null
+                            && relatedDateField.getText() != null
+                            && relatedDateField.getText().toString().trim().isEmpty()) {
+
+                        // Get today's date
+                        int year = now.get(Calendar.YEAR);
+                        int month = now.get(Calendar.MONTH);
+                        int day = now.get(Calendar.DAY_OF_MONTH);
+
+                        // Set the date
+                        if (targetCalendar != null) {
+                            targetCalendar.set(Calendar.YEAR, year);
+                            targetCalendar.set(Calendar.MONTH, month);
+                            targetCalendar.set(Calendar.DAY_OF_MONTH, day);
+                        }
+                        // Format today's date
+                        formatted = String.format(
+                                Locale.getDefault(),    // Use device's locale for formatting
+                                "%02d/%02d/%04d",   // Format: DD/MM/YYYY
+                                day, month + 1, year    // month is 0-based
+                        );
+                        relatedDateField.setText(formatted);
+                    }
+                },
+                currentHour,
+                currentMinute,
+                false   // 12h format is convenient to set lol
+                // 24-hour format (true) or 12-hour AM/PM format (false)
+        );
+
         timePicker.show();
     }
+
 
     private void saveEvent(View root) {
         String title = editTextTitle.getText().toString().trim();
@@ -322,7 +425,6 @@ public class CreateEventFragment extends Fragment {
             Toast.makeText(requireContext(), "QR generation failed: " + e, Toast.LENGTH_LONG).show();
         }
     }
-
     private void showQrDialog(Bitmap qrBitmap) {
         ImageView image = new ImageView(requireContext());
         image.setImageBitmap(qrBitmap);
