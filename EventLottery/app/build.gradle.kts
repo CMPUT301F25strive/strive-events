@@ -69,4 +69,6 @@ dependencies {
     // QR Scanner
     implementation(libs.qr.scanner)
 
+    // Google Places Autocomplete - REMOVED, using Nominatim instead
+    // implementation("com.google.android.libraries.places:places:3.5.0")
 }

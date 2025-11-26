@@ -9,7 +9,6 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.cloudinary.android.MediaManager;
 import com.cloudinary.android.callback.ErrorInfo;
-import com.cloudinary.android.callback.UploadCallback;
 import com.example.eventlottery.model.Event;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -145,6 +144,7 @@ public class FirebaseEventRepository implements EventRepository {
             int waitingListSpots,
             @NonNull String deviceId,
             Event.Tag tag,
+            boolean geolocationEnabled,   // ⚡️ KEEP THIS
             @NonNull UploadCallback callback
     ) {
         // Generate unique event ID
@@ -154,7 +154,7 @@ public class FirebaseEventRepository implements EventRepository {
         if (imageUri == null) {
             saveEventToFirestore(eventId, title, description, location,
                     eventStartTimeMillis, regStartTimeMillis, regEndTimeMillis,
-                    capacity, waitingListSpots, deviceId, null, tag, callback);
+                    capacity, waitingListSpots, deviceId, null, tag, geolocationEnabled, callback); // ⚡️ ADD HERE
             return;
         }
 
@@ -192,18 +192,16 @@ public class FirebaseEventRepository implements EventRepository {
                         // Save event with poster URL
                         saveEventToFirestore(eventId, title, description, location,
                                 eventStartTimeMillis, regStartTimeMillis, regEndTimeMillis,
-                                capacity, waitingListSpots, deviceId, imageUrl, tag, callback);
+                                capacity, waitingListSpots, deviceId, imageUrl, tag, geolocationEnabled, callback); // ⚡️ ADD HERE
                     }
 
                     @Override
                     public void onError(String requestId, ErrorInfo error) {
-                        // Notify callback on upload error
                         callback.onComplete(false, "Failed to upload image: " + error.getDescription(), null);
                     }
 
                     @Override
                     public void onReschedule(String requestId, ErrorInfo error) {
-                        // Notify callback if upload rescheduled
                         callback.onComplete(false, "Upload rescheduled: " + error.getDescription(), null);
                     }
                 })
@@ -223,6 +221,7 @@ public class FirebaseEventRepository implements EventRepository {
             String deviceId,
             String posterUrl,
             Event.Tag tag,
+            boolean geolocationEnabled,  // ⚡️ RECEIVED HERE
             UploadCallback callback
     ) {
         // Create event object
@@ -232,6 +231,9 @@ public class FirebaseEventRepository implements EventRepository {
 
         // Set device ID of organizer
         event.setOrganizerId(deviceId);
+
+        // ⚡️ SAVE GEOLOCATION FLAG
+        event.setGeolocationEnabled(geolocationEnabled);
 
         // Save event to Firestore
         eventsRef.document(eventId)

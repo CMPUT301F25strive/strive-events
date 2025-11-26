@@ -396,7 +396,15 @@
                     android:hint="Waiting List Spots"
                     android:inputType="number"/>
             </com.google.android.material.textfield.TextInputLayout>
-
+            <Switch
+                android:id="@+id/switchGeolocation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Geolocation"
+                android:checked="false"
+                android:layout_marginTop="12dp"
+                app:layout_constraintTop_toBottomOf="@id/editTextLocation"
+                app:layout_constraintStart_toStartOf="parent" />
             <!-- Save Button -->
             <Button
                 android:id="@+id/buttonSaveEvent"
