@@ -10,6 +10,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.cloudinary.android.MediaManager;
 import com.cloudinary.android.callback.ErrorInfo;
 import com.example.eventlottery.model.Event;
+import com.example.eventlottery.model.LotterySystem;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -51,8 +52,9 @@ public class FirebaseEventRepository implements EventRepository {
                     if (event.getWaitingList() == null) event.setWaitingList(new ArrayList<>());
                     if (event.getAttendeesList() == null) event.setAttendeesList(new ArrayList<>());
 
-                    // Monitor event status
+                    // Monitor event's status and lists to draw automatically
                     Event.Status oldStatus = event.getStatus();
+                    autoDraw(event);
                     event.refreshStatus();
 
                     // Update Firestore if status changed
@@ -105,9 +107,86 @@ public class FirebaseEventRepository implements EventRepository {
                 .addOnFailureListener(Throwable::printStackTrace);
     }
 
-    // ============================================================
-    // DELETE EVENT
-    // ============================================================
+    /**
+     * This method updates the list of invited entrants for an event.
+     *
+     * @param eventID     : unique ID of the event
+     * @param invitedList : the list of invited entrant IDs
+     */
+    @Override
+    public void updateInvitedList(String eventID, List<String> invitedList) {
+        // Update invited entrants list in Firestore
+        eventsRef.document(eventID)
+                .update("invitedList", invitedList)
+                .addOnFailureListener(Throwable::printStackTrace);
+    }
+
+    @Override
+    public void updateAttendeesList(String eventID, List<String> attendeesList) {
+
+    }
+
+    @Override
+    public void updateCanceledList(String eventID, List<String> canceledList) {
+
+    }
+
+    /**
+     * This method uses the Lottery System to draw automatically
+     * @param eventID : unique ID of the event
+     */
+    public void autoDraw(Event event) {
+        if (event == null) return;
+
+        // Only run between reg end and event start
+        if (!event.isRegEnd() || event.isEventStarted()) {
+            return;
+        }
+
+        // Get the copy of all lists
+        List<String> invited = new ArrayList<>(event.getInvitedList());
+        List<String> attended = new ArrayList<>(event.getAttendeesList());
+        List<String> canceled = new ArrayList<>(event.getCanceledList());
+
+        // Get the pending entrants who haven't made the decision
+        List<String> pending = new ArrayList<>(invited);
+        pending.removeAll(attended);
+        pending.removeAll(canceled);
+        int openSlots = event.getCapacity() - attended.size() - pending.size();
+
+        if (openSlots <= 0) {
+            // If no more slots to fill, do nothing
+            return;
+        }
+
+        // Make a sampling pool for entrants who have never been invited
+        List<String> pool = new ArrayList<>(event.getWaitingList());
+        pool.removeAll(invited);
+        pool.removeAll(attended);
+        pool.removeAll(canceled);
+
+        if (pool.isEmpty()) {
+            // If no one left to invite, do nothing
+            return;
+        }
+
+        // Run a draw for the specified open slots
+        List<String> winners = LotterySystem.drawRounds(pool, openSlots);
+
+        // Add those winners to the invited list
+        invited.addAll(winners);
+        event.setInvitedList(invited);
+
+        // Set status to DRAWN if no previous draws made
+        if (event.getStatus() != Event.Status.DRAWN) {
+            event.setStatus(Event.Status.DRAWN);
+        }
+
+        // Persist invited list to Firebase
+        updateInvitedList(event.getId(), invited);
+    }
+
+
     @Override
     public void deleteEvent(String eventId) {
         // Remove event document from Firestore
@@ -144,7 +223,7 @@ public class FirebaseEventRepository implements EventRepository {
             int waitingListSpots,
             @NonNull String deviceId,
             Event.Tag tag,
-            boolean geolocationEnabled,   // ⚡️ KEEP THIS
+            boolean geolocationEnabled,
             @NonNull UploadCallback callback
     ) {
         // Generate unique event ID
@@ -221,7 +300,7 @@ public class FirebaseEventRepository implements EventRepository {
             String deviceId,
             String posterUrl,
             Event.Tag tag,
-            boolean geolocationEnabled,  // ⚡️ RECEIVED HERE
+            boolean geolocationEnabled,
             UploadCallback callback
     ) {
         // Create event object
@@ -232,7 +311,7 @@ public class FirebaseEventRepository implements EventRepository {
         // Set device ID of organizer
         event.setOrganizerId(deviceId);
 
-        // ⚡️ SAVE GEOLOCATION FLAG
+        // SAVE GEOLOCATION FLAG
         event.setGeolocationEnabled(geolocationEnabled);
 
         // Save event to Firestore

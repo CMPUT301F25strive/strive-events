@@ -38,6 +38,17 @@ public interface EventRepository {
     void updateWaitingList(String eventID, List<String> waitingList);
 
     /**
+     * This method updates the list of invited entrants for an event.
+     * @param eventID: unique ID of the event
+     * @param invitedList: the list of invited entrant IDs
+     */
+    void updateInvitedList(String eventID, List<String> invitedList);
+
+    void updateAttendeesList(String eventID, List<String> attendeesList);
+
+    void updateCanceledList(String eventID, List<String> canceledList);
+
+    /**
      * Remove an event from the catalogue.
      */
     void deleteEvent(String eventId);
@@ -47,5 +58,9 @@ public interface EventRepository {
      */
     void removeEventPoster(String eventId);
 
-
+    /**
+     * This method uses the Lottery System to draw automatically
+     * @param event: event object
+     */
+    void autoDraw(Event event);
 }

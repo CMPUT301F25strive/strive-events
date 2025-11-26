@@ -68,4 +68,35 @@ public class MockEventRepository implements EventRepository {
     @Override
     public void updateWaitingList(String eventID, List<String> waitingList) {
     }
+
+    /**
+     * This method updates the list of invited entrants for an event.
+     *
+     * @param eventID     : unique ID of the event
+     * @param invitedList : the list of invited entrant IDs
+     */
+    @Override
+    public void updateInvitedList(String eventID, List<String> invitedList) {
+
+    }
+
+    @Override
+    public void updateAttendeesList(String eventID, List<String> attendeesList) {
+
+    }
+
+    @Override
+    public void updateCanceledList(String eventID, List<String> canceledList) {
+
+    }
+
+    /**
+     * This method uses the Lottery System to draw automatically
+     *
+     * @param event : event object
+     */
+    @Override
+    public void autoDraw(Event event) {
+
+    }
 }
