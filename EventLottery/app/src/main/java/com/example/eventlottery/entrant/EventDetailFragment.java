@@ -31,6 +31,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -173,8 +174,11 @@ public class EventDetailFragment extends Fragment {
 
             if (mapFragment != null) {
                 mapFragment.getMapAsync(googleMap -> {
-                    // Fetch user locations from repository
                     eventRepository.getEventUserLocations(currentEvent.getId(), locations -> {
+                        if (locations.isEmpty()) return;
+
+                        LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
+
                         for (Event.UserLocation loc : locations) {
                             if (loc.latitude != null && loc.longitude != null) {
                                 LatLng pos = new LatLng(loc.latitude, loc.longitude);
@@ -182,14 +186,13 @@ public class EventDetailFragment extends Fragment {
                                         .position(pos)
                                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
                                         .title("User: " + loc.deviceId));
+
+                                boundsBuilder.include(pos);
                             }
                         }
 
-                        // Move camera to first location if available
-                        if (!locations.isEmpty()) {
-                            LatLng first = new LatLng(locations.get(0).latitude, locations.get(0).longitude);
-                            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(first, 12f));
-                        }
+                        // Move camera to include all markers
+                        googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 150));
                     });
                 });
             }
