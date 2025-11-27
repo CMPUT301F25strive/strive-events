@@ -227,5 +227,4 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
         Navigation.findNavController(requireView()).navigate(action);
     }
 
-
 }

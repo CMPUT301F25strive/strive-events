@@ -17,7 +17,7 @@ public class WaitingListController {
     private final ProfileRepository profileRepository;
 
     /**
-     * Constructor
+     * This is a constructor of WaitingListController with the given Profile and Event Repository
      * @param eventRepository repository for managing events (interface)
      * @param profileRepository repository for managing user profiles
      */
@@ -27,7 +27,7 @@ public class WaitingListController {
     }
 
     /**
-     * Join waiting list, optionally providing device location.
+     * This methods adds entrants based on their entrantID to the waiting list to the event specified by eventID
      * Updates both waitingList and userLocations in Firestore.
      * @param eventID event ID
      * @param userID device/user ID
@@ -36,10 +36,12 @@ public class WaitingListController {
     public void joinWaitingList(String eventID, String userID, @Nullable Location location) {
         Event event = eventRepository.findEventById(eventID);
         if (event == null) {
+            // Event not in local cache yet
             System.out.println("joinWaitingList: event not loaded for id=" + eventID);
             return;
         }
 
+        // Only allow joining within registration period and when the waiting list has spots
         if (!event.isRegOpen() || event.isWaitingListFull()) {
             System.out.println("Cannot join waiting list");
             return;
@@ -76,7 +78,7 @@ public class WaitingListController {
     }
 
     /**
-     * Leave waiting list and optionally remove stored location.
+     * This method removes entrants from waiting list and optionally remove stored location.
      * Updates both waitingList and userLocations in Firestore.
      * @param eventID event ID
      * @param userID device/user ID

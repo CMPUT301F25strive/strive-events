@@ -50,7 +50,7 @@ public class EventDetailFragment extends Fragment {
     private Event currentEvent;
 
     private boolean isAdmin = false;
-    private boolean isOrganizer = false;
+    private boolean isOwner = false;
 
     private String deviceId;
 
@@ -112,7 +112,7 @@ public class EventDetailFragment extends Fragment {
         currentEvent = event;
 
         // Set flags FIRST ------------------------------------------------------------------
-        isOrganizer = deviceId.equals(event.getOrganizerId());
+        isOwner = deviceId.equals(event.getOrganizerId());
         isAdmin = AdminGate.isAdmin(requireContext());
 
         // Re-check admin using profile data (updates if needed)
@@ -151,7 +151,7 @@ public class EventDetailFragment extends Fragment {
             Toast.makeText(requireContext(), "Geolocation is required for this event", Toast.LENGTH_SHORT).show();
         }
         // send notification button in the event details screen
-        if (isAdmin || isOrganizer) {
+        if (isAdmin || isOwner) {
             binding.sendNotificationButton.setVisibility(View.VISIBLE);
             binding.sendNotificationButton.setOnClickListener(v ->
                     NavHostFragment.findNavController(this)
@@ -169,7 +169,7 @@ public class EventDetailFragment extends Fragment {
         if (currentEvent == null) return;
 
         // Only show map if geolocation is enabled AND user is admin or organizer
-        if (currentEvent.isGeolocationEnabled() && (isAdmin || isOrganizer)) {
+        if (currentEvent.isGeolocationEnabled() && (isAdmin || isOwner)) {
             binding.mapContainer.setVisibility(View.VISIBLE);
 
             SupportMapFragment mapFragment = (SupportMapFragment)
@@ -310,14 +310,17 @@ public class EventDetailFragment extends Fragment {
      * @return the corresponding String format
      */
     private String getDisplayTag(@Nullable Event.Tag tag) {
+        // If tag is missing
         if (tag == null) return "Other";
 
+        // Render the given tag
         switch (tag) {
             case ART:        return "Art";
             case MUSIC:      return "Music";
             case EDUCATION:  return "Education";
             case SPORTS:     return "Sports";
             case PARTY:      return "Party";
+            // If mismatched, return the exact enum constant name as a String
             default:         return tag.name();
         }
     }
@@ -330,13 +333,16 @@ public class EventDetailFragment extends Fragment {
      */
     private String getDisplayStatus(@NonNull Event event) {
         Event.Status status = event.getStatus();
+        // If status is missing
         if (status == null) return "Unknown";
 
+        // Render the given status
         switch (status) {
             case REG_OPEN:      return "Registration open";
             case REG_CLOSED:    return "Registration closed";
             case DRAWN:         return "Lottery drawn";
             case FINALIZED:     return "Finalized";
+            // If mismatched, return the exact enum constant name as a String
             default:            return status.name();
         }
     }
@@ -347,10 +353,12 @@ public class EventDetailFragment extends Fragment {
         binding.buttonContainer.setVisibility(View.VISIBLE);
         setupJoinButton(event, userID);
 
-        if (!event.isRegOpen() || event.isWaitingListFull() || isOrganizer) {
+        // Cannot join if the event is out of registration period, the waiting list is full, or it's their own event
+        if (!event.isRegOpen() || event.isWaitingListFull() || isOwner) {
             binding.joinEventButton.setVisibility(View.GONE);
         }
 
+        // If already in the waiting list, we can always leave before status.DRAWN
         if (event.isOnWaitingList(userID)
                 && (event.isRegOpen() || event.isRegClosed())) {
             binding.joinEventButton.setVisibility(View.VISIBLE);
@@ -358,9 +366,16 @@ public class EventDetailFragment extends Fragment {
     }
 
     private void configAdminButtons(@NonNull Event event){
-        boolean canDeleteEvent = isAdmin || isOrganizer;
+        // Delete: admin or event owner
+        boolean canDeleteEvent = isAdmin || isOwner;
         binding.adminDeleteButton.setVisibility(canDeleteEvent ? View.VISIBLE : View.GONE);
-        if (canDeleteEvent) {
+
+        // Only the owner of the event can view the waiting list
+        binding.viewWaitingListButton.setVisibility(
+                isOwner ? View.VISIBLE : View.GONE
+        );
+
+        if (isOwner) {
             binding.viewWaitingListButton.setOnClickListener(v -> {
                 if (currentEvent == null) return;
 
@@ -370,6 +385,12 @@ public class EventDetailFragment extends Fragment {
                 NavHostFragment.findNavController(this)
                         .navigate(R.id.action_eventDetailFragment_to_waitingListFragment, bundle);
             });
+        } else {
+            // If not the owner, clear the listener
+            binding.viewWaitingListButton.setOnClickListener(null);
+        }
+
+        if (canDeleteEvent) {
             binding.adminDeleteButton.setOnClickListener(v -> {
                 if (currentEvent == null) return;
                 new MaterialAlertDialogBuilder(requireContext())
@@ -441,7 +462,7 @@ public class EventDetailFragment extends Fragment {
     // ------------------------------------------------------------------------------
 
     private void performDelete() {
-        if (!isAdmin && !isOrganizer) return;
+        if (!isAdmin && !isOwner) return;
 
         try {
             eventRepository.deleteEvent(currentEvent.getId());
