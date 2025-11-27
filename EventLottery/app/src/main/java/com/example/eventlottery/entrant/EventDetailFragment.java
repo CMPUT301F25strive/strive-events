@@ -204,17 +204,17 @@ public class EventDetailFragment extends Fragment {
     // ------------------------------------------------------------------------------
 
     private void bindEvent(@NonNull Event event) {
-        // Poster
         if (!TextUtils.isEmpty(event.getPosterUrl())) {
+            binding.posterWatermark.setVisibility(View.GONE);
             Glide.with(requireContext())
                     .load(event.getPosterUrl())
                     .into(binding.eventDetailPoster);
         } else {
             binding.eventDetailPoster.setImageResource(R.drawable.event_image_placeholder);
+            binding.posterWatermark.setVisibility(View.VISIBLE);
         }
 
         binding.eventDetailTitle.setText(event.getTitle());
-
         fetchAndDisplayOrganizerName(event.getOrganizerId());
 
         // Event date/time

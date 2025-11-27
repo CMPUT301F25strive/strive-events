@@ -73,13 +73,16 @@ public class EventListAdapter extends ListAdapter<Event, EventListAdapter.EventV
         void bind(@NonNull Event event) {
             boundEvent = event;
 
-            // === POSTER ===
+            // === POSTER + WATERMARK ===
             if (event.getPosterUrl() != null && !event.getPosterUrl().isEmpty()) {
                 Glide.with(binding.getRoot().getContext())
                         .load(event.getPosterUrl())
+                        .placeholder(R.drawable.event_image_placeholder)
                         .into(binding.eventPoster);
+                binding.posterWatermark.setVisibility(View.GONE); // hide watermark if poster exists
             } else {
                 binding.eventPoster.setImageResource(R.drawable.event_image_placeholder);
+                binding.posterWatermark.setVisibility(View.VISIBLE); // show watermark if no poster
             }
 
             // === TITLE ===

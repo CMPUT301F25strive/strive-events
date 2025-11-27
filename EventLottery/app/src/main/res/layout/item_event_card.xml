@@ -16,19 +16,40 @@
         android:layout_height="wrap_content"
         android:padding="18dp">
 
-        <ImageView
-            android:id="@+id/eventPoster"
+        <!-- Poster with watermark overlay -->
+        <FrameLayout
+            android:id="@+id/posterContainer"
             android:layout_width="128dp"
             android:layout_height="128dp"
-            android:contentDescription="@string/event_poster_content_description"
-            android:src="@drawable/poster_puppy"
-            android:scaleType="centerCrop"
-            android:clipToOutline="true"
-            android:background="@drawable/event_image_placeholder"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent">
 
+            <ImageView
+                android:id="@+id/eventPoster"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/event_poster_content_description"
+                android:scaleType="centerCrop"
+                android:clipToOutline="true"
+                android:background="@drawable/event_image_placeholder" />
+
+            <TextView
+                android:id="@+id/posterWatermark"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="N/A"
+                android:textColor="#20FFFFFF"
+                android:textSize="64sp"
+                android:textStyle="bold"
+                android:rotation="-45"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+
+        </FrameLayout>
+
+        <!-- Text content -->
         <LinearLayout
             android:id="@+id/eventTextContainer"
             android:layout_width="0dp"
@@ -36,7 +57,7 @@
             android:layout_marginEnd="16dp"
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/eventPoster"
+            app:layout_constraintEnd_toStartOf="@id/posterContainer"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -139,6 +160,7 @@
                     android:textAppearance="?attr/textAppearanceBodySmall"
                     android:textColor="@color/purple_500" />
             </LinearLayout>
+
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

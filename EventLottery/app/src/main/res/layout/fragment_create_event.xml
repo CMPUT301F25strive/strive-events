@@ -82,8 +82,20 @@
                     android:contentDescription="Event Poster"
                     android:src="@drawable/event_image_placeholder"
                     android:clipToOutline="true"/>
-            </FrameLayout>
 
+                <TextView
+                    android:id="@+id/watermarkText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Click To Select Poster"
+                    android:textColor="#50FFFFFF"
+                    android:textSize="48sp"
+                    android:textStyle="bold"
+
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:letterSpacing="0.1"/>
+            </FrameLayout>
             <!-- Title -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"

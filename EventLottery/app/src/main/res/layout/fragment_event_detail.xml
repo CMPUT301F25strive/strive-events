@@ -65,8 +65,10 @@
 
             <!-- Poster with admin remove overlay -->
             <FrameLayout
+                android:id="@+id/posterContainer"
                 android:layout_width="match_parent"
-                android:layout_height="200dp">
+                android:layout_height="200dp"
+                android:layout_marginTop="16dp">
 
                 <ImageView
                     android:id="@+id/eventDetailPoster"
@@ -74,11 +76,21 @@
                     android:layout_height="match_parent"
                     android:contentDescription="@string/event_poster_content_description"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/poster_swim"
-                    android:elevation="2dp"
-                    android:background="@drawable/detail_poster_outline"
-                    android:outlineProvider="background"
-                    android:clipToOutline="true" />
+                    android:clipToOutline="true"
+                    android:background="@drawable/event_image_placeholder" />
+
+                <TextView
+                    android:id="@+id/posterWatermark"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="POSTER NOT FOUND"
+                    android:textColor="#20FFFFFF"
+                    android:textSize="32sp"
+                    android:textStyle="bold"
+                    android:rotation="-45"
+                    android:gravity="center"
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
 
                 <ImageButton
                     android:id="@+id/posterRemoveButton"
@@ -92,7 +104,6 @@
                     android:contentDescription="@string/admin_poster_delete_content_description"
                     android:visibility="gone" />
             </FrameLayout>
-
             <!-- Title -->
             <TextView
                 android:id="@+id/eventDetailTitle"
