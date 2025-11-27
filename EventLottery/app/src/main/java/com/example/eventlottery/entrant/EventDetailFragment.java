@@ -206,7 +206,7 @@ public class EventDetailFragment extends Fragment {
                         }
 
                         // Move camera to include all markers
-                        googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 150));
+                        googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 200));
                     });
                 });
             }
