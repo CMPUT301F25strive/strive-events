@@ -1,9 +1,7 @@
 package com.example.eventlottery;
 
 import static com.example.eventlottery.model.Event.Status.REG_OPEN;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import com.example.eventlottery.model.Event;
 import com.example.eventlottery.model.LotterySystem;
@@ -11,10 +9,7 @@ import com.example.eventlottery.model.Profile;
 
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This is a test class for Lottery system
@@ -39,62 +34,71 @@ public class LotterySystemTest {
      * This tests the lottery system draws entrants from the right number of people from waiting list.
      */
     @Test
-    public void testLotteryDraw() {
+    public void testLotteryDraw_DesiredNumber() {
         event.joinWaitingList(userProfile_1.getDeviceID());
         event.joinWaitingList(userProfile_2.getDeviceID());
         event.joinWaitingList(userProfile_3.getDeviceID());
         event.joinWaitingList(userProfile_4.getDeviceID());
         event.joinWaitingList(userProfile_5.getDeviceID());
-        List<String> winners_list = LotterySystem.drawRounds(event.getWaitingList(), event.getCapacity());
-        assertEquals(event.getCapacity(), winners_list.size());
+        List<String> winners_list = LotterySystem.drawRounds(event.getWaitingList(), 3);
+        assertEquals(3, winners_list.size());
     }
 
     /**
-     * This tests that the lottery system draws entrants from waiting list with no duplication.
+     * This tests if the lottery system correctly handles duplicates.
      */
     @Test
-    public void testNonDuplicates(){
-        List<String> waitingList = List.of("1BC123456789", "2BC123456789","3BC123456789","4BC123456789","5BC123456789");
-        List<String> winners_list = LotterySystem.drawRounds(waitingList, 3);
+    public void testLotteryDraw_Duplicates(){
+        List<String> waitingList = List.of("1BC123456789", "1BC123456789","1BC123456789","1BC123456789","5BC123456789");
+        List<String> winners_list = LotterySystem.drawRounds(waitingList, 2);
 
         Set<String> uniqueWinners = new HashSet<>(winners_list);
         assertEquals(winners_list.size(), uniqueWinners.size());
     }
 
     /**
-     * This test the function of Draw replacement when a user choose to decline the invitation, a new entrant will be drawn from the pool.
+     * When requested number >= pool size, drawRounds should return the entire pool.
      */
     @Test
-    public  void testReplacementDraw(){
-        List<String> waitingList = List.of("1BC123456789", "2BC123456789","3BC123456789","4BC123456789","5BC123456789");
-        List<String> winners_list = new ArrayList<>(List.of("1BC123456789","2BC123456789","3BC123456789"));
+    public void testLotteryDraw_NumberHoldsPoolSize() {
+        List<String> pool = Arrays.asList(
+                "1BC123456789",
+                "2BC123456789",
+                "3BC123456789"
+        );
 
-        String decclined_entrant = "1BC123456789";
+        List<String> winners = LotterySystem.drawRounds(pool, 10);
 
-        winners_list = LotterySystem.drawReplacement(waitingList,winners_list,decclined_entrant);
-        assertEquals(3, winners_list.size());
-        assertFalse(winners_list.contains("1BC123456789"));
-
-        for (String winner : winners_list) {
-            assertTrue(waitingList.contains(winner));
-        }
+        // Should return all from pool
+        assertEquals(pool.size(), winners.size());
+        assertTrue(winners.containsAll(pool));
     }
 
     /**
-     * This tests the exception that when there's no more available entrant in the pool, the winners list will remain the same.
+     * When the pool is empty, drawRounds should return an empty list.
      */
     @Test
-    public void testReplacementDraw_NoMoreEntrantsInThePool(){
-        List<String> waitingList = List.of("1BC123456789", "2BC123456789","3BC123456789");
-        List<String> winners_list = new ArrayList<>(List.of("1BC123456789","2BC123456789","3BC123456789"));
+    public void testLotteryDraw_EmptyPool() {
+        List<String> pool = new ArrayList<>();
 
-        String declined_entrant = "1BC123456789";
+        List<String> winners = LotterySystem.drawRounds(pool, 2);
 
-        winners_list = LotterySystem.drawReplacement(waitingList,winners_list,declined_entrant);
-        assertEquals(2, winners_list.size());
-        assertFalse(winners_list.contains("1BC123456789"));
-        assertEquals(List.of("2BC123456789", "3BC123456789"), winners_list);
+        assertEquals(0, winners.size());
     }
 
+    /**
+     * When number is 0, drawRounds should return an empty list.
+     */
+    @Test
+    public void testLotteryDraw_Zero() {
+        List<String> pool = Arrays.asList(
+                "1BC123456789",
+                "2BC123456789",
+                "3BC123456789"
+        );
 
+        List<String> winners = LotterySystem.drawRounds(pool, 0);
+
+        assertEquals(0, winners.size());
+    }
 }

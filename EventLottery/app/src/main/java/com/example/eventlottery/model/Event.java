@@ -334,8 +334,8 @@ public class Event implements Serializable {
         long now = System.currentTimeMillis();
 
         // As soon as it starts, it becomes history, and thus eternal ~
-            // Or after all invited entrants accepted
-        if (now >= eventStartTimeMillis || getAttendeesListSize() == capacity) {
+            // Or after all invited entrants accepted (haven't implemented yet)
+        if (isEventStarted()) {
             if (status != Status.FINALIZED) {
                 status = Status.FINALIZED;
             }
@@ -345,7 +345,7 @@ public class Event implements Serializable {
         // DRAWN is set after the initial sampling.
         //  It is b/t reg end time and event start time
         //  and before all attendees are confirmed
-        if (status == Status.DRAWN && !isEventStarted() && now > regEndTimeMillis) {
+        if (status == Status.DRAWN && !isEventStarted() && isRegEnd()) {
             return; // Freeze DRAWN status
         }
 

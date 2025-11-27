@@ -123,24 +123,37 @@ public class FirebaseEventRepository implements EventRepository {
 
     @Override
     public void updateAttendeesList(String eventID, List<String> attendeesList) {
-
+        // Update attendees list in Firestore
+        eventsRef.document(eventID)
+                .update("attendeesList", attendeesList)
+                .addOnFailureListener(Throwable::printStackTrace);
     }
 
     @Override
     public void updateCanceledList(String eventID, List<String> canceledList) {
-
+        // Update canceled entrants list in Firestore
+        eventsRef.document(eventID)
+                .update("canceledList", canceledList)
+                .addOnFailureListener(Throwable::printStackTrace);
     }
 
     /**
-     * This method uses the Lottery System to draw automatically
-     * @param eventID : unique ID of the event
+     * This method is the pure helper function of checking, executing draws, and updating status to "DRAWN"
+     * @param event: the event object
      */
-    public void autoDraw(Event event) {
+    public static void runAutoDrawLogic(Event event) {
+        // Prevent the unknown event
         if (event == null) return;
 
         // Only run between reg end and event start
         if (!event.isRegEnd() || event.isEventStarted()) {
             return;
+        }
+
+        // Set status to DRAWN if no previous draws made and not finalized
+        Event.Status status = event.getStatus();
+        if (status != Event.Status.DRAWN && status != Event.Status.FINALIZED) {
+            event.setStatus(Event.Status.DRAWN);
         }
 
         // Get the copy of all lists
@@ -176,15 +189,29 @@ public class FirebaseEventRepository implements EventRepository {
         // Add those winners to the invited list
         invited.addAll(winners);
         event.setInvitedList(invited);
-
-        // Set status to DRAWN if no previous draws made
-        if (event.getStatus() != Event.Status.DRAWN) {
-            event.setStatus(Event.Status.DRAWN);
-        }
-
-        // Persist invited list to Firebase
-        updateInvitedList(event.getId(), invited);
     }
+
+
+    /**
+     * This method uses the Lottery System to draw automatically
+     * @param event : the event object
+     */
+    public void autoDraw(Event event) {
+        if (event == null || event.getId() == null) return;
+
+        // Take a snapshot of the current invited list
+        List<String> originalInvited = new ArrayList<>(event.getInvitedList());
+
+        // Run the pure logic (may or may not change invited list)
+        runAutoDrawLogic(event);
+
+        // Only update Firestore if invited list actually changed
+        List<String> newInvited = event.getInvitedList();
+        if (!originalInvited.equals(newInvited)) {
+            updateInvitedList(event.getId(), newInvited);
+        }
+    }
+
 
 
     @Override

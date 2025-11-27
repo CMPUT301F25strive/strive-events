@@ -1,13 +1,14 @@
 package com.example.eventlottery;
 
 import static com.example.eventlottery.model.Event.Status.REG_OPEN;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.*;
 
 import com.example.eventlottery.data.MockEventRepository;
 import com.example.eventlottery.model.Event;
 
 import org.junit.Test;
+
+import java.util.*;
 
 /**
  * This is a test class for the event repository
@@ -83,6 +84,85 @@ public class EventRepositoryTest {
         assertEquals(1, eventRepo.getSize());
         eventRepo.deleteEvent("1");
         assertEquals(0, eventRepo.getSize());
+    }
+
+
+    @Test
+    public void testAutoDraw_InitialDraw() {
+        long now = System.currentTimeMillis();
+
+        Event event = new Event("e1", "Test Event", "",
+                now + 1000000,
+                now - 10000,
+                now - 1000,
+                "Loc",
+                3,
+                10,
+                REG_OPEN,
+                null,
+                "desc",
+                Event.Tag.PARTY);
+
+        // Setup lists
+        event.setWaitingList(new ArrayList<>(Arrays.asList("A", "B", "C", "D", "E")));
+        event.setInvitedList(new ArrayList<>());
+        event.setAttendeesList(new ArrayList<>());
+        event.setCanceledList(new ArrayList<>());
+
+        // Test if it's the valid time period
+        assertTrue(event.isRegEnd());
+        assertFalse(event.isEventStarted());
+
+        // Run the logic
+        MockEventRepository.runAutoDrawLogic(event);
+
+        // Test if there are desired number of winners
+        assertEquals(3, event.getInvitedList().size());
+        for (String id : event.getInvitedList()) {
+            // Check they are literally from waiting list
+            assertTrue(event.getWaitingList().contains(id));
+        }
+        // Test the updated status after a valid draw
+        assertEquals(Event.Status.DRAWN, event.getStatus());
+    }
+
+    @Test
+    public void testAutoDraw_AfterDecline() {
+        long now = System.currentTimeMillis();
+
+        Event event = new Event("e1", "Test Event", "",
+                now + 1000000,
+                now - 10000,
+                now - 1000,
+                "Loc",
+                3,
+                10,
+                REG_OPEN,
+                null,
+                "desc",
+                Event.Tag.PARTY);
+
+        // pending = {C}; occupied = {B,C}, capacity = 3 => 1 open slot
+        event.setWaitingList(new ArrayList<>(Arrays.asList("A", "B", "C", "D", "E")));
+        event.setInvitedList(new ArrayList<>(Arrays.asList("A", "B", "C")));
+        event.setAttendeesList(new ArrayList<>(Collections.singletonList("B")));
+        event.setCanceledList(new ArrayList<>(Collections.singletonList("A")));
+
+        // Test if it's valid time period
+        assertTrue(event.isRegEnd());
+        assertFalse(event.isEventStarted());
+
+        // Run the logic
+        MockEventRepository.runAutoDrawLogic(event);
+
+        // Invited list should now have A,B,C plus one of D/E
+        assertEquals(4, event.getInvitedList().size());
+        List<String> newInvites = new ArrayList<>(event.getInvitedList());
+        newInvites.removeAll(Arrays.asList("A", "B", "C"));
+
+        // Test if the new winner is one of D/E
+        assertEquals(1, newInvites.size());
+        assertTrue(Arrays.asList("D", "E").contains(newInvites.get(0)));
     }
 
 }

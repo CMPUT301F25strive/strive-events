@@ -9,7 +9,7 @@ import com.example.eventlottery.data.MockEventRepository;
 import com.example.eventlottery.data.MockProfileRepository;
 import com.example.eventlottery.data.ProfileRepository;
 import com.example.eventlottery.model.Event;
-import com.example.eventlottery.model.InvitationService;
+//import com.example.eventlottery.model.InvitationService;
 import com.example.eventlottery.model.MockInvitationService;
 import com.example.eventlottery.model.Profile;
 
