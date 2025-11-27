@@ -28,6 +28,8 @@ import com.example.eventlottery.model.Profile;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -171,6 +173,18 @@ public class EventDetailFragment extends Fragment {
 
             SupportMapFragment mapFragment = (SupportMapFragment)
                     getChildFragmentManager().findFragmentById(R.id.map);
+            if (mapFragment != null) {
+                mapFragment.getMapAsync(new OnMapReadyCallback() {
+                    @Override
+                    public void onMapReady(@NonNull GoogleMap googleMap) {
+                        // Enable zoom controls
+                        googleMap.getUiSettings().setZoomControlsEnabled(true);
+
+                        // Optional: Enable pinch-to-zoom gestures
+                        googleMap.getUiSettings().setZoomGesturesEnabled(true);
+                    }
+                });
+            }
 
             if (mapFragment != null) {
                 mapFragment.getMapAsync(googleMap -> {
