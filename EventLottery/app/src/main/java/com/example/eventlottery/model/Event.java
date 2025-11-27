@@ -346,6 +346,16 @@ public class Event implements Serializable {
         return getAttendeesList().size();
     }
 
+    @Exclude
+    public boolean isOnCanceledList(String deviceId) {
+        return getCanceledList().contains(deviceId);
+    }
+
+    @Exclude
+    public boolean isOnInvitedList(String deviceId) {
+        return getInvitedList().contains(deviceId);
+    }
+
     /**
      * GEOLOCATION METHODS
      */
@@ -393,12 +403,11 @@ public class Event implements Serializable {
     /**
      * EVENT STATUS REFRESH
      */
-
     public void refreshStatus() {
         long now = System.currentTimeMillis();
 
         // As soon as it starts, it becomes history, and thus eternal ~
-        // Or after all invited entrants accepted (haven't implemented yet)
+            // Or after all invited entrants accepted (haven't implemented yet)
         if (isEventStarted()) {
             if (status != Status.FINALIZED) {
                 status = Status.FINALIZED;
