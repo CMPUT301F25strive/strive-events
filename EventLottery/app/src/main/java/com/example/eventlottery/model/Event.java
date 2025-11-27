@@ -5,8 +5,6 @@ import androidx.annotation.Nullable;
 
 import com.google.firebase.firestore.Exclude;
 
-import org.checkerframework.checker.units.qual.A;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,12 +52,18 @@ public class Event implements Serializable {
     private Tag tag;
     private boolean geolocationEnabled;
 
+    // NEW: Nested list for storing users' locations
+    private List<UserLocation> userLocations;
+
     /**
      * REQUIRED FOR FIRESTORE
      */
     public Event() {
         waitingList = new ArrayList<>();
         attendeesList = new ArrayList<>();
+        invitedList = new ArrayList<>();
+        canceledList = new ArrayList<>();
+        userLocations = new ArrayList<>();
     }
 
     /**
@@ -97,6 +101,7 @@ public class Event implements Serializable {
         this.attendeesList = new ArrayList<>();
         this.canceledList = new ArrayList<>();
         this.invitedList = new ArrayList<>();
+        this.userLocations = new ArrayList<>();
     }
 
     /**
@@ -288,6 +293,17 @@ public class Event implements Serializable {
         }
     }
 
+    // UPDATED joinWaitingList WITH GEOLOCATION SUPPORT
+    public void joinWaitingList(String deviceId, @Nullable Double latitude, @Nullable Double longitude) {
+        if (!getWaitingList().contains(deviceId)) {
+            waitingList.add(deviceId);
+
+            if (latitude != null && longitude != null && geolocationEnabled) {
+                addUserLocation(deviceId, latitude, longitude);
+            }
+        }
+    }
+
     public void leaveWaitingList(String deviceId) {
         getWaitingList().remove(deviceId);
     }
@@ -330,11 +346,59 @@ public class Event implements Serializable {
         return getAttendeesList().size();
     }
 
+    /**
+     * GEOLOCATION METHODS
+     */
+
+    /**
+     * Nested class for storing a device's lat/lon
+     */
+    public static class UserLocation {
+        public String deviceId;
+        public Double latitude;
+        public Double longitude;
+
+        public UserLocation() {} // Firestore requires no-arg constructor
+
+        public UserLocation(String deviceId, Double latitude, Double longitude) {
+            this.deviceId = deviceId;
+            this.latitude = latitude;
+            this.longitude = longitude;
+        }
+    }
+    public void setUserLocations(List<UserLocation> userLocations) {
+        this.userLocations = userLocations;
+    }
+    /**
+     * Record the user's location only if geolocation is enabled for this event
+     */
+    public void addUserLocation(String deviceId, double latitude, double longitude) {
+        if (!geolocationEnabled) return; // skip if event doesn't need it
+
+        // Remove old entry if exists (update)
+        userLocations.removeIf(loc -> loc.deviceId.equals(deviceId));
+
+        // Add new location
+        userLocations.add(new UserLocation(deviceId, latitude, longitude));
+    }
+
+    /**
+     * Get a copy of all user locations
+     */
+    public List<UserLocation> getUserLocations() {
+        if (userLocations == null) userLocations = new ArrayList<>();
+        return new ArrayList<>(userLocations); // avoid external modification
+    }
+
+    /**
+     * EVENT STATUS REFRESH
+     */
+
     public void refreshStatus() {
         long now = System.currentTimeMillis();
 
         // As soon as it starts, it becomes history, and thus eternal ~
-            // Or after all invited entrants accepted (haven't implemented yet)
+        // Or after all invited entrants accepted (haven't implemented yet)
         if (isEventStarted()) {
             if (status != Status.FINALIZED) {
                 status = Status.FINALIZED;
@@ -378,8 +442,17 @@ public class Event implements Serializable {
     public interface ProfileNameCallback {
         void onResult(String name);
     }
+
     public boolean isGeolocationEnabled() { return geolocationEnabled; }
     public void setGeolocationEnabled(boolean geolocationEnabled) {
         this.geolocationEnabled = geolocationEnabled;
+    }
+    /**
+     * Remove a user's location entry
+     */
+    public void removeUserLocation(String deviceId) {
+        if (userLocations != null) {
+            userLocations.removeIf(loc -> loc.deviceId.equals(deviceId));
+        }
     }
 }

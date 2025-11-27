@@ -7,6 +7,7 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.eventlottery.model.Event;
 import com.example.eventlottery.model.Profile;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
@@ -464,7 +465,22 @@ public class FirebaseProfileRepository implements ProfileRepository {
                     .addOnFailureListener(e -> callback.onResult(false, e.getMessage()));
         });
     }
+    public void getEventUserLocations(String eventId, OnUserLocationsListener listener) {
+        eventsRef.document(eventId).get().addOnSuccessListener(doc -> {
+            if (doc.exists()) {
+                Event event = doc.toObject(Event.class);
+                if (event != null && event.getUserLocations() != null) {
+                    listener.onLocationsLoaded(event.getUserLocations());
+                } else {
+                    listener.onLocationsLoaded(new ArrayList<>());
+                }
+            }
+        }).addOnFailureListener(Throwable::printStackTrace);
+    }
 
+    public interface OnUserLocationsListener {
+        void onLocationsLoaded(List<Event.UserLocation> locations);
+    }
     /**
      * This methods build a hash for a user profile
      * @param profile : the profile of the user

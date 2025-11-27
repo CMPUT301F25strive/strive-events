@@ -283,8 +283,22 @@
                     android:textColor="?attr/colorOnSurface"
                     tools:text="Status: TBD" />
             </LinearLayout>
+            <!-- fragment_event_detail.xml -->
+            <FrameLayout
+                android:id="@+id/mapContainer"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:layout_marginTop="20dp"
+                android:clipToOutline="true"
+                android:background="@drawable/rounded_map_bg"
+                android:visibility="gone">
 
-            <!-- Action Buttons Container -->
+                <fragment
+                    android:id="@+id/map"
+                    android:name="com.google.android.gms.maps.SupportMapFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
+            </FrameLayout>
             <LinearLayout
                 android:id="@+id/buttonContainer"
                 android:layout_width="match_parent"

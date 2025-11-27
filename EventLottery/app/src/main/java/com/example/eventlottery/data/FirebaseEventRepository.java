@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -101,21 +102,13 @@ public class FirebaseEventRepository implements EventRepository {
     // ============================================================
     @Override
     public void updateWaitingList(String eventID, List<String> waitingList) {
-        // Update waiting list in Firestore
         eventsRef.document(eventID)
                 .update("waitingList", waitingList)
                 .addOnFailureListener(Throwable::printStackTrace);
     }
 
-    /**
-     * This method updates the list of invited entrants for an event.
-     *
-     * @param eventID     : unique ID of the event
-     * @param invitedList : the list of invited entrant IDs
-     */
     @Override
     public void updateInvitedList(String eventID, List<String> invitedList) {
-        // Update invited entrants list in Firestore
         eventsRef.document(eventID)
                 .update("invitedList", invitedList)
                 .addOnFailureListener(Throwable::printStackTrace);
@@ -123,7 +116,6 @@ public class FirebaseEventRepository implements EventRepository {
 
     @Override
     public void updateAttendeesList(String eventID, List<String> attendeesList) {
-        // Update attendees list in Firestore
         eventsRef.document(eventID)
                 .update("attendeesList", attendeesList)
                 .addOnFailureListener(Throwable::printStackTrace);
@@ -131,92 +123,90 @@ public class FirebaseEventRepository implements EventRepository {
 
     @Override
     public void updateCanceledList(String eventID, List<String> canceledList) {
-        // Update canceled entrants list in Firestore
         eventsRef.document(eventID)
                 .update("canceledList", canceledList)
                 .addOnFailureListener(Throwable::printStackTrace);
     }
 
-    /**
-     * This method is the pure helper function of checking, executing draws, and updating status to "DRAWN"
-     * @param event: the event object
-     */
-    public static void runAutoDrawLogic(Event event) {
-        // Prevent the unknown event
-        if (event == null) return;
+    public void joinWaitingListWithLocation(String eventId, String deviceId,
+                                            @Nullable Double latitude,
+                                            @Nullable Double longitude) {
+        Event event = findEventById(eventId);
+        if (event == null || deviceId == null) return;
 
-        // Only run between reg end and event start
-        if (!event.isRegEnd() || event.isEventStarted()) {
-            return;
+        boolean updated = false;
+
+        if (!event.getWaitingList().contains(deviceId)) {
+            event.getWaitingList().add(deviceId);
+            updated = true;
         }
 
-        // Set status to DRAWN if no previous draws made and not finalized
+        if (event.isGeolocationEnabled() && latitude != null && longitude != null) {
+            event.getUserLocations().removeIf(loc -> loc.deviceId.equals(deviceId));
+            event.getUserLocations().add(new Event.UserLocation(deviceId, latitude, longitude));
+            updated = true;
+        }
+
+        if (updated) {
+            eventsRef.document(eventId)
+                    .update(
+                            "waitingList", event.getWaitingList(),
+                            "userLocations", event.getUserLocations()
+                    )
+                    .addOnFailureListener(Throwable::printStackTrace);
+        }
+    }
+
+    @Override
+    public void updateUserLocations(String eventID, List<Event.UserLocation> userLocations) {
+        eventsRef.document(eventID)
+                .update("userLocations", userLocations)
+                .addOnFailureListener(Throwable::printStackTrace);
+    }
+
+    public static void runAutoDrawLogic(Event event) {
+        if (event == null) return;
+        if (!event.isRegEnd() || event.isEventStarted()) return;
+
         Event.Status status = event.getStatus();
         if (status != Event.Status.DRAWN && status != Event.Status.FINALIZED) {
             event.setStatus(Event.Status.DRAWN);
         }
 
-        // Get the copy of all lists
         List<String> invited = new ArrayList<>(event.getInvitedList());
         List<String> attended = new ArrayList<>(event.getAttendeesList());
         List<String> canceled = new ArrayList<>(event.getCanceledList());
 
-        // Get the pending entrants who haven't made the decision
         List<String> pending = new ArrayList<>(invited);
         pending.removeAll(attended);
         pending.removeAll(canceled);
         int openSlots = event.getCapacity() - attended.size() - pending.size();
+        if (openSlots <= 0) return;
 
-        if (openSlots <= 0) {
-            // If no more slots to fill, do nothing
-            return;
-        }
-
-        // Make a sampling pool for entrants who have never been invited
         List<String> pool = new ArrayList<>(event.getWaitingList());
         pool.removeAll(invited);
         pool.removeAll(attended);
         pool.removeAll(canceled);
+        if (pool.isEmpty()) return;
 
-        if (pool.isEmpty()) {
-            // If no one left to invite, do nothing
-            return;
-        }
-
-        // Run a draw for the specified open slots
         List<String> winners = LotterySystem.drawRounds(pool, openSlots);
-
-        // Add those winners to the invited list
         invited.addAll(winners);
         event.setInvitedList(invited);
     }
 
-
-    /**
-     * This method uses the Lottery System to draw automatically
-     * @param event : the event object
-     */
     public void autoDraw(Event event) {
         if (event == null || event.getId() == null) return;
 
-        // Take a snapshot of the current invited list
         List<String> originalInvited = new ArrayList<>(event.getInvitedList());
-
-        // Run the pure logic (may or may not change invited list)
         runAutoDrawLogic(event);
-
-        // Only update Firestore if invited list actually changed
         List<String> newInvited = event.getInvitedList();
         if (!originalInvited.equals(newInvited)) {
             updateInvitedList(event.getId(), newInvited);
         }
     }
 
-
-
     @Override
     public void deleteEvent(String eventId) {
-        // Remove event document from Firestore
         eventsRef.document(eventId)
                 .delete()
                 .addOnFailureListener(Throwable::printStackTrace);
@@ -224,7 +214,6 @@ public class FirebaseEventRepository implements EventRepository {
 
     @Override
     public void removeEventPoster(String eventId) {
-        // Clear poster URL in Firestore
         eventsRef.document(eventId)
                 .update("posterUrl", null)
                 .addOnFailureListener(Throwable::printStackTrace);
@@ -234,7 +223,7 @@ public class FirebaseEventRepository implements EventRepository {
     // UPLOAD EVENT
     // ============================================================
     public interface UploadCallback {
-        void onProgress(double progress); // 0.0 to 1.0
+        void onProgress(double progress);
         void onComplete(boolean success, String message, String eventID);
     }
 
@@ -253,27 +242,21 @@ public class FirebaseEventRepository implements EventRepository {
             boolean geolocationEnabled,
             @NonNull UploadCallback callback
     ) {
-        // Generate unique event ID
         String eventId = UUID.randomUUID().toString();
 
-        // If no image, save event directly
         if (imageUri == null) {
             saveEventToFirestore(eventId, title, description, location,
                     eventStartTimeMillis, regStartTimeMillis, regEndTimeMillis,
-                    capacity, waitingListSpots, deviceId, null, tag, geolocationEnabled, callback); // ⚡️ ADD HERE
+                    capacity, waitingListSpots, deviceId, null, tag, geolocationEnabled, callback);
             return;
         }
 
-        // Upload image to Cloudinary with unsigned preset
         MediaManager.get().upload(imageUri)
                 .unsigned("unsigned_preset")
                 .option("public_id", eventId)
                 .callback(new com.cloudinary.android.callback.UploadCallback() {
                     @Override
-                    public void onStart(String requestId) {
-                        // Notify 0% progress at start
-                        callback.onProgress(0.0);
-                    }
+                    public void onStart(String requestId) { callback.onProgress(0.0); }
 
                     @Override
                     public void onProgress(String requestId, long bytes, long totalBytes) {
@@ -282,23 +265,16 @@ public class FirebaseEventRepository implements EventRepository {
 
                     @Override
                     public void onSuccess(String requestId, Map resultData) {
-                        // Debug log for Cloudinary response
                         Log.d("Cloudinary Upload", "Result map: " + resultData);
-
-                        // Try secure_url first, fallback to url
                         String imageUrl = (String) resultData.get("secure_url");
                         if (imageUrl == null) imageUrl = (String) resultData.get("url");
-
                         if (imageUrl == null) {
-                            // Fail if no URL returned
                             callback.onComplete(false, "Upload succeeded but no URL returned", null);
                             return;
                         }
-
-                        // Save event with poster URL
                         saveEventToFirestore(eventId, title, description, location,
                                 eventStartTimeMillis, regStartTimeMillis, regEndTimeMillis,
-                                capacity, waitingListSpots, deviceId, imageUrl, tag, geolocationEnabled, callback); // ⚡️ ADD HERE
+                                capacity, waitingListSpots, deviceId, imageUrl, tag, geolocationEnabled, callback);
                     }
 
                     @Override
@@ -310,8 +286,7 @@ public class FirebaseEventRepository implements EventRepository {
                     public void onReschedule(String requestId, ErrorInfo error) {
                         callback.onComplete(false, "Upload rescheduled: " + error.getDescription(), null);
                     }
-                })
-                .dispatch();
+                }).dispatch();
     }
 
     private void saveEventToFirestore(
@@ -330,21 +305,30 @@ public class FirebaseEventRepository implements EventRepository {
             boolean geolocationEnabled,
             UploadCallback callback
     ) {
-        // Create event object
         Event event = new Event(eventId, title, "", eventStartTimeMillis,
                 regStartTimeMillis, regEndTimeMillis, location, capacity, waitingListSpots,
                 Event.Status.REG_OPEN, posterUrl, description, tag);
 
-        // Set device ID of organizer
         event.setOrganizerId(deviceId);
-
-        // SAVE GEOLOCATION FLAG
         event.setGeolocationEnabled(geolocationEnabled);
 
-        // Save event to Firestore
         eventsRef.document(eventId)
                 .set(event)
                 .addOnSuccessListener(aVoid -> callback.onComplete(true, "Event posted successfully", eventId))
                 .addOnFailureListener(e -> callback.onComplete(false, "Failed to post event: " + e.getMessage(), eventId));
     }
+
+    // ============================================================
+    // NEW: GET USER LOCATIONS
+    // ============================================================
+    @Override
+    public void getEventUserLocations(String eventID, @NonNull EventRepository.EventUserLocationsCallback callback) {
+        Event event = findEventById(eventID);
+        if (event != null && event.getUserLocations() != null) {
+            callback.onResult(event.getUserLocations());
+        } else {
+            callback.onResult(new ArrayList<>());
+        }
+    }
+
 }

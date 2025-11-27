@@ -1,27 +1,25 @@
-
 package com.example.eventlottery;
+
+import android.location.Location;
+
+import androidx.annotation.Nullable;
 
 import com.example.eventlottery.data.EventRepository;
 import com.example.eventlottery.data.ProfileRepository;
 import com.example.eventlottery.model.Event;
 
-import org.checkerframework.common.returnsreceiver.qual.This;
-
-import java.util.List;
-
 /**
- * This class handles the joining and leaving of entrants regarding the waiting list
- * get the number of entrants in the waiting list
- * displays the map of the location of all the entrants in the waiting list
+ * This class handles joining/leaving entrants on waiting lists,
+ * fully integrated with Firebase for live updates and optional geolocation.
  */
 public class WaitingListController {
-    private EventRepository eventRepository;
-    private ProfileRepository profileRepository;
+    private final EventRepository eventRepository;
+    private final ProfileRepository profileRepository;
 
     /**
-     * This is a constructor of WaitingListController with the given Profile and Event Repository
-     * @param eventRepository: the repository used to manage the events
-     * @param profileRepository: the repository used to manage the profiles
+     * Constructor
+     * @param eventRepository repository for managing events (interface)
+     * @param profileRepository repository for managing user profiles
      */
     public WaitingListController(EventRepository eventRepository, ProfileRepository profileRepository) {
         this.eventRepository = eventRepository;
@@ -29,47 +27,93 @@ public class WaitingListController {
     }
 
     /**
-     * This methods adds entrants based on their entrantID to the waiting list to the event specified by eventID
-     * @param eventID: ID of the event
-     * @param userID: ID of the user's device
+     * Join waiting list, optionally providing device location.
+     * Updates both waitingList and userLocations in Firestore.
+     * @param eventID event ID
+     * @param userID device/user ID
+     * @param location optional Location object
      */
-    public void joinWaitingList(String eventID, String userID) {
+    public void joinWaitingList(String eventID, String userID, @Nullable Location location) {
         Event event = eventRepository.findEventById(eventID);
         if (event == null) {
-            // Event not in local cache yet – avoid crashing
             System.out.println("joinWaitingList: event not loaded for id=" + eventID);
             return;
         }
 
-        // Only allow joining within registration period and when the waiting list has spots
         if (!event.isRegOpen() || event.isWaitingListFull()) {
             System.out.println("Cannot join waiting list");
             return;
         }
 
-        // If the user hasn't joined the waiting list, join it
+        double lat = location != null ? location.getLatitude() : Double.NaN;
+        double lon = location != null ? location.getLongitude() : Double.NaN;
+
+        // Add user to waiting list if not already present
         if (!event.isOnWaitingList(userID)) {
-            event.joinWaitingList(userID);
-            // Update Firebase immediately
+            if (!Double.isNaN(lat) && !Double.isNaN(lon)) {
+                event.joinWaitingList(userID, lat, lon);
+            } else {
+                event.joinWaitingList(userID);
+            }
+
+            // Update waiting list via repository
             eventRepository.updateWaitingList(eventID, event.getWaitingList());
+
+            // Update user locations if applicable
+            if (!Double.isNaN(lat) && !Double.isNaN(lon) && event.isGeolocationEnabled()) {
+                eventRepository.updateUserLocations(eventID, event.getUserLocations());
+            }
         }
     }
 
     /**
-     * This methods removes entrants based on their entrantID from the waiting list to the event specified by eventID
-     * @param eventID: the unique key for events
-     * @param userID: the unique key for users
+     * Overloaded join without location
+     * @param eventID event ID
+     * @param userID device/user ID
      */
-    public void leaveWaitingList(String eventID, String userID) {
+    public void joinWaitingList(String eventID, String userID) {
+        joinWaitingList(eventID, userID, null);
+    }
+
+    /**
+     * Leave waiting list and optionally remove stored location.
+     * Updates both waitingList and userLocations in Firestore.
+     * @param eventID event ID
+     * @param userID device/user ID
+     * @param removeLocation true to remove geolocation from Firestore
+     */
+    public void leaveWaitingList(String eventID, String userID, boolean removeLocation) {
         Event event = eventRepository.findEventById(eventID);
         if (event == null) {
             System.out.println("leaveWaitingList: event not loaded for id=" + eventID);
             return;
         }
 
-        if (event.isOnWaitingList(userID)) {
-            event.leaveWaitingList(userID);
-            eventRepository.updateWaitingList(eventID, event.getWaitingList());
+        if (!event.isOnWaitingList(userID)) return;
+
+        // Remove from waiting list
+        event.leaveWaitingList(userID);
+
+        // Remove user location if requested
+        if (removeLocation && event.isGeolocationEnabled()) {
+            event.removeUserLocation(userID);
         }
+
+        // Update waiting list via repository
+        eventRepository.updateWaitingList(eventID, event.getWaitingList());
+
+        // Update user locations via repository if needed
+        if (removeLocation && event.isGeolocationEnabled()) {
+            eventRepository.updateUserLocations(eventID, event.getUserLocations());
+        }
+    }
+
+    /**
+     * Overloaded leave with default removeLocation = true
+     * @param eventID event ID
+     * @param userID device/user ID
+     */
+    public void leaveWaitingList(String eventID, String userID) {
+        leaveWaitingList(eventID, userID, true);
     }
 }

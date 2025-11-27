@@ -1,5 +1,6 @@
 package com.example.eventlottery.entrant;
 
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.TextUtils;
@@ -7,12 +8,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-
+import android.location.Location;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.bumptech.glide.Glide;
@@ -25,6 +25,13 @@ import com.example.eventlottery.data.RepositoryProvider;
 import com.example.eventlottery.databinding.FragmentEventDetailBinding;
 import com.example.eventlottery.model.Event;
 import com.example.eventlottery.model.Profile;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -52,6 +59,8 @@ public class EventDetailFragment extends Fragment {
             new SimpleDateFormat("EEE, MMM d yyyy", Locale.getDefault());
     private final SimpleDateFormat timeFormat =
             new SimpleDateFormat("h:mm a", Locale.getDefault());
+
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
 
     // ------------------------------------------------------------------------------
 
@@ -111,6 +120,9 @@ public class EventDetailFragment extends Fragment {
                 if (repoAdmin != isAdmin) {
                     isAdmin = repoAdmin;
                 }
+
+                // Check for map display AFTER admin/organizer flags are determined
+                displayMapIfEligible();
             }
 
             @Override public void onDeleted() {}
@@ -144,6 +156,45 @@ public class EventDetailFragment extends Fragment {
             );
         } else {
             binding.sendNotificationButton.setVisibility(View.GONE);
+        }
+    }
+
+    // ------------------ MAP DISPLAY ------------------
+
+    private void displayMapIfEligible() {
+        if (currentEvent == null) return;
+
+        // Only show map if geolocation is enabled AND user is admin or organizer
+        if (currentEvent.isGeolocationEnabled() && (isAdmin || isOrganizer)) {
+            binding.mapContainer.setVisibility(View.VISIBLE);
+
+            SupportMapFragment mapFragment = (SupportMapFragment)
+                    getChildFragmentManager().findFragmentById(R.id.map);
+
+            if (mapFragment != null) {
+                mapFragment.getMapAsync(googleMap -> {
+                    // Fetch user locations from repository
+                    eventRepository.getEventUserLocations(currentEvent.getId(), locations -> {
+                        for (Event.UserLocation loc : locations) {
+                            if (loc.latitude != null && loc.longitude != null) {
+                                LatLng pos = new LatLng(loc.latitude, loc.longitude);
+                                googleMap.addMarker(new MarkerOptions()
+                                        .position(pos)
+                                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                                        .title("User: " + loc.deviceId));
+                            }
+                        }
+
+                        // Move camera to first location if available
+                        if (!locations.isEmpty()) {
+                            LatLng first = new LatLng(locations.get(0).latitude, locations.get(0).longitude);
+                            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(first, 12f));
+                        }
+                    });
+                });
+            }
+        } else {
+            binding.mapContainer.setVisibility(View.GONE);
         }
     }
 
@@ -232,6 +283,8 @@ public class EventDetailFragment extends Fragment {
         );
     }
 
+    // ------------------------------------------------------------------------------
+
     /**
      * This method renders the tag of event from Event.Tag enum identifier
      * to its meaning as a String.
@@ -239,17 +292,14 @@ public class EventDetailFragment extends Fragment {
      * @return the corresponding String format
      */
     private String getDisplayTag(@Nullable Event.Tag tag) {
-        // If tag is missing
         if (tag == null) return "Other";
 
-        // Render the given tag
         switch (tag) {
             case ART:        return "Art";
             case MUSIC:      return "Music";
             case EDUCATION:  return "Education";
             case SPORTS:     return "Sports";
             case PARTY:      return "Party";
-            // If mismatched, return the exact enum constant name as a String
             default:         return tag.name();
         }
     }
@@ -262,16 +312,13 @@ public class EventDetailFragment extends Fragment {
      */
     private String getDisplayStatus(@NonNull Event event) {
         Event.Status status = event.getStatus();
-        // If status is missing
         if (status == null) return "Unknown";
 
-        // Render the given status
         switch (status) {
             case REG_OPEN:      return "Registration open";
             case REG_CLOSED:    return "Registration closed";
             case DRAWN:         return "Lottery drawn";
             case FINALIZED:     return "Finalized";
-            // If mismatched, return the exact enum constant name as a String
             default:            return status.name();
         }
     }
@@ -279,16 +326,13 @@ public class EventDetailFragment extends Fragment {
     // ------------------------------------------------------------------------------
 
     private void setupActionButtons(@NonNull Event event, String userID) {
-
         binding.buttonContainer.setVisibility(View.VISIBLE);
         setupJoinButton(event, userID);
 
-        // Cannot join if the event is out of registration period, the waiting list is full, or it's their own event
         if (!event.isRegOpen() || event.isWaitingListFull() || isOrganizer) {
             binding.joinEventButton.setVisibility(View.GONE);
         }
 
-        // If already in the waiting list, we can always leave before status.DRAWN
         if (event.isOnWaitingList(userID)
                 && (event.isRegOpen() || event.isRegClosed())) {
             binding.joinEventButton.setVisibility(View.VISIBLE);
@@ -318,6 +362,7 @@ public class EventDetailFragment extends Fragment {
             binding.posterRemoveButton.setOnClickListener(null);
         }
     }
+
     private void setupJoinButton(@NonNull Event event, String userID) {
         final MaterialButton joinButton = binding.joinEventButton;
 
@@ -327,17 +372,25 @@ public class EventDetailFragment extends Fragment {
             boolean onWait = event.isOnWaitingList(userID);
 
             if (onWait) {
-                waitingListController.leaveWaitingList(event.getId(), userID);
-                Toast.makeText(requireContext(), "Left waiting list", Toast.LENGTH_SHORT).show();
-                updateJoinButton(false);
+                if (event.isGeolocationEnabled()) {
+                    removeLocationAndLeave(event, userID);
+                } else {
+                    waitingListController.leaveWaitingList(event.getId(), userID);
+                    Toast.makeText(requireContext(), "Left waiting list", Toast.LENGTH_SHORT).show();
+                    updateJoinButton(false);
+                }
             } else {
                 if (event.getStatus() != Event.Status.REG_OPEN) {
                     Toast.makeText(requireContext(), "Registration closed", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                waitingListController.joinWaitingList(event.getId(), userID);
-                Toast.makeText(requireContext(), "Joined waiting list", Toast.LENGTH_SHORT).show();
-                updateJoinButton(true);
+                if (event.isGeolocationEnabled()) {
+                    checkLocationPermissionAndJoin(event, userID);
+                } else {
+                    waitingListController.joinWaitingList(event.getId(), userID);
+                    Toast.makeText(requireContext(), "Joined waiting list", Toast.LENGTH_SHORT).show();
+                    updateJoinButton(true);
+                }
             }
         });
     }
@@ -359,7 +412,6 @@ public class EventDetailFragment extends Fragment {
     }
 
     // ------------------------------------------------------------------------------
-
 
     private void performDelete() {
         if (!isAdmin && !isOrganizer) return;
@@ -427,6 +479,71 @@ public class EventDetailFragment extends Fragment {
                     binding.eventDetailOrganizer.setText("Organizer: UNKNOWN");
             }
         });
+    }
+
+    // ------------------------------------------------------------------------------
+
+    // ------------------ GEOLOCATION HANDLING ------------------
+
+    private void checkLocationPermissionAndJoin(Event event, String userID) {
+        if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    LOCATION_PERMISSION_REQUEST_CODE
+            );
+        } else {
+            getDeviceLocationAndJoin(event, userID);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (currentEvent != null) {
+                    getDeviceLocationAndJoin(currentEvent, deviceId);
+                }
+            } else {
+                Toast.makeText(requireContext(), "Location permission is required to join waiting list.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+    private void getDeviceLocationAndJoin(Event event, String userID) {
+        FusedLocationProviderClient fusedLocationClient =
+                LocationServices.getFusedLocationProviderClient(requireActivity());
+
+        try {
+            fusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(location -> {
+                        if (location != null) {
+                            // Wrap lat/lon in a Location object
+                            Location loc = new Location("");
+                            loc.setLatitude(location.getLatitude());
+                            loc.setLongitude(location.getLongitude());
+
+                            waitingListController.joinWaitingList(event.getId(), userID, loc);
+                        } else {
+                            waitingListController.joinWaitingList(event.getId(), userID);
+                        }
+                        Toast.makeText(requireContext(), "Joined waiting list", Toast.LENGTH_SHORT).show();
+                        updateJoinButton(true);
+                    });
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        }
+    }
+    private void removeLocationAndLeave(Event event, String userID) {
+        if (event.getUserLocations() != null) {
+            event.getUserLocations().removeIf(loc -> loc.deviceId.equals(userID));
+        }
+
+        waitingListController.leaveWaitingList(event.getId(), userID);
+        Toast.makeText(requireContext(), "Left waiting list", Toast.LENGTH_SHORT).show();
+        updateJoinButton(false);
     }
 
     // ------------------------------------------------------------------------------

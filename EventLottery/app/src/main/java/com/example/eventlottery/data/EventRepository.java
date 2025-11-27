@@ -63,4 +63,22 @@ public interface EventRepository {
      * @param event: event object
      */
     void autoDraw(Event event);
+    /**
+     * Updates the list of user locations for an event.
+     * @param eventID event ID
+     * @param userLocations list of Event.UserLocation
+     */
+    void updateUserLocations(String eventID, List<Event.UserLocation> userLocations);
+
+    /**
+     * Retrieve user locations for an event.
+     * @param eventID: unique ID of the event
+     * @param callback: returns list of Event.UserLocation
+     */
+    void getEventUserLocations(String eventID, @NonNull EventUserLocationsCallback callback);
+
+    interface EventUserLocationsCallback {
+        void onResult(List<Event.UserLocation> locations);
+    }
 }
+

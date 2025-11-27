@@ -68,7 +68,10 @@ dependencies {
 
     // QR Scanner
     implementation(libs.qr.scanner)
-
+    implementation("com.google.android.gms:play-services-location:21.0.1")
+    // Google Maps SDK for Android
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
+    implementation("com.google.android.gms:play-services-location:21.1.0")
     // Google Places Autocomplete - REMOVED, using Nominatim instead
     // implementation("com.google.android.libraries.places:places:3.5.0")
 }

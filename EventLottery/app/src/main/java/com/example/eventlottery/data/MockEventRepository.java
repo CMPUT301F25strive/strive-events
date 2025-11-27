@@ -1,5 +1,9 @@
 package com.example.eventlottery.data;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+
 import com.example.eventlottery.model.Event;
 import com.example.eventlottery.model.LotterySystem;
 
@@ -12,10 +16,23 @@ import java.util.Objects;
  * It keeps data in memory and does not use Firebase.
  */
 public class MockEventRepository implements EventRepository {
+
     private final List<Event> events = new ArrayList<>();
+    private final MutableLiveData<List<Event>> eventsLiveData = new MutableLiveData<>(new ArrayList<>());
 
     @Override
     public void refresh() {
+        // No-op for mock, post current state
+        eventsLiveData.postValue(new ArrayList<>(events));
+    }
+
+    @Override
+    public void updateUserLocations(String eventID, List<Event.UserLocation> userLocations) {
+        Event event = findEventById(eventID);
+        if (event != null) {
+            event.setUserLocations(userLocations);
+            refresh();
+        }
     }
 
     @Override
@@ -30,6 +47,7 @@ public class MockEventRepository implements EventRepository {
 
     public void add(Event e) {
         events.add(e);
+        refresh();
     }
 
     public Event getEvent(String eventID) {
@@ -44,6 +62,7 @@ public class MockEventRepository implements EventRepository {
     @Override
     public void deleteEvent(String eventID) {
         events.removeIf(e -> Objects.equals(e.getId(), eventID));
+        refresh();
     }
 
     @Override
@@ -51,6 +70,7 @@ public class MockEventRepository implements EventRepository {
         Event event = findEventById(eventId);
         if (event != null) {
             event.setPosterUrl(null);
+            refresh();
         }
     }
 
@@ -63,33 +83,44 @@ public class MockEventRepository implements EventRepository {
     }
 
     @Override
-    public androidx.lifecycle.LiveData<List<Event>> observeEvents() {
-        return null;
+    public LiveData<List<Event>> observeEvents() {
+        return eventsLiveData;
     }
 
     @Override
     public void updateWaitingList(String eventID, List<String> waitingList) {
+        Event event = findEventById(eventID);
+        if (event != null) {
+            event.setWaitingList(waitingList);
+            refresh();
+        }
     }
 
-    /**
-     * This method updates the list of invited entrants for an event.
-     *
-     * @param eventID     : unique ID of the event
-     * @param invitedList : the list of invited entrant IDs
-     */
     @Override
     public void updateInvitedList(String eventID, List<String> invitedList) {
-
+        Event event = findEventById(eventID);
+        if (event != null) {
+            event.setInvitedList(invitedList);
+            refresh();
+        }
     }
 
     @Override
     public void updateAttendeesList(String eventID, List<String> attendeesList) {
-
+        Event event = findEventById(eventID);
+        if (event != null) {
+            event.setAttendeesList(attendeesList);
+            refresh();
+        }
     }
 
     @Override
     public void updateCanceledList(String eventID, List<String> canceledList) {
-
+        Event event = findEventById(eventID);
+        if (event != null) {
+            event.setCanceledList(canceledList);
+            refresh();
+        }
     }
 
     /**
@@ -101,71 +132,84 @@ public class MockEventRepository implements EventRepository {
     public void autoDraw(Event event) {
         if (event == null || event.getId() == null) return;
 
-        // Take a snapshot of the current invited list
         List<String> originalInvited = new ArrayList<>(event.getInvitedList());
-
-        // Run the pure logic
         runAutoDrawLogic(event);
-
-        // Only update Firestore if invited list actually changed
         List<String> newInvited = event.getInvitedList();
         if (!originalInvited.equals(newInvited)) {
             updateInvitedList(event.getId(), newInvited);
         }
     }
 
-
     /**
-     * This method is the pure helper function of checking, executing draws, and updating status to "DRAWN"
+     * Pure helper for checking, executing draws, updating status
+     *
      * @param event: the event object
      */
     public static void runAutoDrawLogic(Event event) {
-        // Prevent the unknown event
         if (event == null) return;
+        if (!event.isRegEnd() || event.isEventStarted()) return;
 
-        // Only run between reg end and event start
-        if (!event.isRegEnd() || event.isEventStarted()) {
-            return;
-        }
-
-        // Set status to DRAWN if no previous draws made and not finalized
         Event.Status status = event.getStatus();
         if (status != Event.Status.DRAWN && status != Event.Status.FINALIZED) {
             event.setStatus(Event.Status.DRAWN);
         }
 
-        // Get the copy of all lists
         List<String> invited = new ArrayList<>(event.getInvitedList());
         List<String> attended = new ArrayList<>(event.getAttendeesList());
         List<String> canceled = new ArrayList<>(event.getCanceledList());
 
-        // Get the pending entrants who haven't made the decision
         List<String> pending = new ArrayList<>(invited);
         pending.removeAll(attended);
         pending.removeAll(canceled);
         int openSlots = event.getCapacity() - attended.size() - pending.size();
+        if (openSlots <= 0) return;
 
-        if (openSlots <= 0) {
-            // If no more slots to fill, do nothing
-            return;
-        }
-
-        // Make a sampling pool for entrants who have never been invited
         List<String> pool = new ArrayList<>(event.getWaitingList());
         pool.removeAll(invited);
         pool.removeAll(attended);
         pool.removeAll(canceled);
+        if (pool.isEmpty()) return;
 
-        if (pool.isEmpty()) {
-            // If no one left to invite, do nothing
-            return;
-        }
-
-        // Run a draw for the specified open slots
         List<String> winners = LotterySystem.drawRounds(pool, openSlots);
-
-        // Add those winners to the invited list
         invited.addAll(winners);
         event.setInvitedList(invited);
+    }
+
+    /**
+     * Adds a device to the waiting list and optionally records geolocation
+     */
+    public void joinWaitingListWithLocation(String eventId, String deviceId,
+                                            Double latitude,
+                                            Double longitude) {
+        Event event = findEventById(eventId);
+        if (event == null || deviceId == null) return;
+
+        boolean updated = false;
+
+        if (!event.getWaitingList().contains(deviceId)) {
+            event.getWaitingList().add(deviceId);
+            updated = true;
+        }
+
+        if (event.isGeolocationEnabled() && latitude != null && longitude != null) {
+            if (event.getUserLocations() == null) event.setUserLocations(new ArrayList<>());
+            event.getUserLocations().removeIf(loc -> loc.deviceId.equals(deviceId));
+            event.getUserLocations().add(new Event.UserLocation(deviceId, latitude, longitude));
+            updated = true;
+        }
+
+        if (updated) refresh();
+    }
+
+    /**
+     * NEW: get user locations for an event
+     */
+    public void getEventUserLocations(String eventID, @NonNull EventRepository.EventUserLocationsCallback callback) {
+        Event event = findEventById(eventID);
+        if (event != null && event.getUserLocations() != null) {
+            callback.onResult(event.getUserLocations());
+        } else {
+            callback.onResult(new ArrayList<>());
+        }
     }
 }
