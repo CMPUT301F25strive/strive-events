@@ -188,5 +188,13 @@
         android:name="com.example.eventlottery.entrant.SendNotificationFragment"
         android:label="Send Notification"
         tools:layout="@layout/fragment_send_notifications" />
+    <fragment
+        android:id="@+id/waitingListFragment"
+        android:name="com.example.eventlottery.entrant.WaitingListFragment"
+        android:label="Waiting List" />
+    <action
+        android:id="@+id/action_eventDetailFragment_to_waitingListFragment"
+        app:destination="@id/waitingListFragment" />
+
 
 </navigation>

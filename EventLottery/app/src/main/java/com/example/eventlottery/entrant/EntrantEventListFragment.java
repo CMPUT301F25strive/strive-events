@@ -188,6 +188,14 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
                 filtered.add(e);
             }
         }
+        // Show empty view if filtered list is empty
+        if (filtered.isEmpty()) {
+            binding.errorMessage.setText(getString(R.string.no_events_placeholder));
+            binding.errorMessage.setVisibility(View.VISIBLE);
+        } else {
+            binding.errorMessage.setVisibility(View.GONE);
+        }
+        // Submit filtered list to adapter
         adapter.submitList(filtered);
     }
 

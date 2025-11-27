@@ -162,6 +162,7 @@ public class EventDetailFragment extends Fragment {
         }
     }
 
+
     // ------------------ MAP DISPLAY ------------------
 
     private void displayMapIfEligible() {
@@ -360,6 +361,15 @@ public class EventDetailFragment extends Fragment {
         boolean canDeleteEvent = isAdmin || isOrganizer;
         binding.adminDeleteButton.setVisibility(canDeleteEvent ? View.VISIBLE : View.GONE);
         if (canDeleteEvent) {
+            binding.viewWaitingListButton.setOnClickListener(v -> {
+                if (currentEvent == null) return;
+
+                Bundle bundle = new Bundle();
+                bundle.putString(WaitingListFragment.ARG_EVENT_ID, currentEvent.getId());
+
+                NavHostFragment.findNavController(this)
+                        .navigate(R.id.action_eventDetailFragment_to_waitingListFragment, bundle);
+            });
             binding.adminDeleteButton.setOnClickListener(v -> {
                 if (currentEvent == null) return;
                 new MaterialAlertDialogBuilder(requireContext())
