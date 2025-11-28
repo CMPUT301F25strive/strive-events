@@ -1,12 +1,15 @@
 package com.example.eventlottery.entrant;
 
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
 import android.location.Location;
 import androidx.annotation.NonNull;
@@ -37,6 +40,9 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -162,8 +168,12 @@ public class EventDetailFragment extends Fragment {
                 NavHostFragment.findNavController(this)
                         .navigate(R.id.action_eventDetailFragment_to_sendNotificationFragment, bundle);
             });
+            // Generate QR Code
+            binding.generateQRButton.setVisibility(View.VISIBLE);
+            binding.generateQRButton.setOnClickListener(v ->{generateQRCode(eventId);});
         } else {
             binding.sendNotificationButton.setVisibility(View.GONE);
+            binding.generateQRButton.setVisibility(View.GONE);
         }
     }
 
@@ -600,7 +610,45 @@ public class EventDetailFragment extends Fragment {
     }
 
     // ------------------------------------------------------------------------------
+    // ------------------ QR CODE HANDLING ------------------
+    /**
+     * Generate QR code for the event
+     * @param eventID: the event ID to use to generate the QR code
+     */
+    private void generateQRCode(String eventID) {
+        try {
+            String qrLink = "event/" + eventID;
+            int size = 600; // QR size
+            QRCodeWriter writer = new QRCodeWriter();
+            BitMatrix bitMatrix = writer.encode(qrLink, BarcodeFormat.QR_CODE, size, size);
 
+            Bitmap bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.RGB_565);
+            for (int x = 0; x < size; x++) {
+                for (int y = 0; y < size; y++) {
+                    bitmap.setPixel(x, y, bitMatrix.get(x, y) ? Color.BLACK : Color.WHITE);
+                }
+            }
+            showQrDialog(bitmap); // Display the QR code
+        } catch (Exception e) {
+            Toast.makeText(requireContext(), "QR generation failed: " + e, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    /**
+     * Show QR code in a dialog
+     */
+    private void showQrDialog(Bitmap qrBitmap) {
+        ImageView image = new ImageView(requireContext());
+        image.setImageBitmap(qrBitmap);
+        image.setPadding(50, 50, 50, 50);
+
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Event QR Code")
+                .setView(image)
+                .setPositiveButton("Close", null)
+                .show();
+    }
+    // ------------------------------------------------------
     @Override
     public void onSaveInstanceState(@NonNull Bundle out) {
         super.onSaveInstanceState(out);

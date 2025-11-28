@@ -8,6 +8,11 @@ import com.google.zxing.integration.android.IntentIntegrator;
 
 public class QRScanner {
     private EventRepository eventRepo;
+
+    /**
+     * Starts the QR code scanner
+     * @param fragment: the current fragment
+     */
     public static void startScanner(Fragment fragment) {
         IntentIntegrator integrator = IntentIntegrator.forSupportFragment(fragment);
         integrator.setPrompt("Scan a QR Code");
@@ -16,6 +21,11 @@ public class QRScanner {
         integrator.initiateScan();
     }
 
+    /**
+     * Extracts the Event ID from the QR code
+     * @param scanned: the scanned string from the QR code
+     * @return Event: The event with the corresponding event ID
+     */
     public Event extractEvent(String scanned) {
         if (scanned == null) return null;
         // Only getting valid QR codes
