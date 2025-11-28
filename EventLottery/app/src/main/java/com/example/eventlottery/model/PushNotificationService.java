@@ -11,7 +11,11 @@ import androidx.core.app.NotificationCompat;
 
 import com.example.eventlottery.R;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Service to send and listen for push notifications using Firestore.
@@ -33,10 +37,18 @@ public class PushNotificationService {
      * @param senderId the device ID of the sender
      * @param receiverId the device ID of the receiver
      * @param message the notification message
+     * @param isSystem boolean to see if notification is from system or not
      */
-    public void sendNotification(String senderId, String receiverId, String message) {
-        firestore.collection("notifications")
-                .add(new NotificationData(senderId, receiverId, message));
+    public void sendNotification(String senderId, String receiverId, String message, boolean isSystem) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("senderId", senderId);
+        data.put("receiverId", receiverId);
+        data.put("message", message);
+        data.put("delivered", false);
+        data.put("timestamp", FieldValue.serverTimestamp());
+        data.put("isSystem", isSystem);
+
+        firestore.collection("notifications").add(data);
     }
 
     /**

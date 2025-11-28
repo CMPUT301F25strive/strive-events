@@ -10,6 +10,7 @@ public class NotificationData {
     public String receiverId;
     public String message;
     public boolean delivered;
+    public boolean isSystem;
     public Object timestamp;
 
     public NotificationData() {}
@@ -20,11 +21,12 @@ public class NotificationData {
      * @param receiverId the receiver device ID
      * @param message the notification message
      */
-    public NotificationData(String senderId, String receiverId, String message) {
+    public NotificationData(String senderId, String receiverId, String message, boolean isSystem) {
         this.senderId = senderId;
         this.receiverId = receiverId;
         this.message = message;
         this.delivered = false;
+        this.isSystem = isSystem;
         this.timestamp = FieldValue.serverTimestamp();
     }
 }

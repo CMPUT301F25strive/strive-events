@@ -189,7 +189,7 @@ public class SendNotificationFragment extends Fragment implements EntrantAdapter
         for (Profile profile : selected) {
             String receiverId = profile.getDeviceID();
             if (receiverId != null && !receiverId.isEmpty()) {
-                service.sendNotification(localDeviceId, receiverId, message);
+                service.sendNotification(localDeviceId, receiverId, message, false);
             }
         }
 

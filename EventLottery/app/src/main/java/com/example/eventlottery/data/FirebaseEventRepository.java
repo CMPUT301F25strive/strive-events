@@ -10,7 +10,9 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.cloudinary.android.MediaManager;
 import com.cloudinary.android.callback.ErrorInfo;
+import com.example.eventlottery.model.AppContextProvider;
 import com.example.eventlottery.model.Event;
+import com.example.eventlottery.model.InvitationService;
 import com.example.eventlottery.model.LotterySystem;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -246,8 +248,23 @@ public class FirebaseEventRepository implements EventRepository {
         // Only update Firestore if invited list actually changed
         List<String> newInvited = event.getInvitedList();
         if (!originalInvited.equals(newInvited)) {
+
+            // Detect newly invited users
+            List<String> newlyInvited = new ArrayList<>(newInvited);
+            newlyInvited.removeAll(originalInvited);
+
+            // Send notifications only to the newly invited users
+            InvitationService invitationService = new InvitationService(AppContextProvider.getContext());
+            invitationService.sendInvitations(
+                    newlyInvited,
+                    event.getOrganizerId(),
+                    event.getTitle()
+            );
+
+            // Update Firestore invited list in event
             updateInvitedList(event.getId(), newInvited);
         }
+
     }
 
     @Override
