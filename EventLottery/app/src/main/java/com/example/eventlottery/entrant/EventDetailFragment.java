@@ -153,10 +153,15 @@ public class EventDetailFragment extends Fragment {
         // send notification button in the event details screen
         if (isAdmin || isOwner) {
             binding.sendNotificationButton.setVisibility(View.VISIBLE);
-            binding.sendNotificationButton.setOnClickListener(v ->
-                    NavHostFragment.findNavController(this)
-                            .navigate(R.id.action_eventDetailFragment_to_sendNotificationFragment)
-            );
+            binding.sendNotificationButton.setOnClickListener(v -> {
+                if (currentEvent == null) return;
+
+                Bundle bundle = new Bundle(); // sending the event to the sendNotificationFragment to know which event it is dealing with
+                bundle.putSerializable("currentEvent", currentEvent);
+
+                NavHostFragment.findNavController(this)
+                        .navigate(R.id.action_eventDetailFragment_to_sendNotificationFragment, bundle);
+            });
         } else {
             binding.sendNotificationButton.setVisibility(View.GONE);
         }

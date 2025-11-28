@@ -1,119 +1,84 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/sendNotificationRoot"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".entrant.SendNotificationFragment">
+    android:layout_height="match_parent">
 
-    <!-- === TOP BAR (EXACT SAME AS EVENT DETAIL) === -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/topBarLayout"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:paddingTop="16dp"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
-        app:layout_constraintTop_toTopOf="parent">
+    <ImageButton
+        android:id="@+id/backButton"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/back"
+        android:padding="4dp"
+        android:src="@drawable/ic_baseline_chevron_left_36"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageButton
-            android:id="@+id/backButton"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="@android:color/transparent"
-            android:contentDescription="@string/back"
-            android:padding="4dp"
-            android:src="@drawable/ic_baseline_chevron_left_36"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
-
-        <TextView
-            android:id="@+id/appNameText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Make Announcement"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="@color/black"
-            android:gravity="center"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <!-- === SCROLL CONTENT === -->
-    <ScrollView
-        android:id="@+id/scrollArea"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="56dp"
-        android:paddingStart="20dp"
-        android:paddingTop="12dp"
-        android:paddingEnd="20dp"
-        android:paddingBottom="100dp"
-        app:layout_constraintTop_toBottomOf="@id/topBarLayout"
-        app:layout_constraintBottom_toBottomOf="parent">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <!-- MESSAGE INPUT -->
-            <EditText
-                android:id="@+id/messageInput"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Enter notification message"
-                android:layout_marginTop="16dp" />
-
-            <!-- Empty view -->
-            <TextView
-                android:id="@+id/emptyView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="No entrants found"
-                android:visibility="gone"
-                android:gravity="center"
-                android:padding="16dp"
-                android:textSize="16sp"
-                android:textColor="@android:color/darker_gray" />
-
-            <!-- RecyclerView -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/entrantsRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clipToPadding="false"
-                android:nestedScrollingEnabled="false"
-                android:layout_marginTop="8dp" />
-
-        </LinearLayout>
-    </ScrollView>
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/sendNotificationButton"
-        style="@style/Widget.Material3.Button"
+    <EditText
+        android:id="@+id/messageInput"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Notify"
-        android:textColor="@android:color/white"
-        android:padding="16dp"
-        app:backgroundTint="@color/primary"
-
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="20dp"
-
-        app:cornerRadius="30dp"
-        app:elevation="12dp"
-
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:hint="Enter notification message"
+        android:padding="12dp"
+        app:layout_constraintTop_toBottomOf="@id/backButton"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toStartOf="@id/sendButton"
+        />
+
+    <Button
+        android:id="@+id/sendButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Send"
+        app:layout_constraintTop_toBottomOf="@id/backButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="12dp"
+        />
+
+    <LinearLayout
+        android:id="@+id/filterContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:padding="6dp"
+        app:layout_constraintTop_toBottomOf="@id/messageInput"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ToggleButton
+            android:id="@+id/toggleAll"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textOn="All"
+            android:textOff="All"/>
+
+        <ToggleButton
+            android:id="@+id/toggleChosen"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textOn="Chosen"
+            android:textOff="Chosen"/>
+
+        <ToggleButton
+            android:id="@+id/toggleCancelled"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textOn="Cancelled"
+            android:textOff="Cancelled"/>
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/entrantRecyclerView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:padding="8dp"
+        app:layout_constraintTop_toBottomOf="@id/filterContainer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

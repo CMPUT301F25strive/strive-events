@@ -63,7 +63,21 @@ public class EntrantAdapter extends ListAdapter<Profile, EntrantAdapter.EntrantV
     }
 
     /**
-     * This methods clears the checkboxes after sending the notification
+     * This method checks if profile is selected or not
+     * @param profile: the profile that was clicked
+     * @param checked: if it is clicked or not
+     */
+    public void checkProfile(Profile profile, boolean checked) {
+        if (checked) {
+            if (!selectedProfiles.contains(profile)) selectedProfiles.add(profile);
+        } else {
+            selectedProfiles.remove(profile);
+        }
+        notifyItemChanged(getCurrentList().indexOf(profile));
+    }
+
+    /**
+     * This method clears the selection of the boxes
      */
     public void clearSelection() {
         selectedProfiles.clear();
