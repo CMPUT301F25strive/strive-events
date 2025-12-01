@@ -616,7 +616,7 @@ public class EventDetailFragment extends Fragment {
 
     private void performRunLottery() {
         if (currentEvent == null) return;
-        eventRepository.autoDraw(currentEvent);
+        eventRepository.manualDraw(currentEvent);
         Snackbar.make(binding.getRoot(), R.string.run_lottery_success, Snackbar.LENGTH_SHORT).show();
     }
 

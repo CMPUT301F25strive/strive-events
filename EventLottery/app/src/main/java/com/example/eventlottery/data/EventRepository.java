@@ -64,6 +64,12 @@ public interface EventRepository {
      */
     void autoDraw(Event event);
     /**
+     * Forces the lottery to run immediately, ignoring registration timing constraints.
+     * Triggered by organizer/admin actions.
+     * @param event event object
+     */
+    void manualDraw(Event event);
+    /**
      * Updates the list of user locations for an event.
      * @param eventID event ID
      * @param userLocations list of Event.UserLocation
@@ -81,4 +87,3 @@ public interface EventRepository {
         void onResult(List<Event.UserLocation> locations);
     }
 }
-
