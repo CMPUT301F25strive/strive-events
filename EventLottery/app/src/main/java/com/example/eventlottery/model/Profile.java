@@ -10,7 +10,6 @@ import java.util.List;
 public class Profile {
     public enum Role {
         USER,
-        ORGANIZER,
         ADMIN
     }
 
@@ -18,7 +17,7 @@ public class Profile {
     private String name;
     private String email;
     private String phone;
-    private Role role = Role.ORGANIZER;        // Default role is ORGANIZER
+    private Role role = Role.USER;        // Default role is USER
     private boolean organizerEnabled = true;   // Controls if organizing tools are enabled
     private boolean getNotifications = true;   // Default is true
     private final List<Event> historyEvents = new ArrayList<>(); // For entrants
@@ -45,7 +44,7 @@ public class Profile {
      * @param getNotifications setting of if the user wants notifications or not
      */
     public Profile(String deviceID, String name, String email, String phone, boolean getNotifications) {
-        this(deviceID, name, email, phone, Role.ORGANIZER, getNotifications);
+        this(deviceID, name, email, phone, Role.USER, getNotifications);
     }
 
     /**
@@ -105,10 +104,7 @@ public class Profile {
      * @return true if the profile can access organizer capabilities
      */
     public boolean isOrganizer() {
-        if (role == Role.ADMIN) {
-            return true;
-        }
-        return role == Role.ORGANIZER && organizerEnabled;
+        return role == Role.ADMIN || organizerEnabled;
     }
 
     /**
@@ -232,6 +228,6 @@ public class Profile {
      * @param role : role of user
      */
     public void setRole(Role role) {
-        this.role = role != null ? role : Role.ORGANIZER;
+        this.role = role != null ? role : Role.USER;
     }
 }
