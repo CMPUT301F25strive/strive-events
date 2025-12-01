@@ -19,24 +19,42 @@ public final class OrganizerAccessCache {
 
     private OrganizerAccessCache() { }
 
+    /**
+     * Set the allowed status of the given organizer.
+     * @param deviceId the id of the organizer
+     * @param allowed the boolean value for allowed status
+     */
     public static void setAllowed(@Nullable String deviceId, boolean allowed) {
         SharedPreferences prefs = getPrefs();
         if (prefs == null || TextUtils.isEmpty(deviceId)) return;
         prefs.edit().putBoolean(KEY_PREFIX + deviceId, allowed).apply();
     }
 
+    /**
+     * Get the allowed status of the given organizer.
+     * @param deviceId the id of the organizer
+     * @return the boolean value for allowed status
+     */
     public static boolean isAllowed(@Nullable String deviceId) {
         SharedPreferences prefs = getPrefs();
         if (prefs == null || TextUtils.isEmpty(deviceId)) return false;
         return prefs.getBoolean(KEY_PREFIX + deviceId, false);
     }
 
+    /**
+     * Clear the allowed status of the given organizer.
+     * @param deviceId the id of the organizer
+     */
     public static void clear(@Nullable String deviceId) {
         SharedPreferences prefs = getPrefs();
         if (prefs == null || TextUtils.isEmpty(deviceId)) return;
         prefs.edit().remove(KEY_PREFIX + deviceId).apply();
     }
 
+    /**
+     * Get the SharedPreferences instance.
+     * @return the SharedPreferences instance
+     */
     @Nullable
     private static SharedPreferences getPrefs() {
         Context context = AppContextProvider.getContext();

@@ -24,12 +24,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Firebase implementation of EventRepository
+ */
 public class FirebaseEventRepository implements EventRepository {
 
     private final FirebaseFirestore firestore;
     private final CollectionReference eventsRef;
     private final MutableLiveData<List<Event>> eventsLiveData = new MutableLiveData<>(new ArrayList<>());
 
+    /**
+     * Constructor for FirebaseEventRepository
+     */
     public FirebaseEventRepository() {
         firestore = FirebaseFirestore.getInstance();
         eventsRef = firestore.collection("events");
@@ -41,6 +47,10 @@ public class FirebaseEventRepository implements EventRepository {
     // ============================================================
     // REAL-TIME LISTENER
     // ============================================================
+
+    /**
+     * Start real-time listener for events
+     */
     private void listenForEvents() {
         eventsRef.addSnapshotListener((snapshots, e) -> {
             if (snapshots == null) return;
@@ -84,10 +94,18 @@ public class FirebaseEventRepository implements EventRepository {
     // ============================================================
     // OBSERVERS
     // ============================================================
+
+    /**
+     * Get LiveData of events
+     * @return LiveData of events
+     */
     @NonNull
     @Override
     public LiveData<List<Event>> observeEvents() { return eventsLiveData; }
 
+    /**
+     * Refresh the list of events
+     */
     @Override
     public void refresh() {
         // Firestore is real-time; manual refresh not required
@@ -96,6 +114,12 @@ public class FirebaseEventRepository implements EventRepository {
     // ============================================================
     // FIND EVENT
     // ============================================================
+
+    /**
+     * Find an event by its ID
+     * @param id : unique ID of the event
+     * @return Event object if found, null otherwise
+     */
     @Override
     public Event findEventById(String id) {
         List<Event> list = eventsLiveData.getValue();
@@ -109,6 +133,12 @@ public class FirebaseEventRepository implements EventRepository {
     // ============================================================
     // UPDATE WAITING LIST
     // ============================================================
+
+    /**
+     * This method updates the waiting list for an event.
+     * @param eventID : unique ID of the event
+     * @param waitingList  the waiting list
+     */
     @Override
     public void updateWaitingList(String eventID, List<String> waitingList) {
         // Update waiting list in Firestore
@@ -131,6 +161,11 @@ public class FirebaseEventRepository implements EventRepository {
                 .addOnFailureListener(Throwable::printStackTrace);
     }
 
+    /**
+     * This method updates the list of attendees for an event.
+     * @param eventID unique ID of the event
+     * @param attendeesList the list of attendee IDs
+     */
     @Override
     public void updateAttendeesList(String eventID, List<String> attendeesList) {
         // Update attendees list in Firestore
@@ -139,6 +174,11 @@ public class FirebaseEventRepository implements EventRepository {
                 .addOnFailureListener(Throwable::printStackTrace);
     }
 
+    /**
+     * This method updates the list of canceled entrants for an event.
+     * @param eventID unique ID of the event
+     * @param canceledList the list of canceled entrant IDs
+     */
     @Override
     public void updateCanceledList(String eventID, List<String> canceledList) {
         // Update canceled entrants list in Firestore
@@ -147,6 +187,11 @@ public class FirebaseEventRepository implements EventRepository {
                 .addOnFailureListener(Throwable::printStackTrace);
     }
 
+    /**
+     * Mark an invitation as accepted or declined
+     * @param eventId unique ID of the event
+     * @param deviceId unique ID of the device
+     */
     @Override
     public void markInvitationAccepted(String eventId, String deviceId) {
         eventsRef.document(eventId).update(
@@ -155,6 +200,11 @@ public class FirebaseEventRepository implements EventRepository {
         );
     }
 
+    /**
+     * Mark an invitation as declined
+     * @param eventId unique ID of the event
+     * @param deviceId unique ID of the device
+     */
     @Override
     public void markInvitationDeclined(String eventId, String deviceId) {
         eventsRef.document(eventId).update(
@@ -163,7 +213,13 @@ public class FirebaseEventRepository implements EventRepository {
         );
     }
 
-
+    /**
+     * Add a device ID to the waiting list of an event with locations enabled
+     * @param eventId unique ID of the event
+     * @param deviceId unique ID of the device
+     * @param latitude latitude of the device
+     * @param longitude longitude of the device
+     */
     public void joinWaitingListWithLocation(String eventId, String deviceId,
                                             @Nullable Double latitude,
                                             @Nullable Double longitude) {
@@ -193,6 +249,11 @@ public class FirebaseEventRepository implements EventRepository {
         }
     }
 
+    /**
+     * Update the list of user locations for an event
+     * @param eventID event ID
+     * @param userLocations list of Event.UserLocation
+     */
     @Override
     public void updateUserLocations(String eventID, List<Event.UserLocation> userLocations) {
         eventsRef.document(eventID)
@@ -208,6 +269,11 @@ public class FirebaseEventRepository implements EventRepository {
         runAutoDrawLogic(event, false);
     }
 
+    /**
+     * This method is the pure helper function of checking, executing draws, and updating status to "DRAWN"
+     * @param event : the event object
+     * @param ignoreRegEndConstraint whether to ignore the registration end constraint
+     */
     public static void runAutoDrawLogic(Event event, boolean ignoreRegEndConstraint) {
         if (event == null) return;
 
@@ -266,11 +332,21 @@ public class FirebaseEventRepository implements EventRepository {
         executeDraw(event, false, false);
     }
 
+    /**
+     * This method uses the Lottery System to draw automatically
+     * @param event event object
+     */
     @Override
     public void manualDraw(Event event) {
         executeDraw(event, true, true);
     }
 
+    /**
+     * This method uses the Lottery System to execute the draw
+     * @param event event object
+     * @param ignoreRegEndConstraint whether to ignore the registration end constraint
+     * @param updateStatusInFirestore whether to update the status in Firestore
+     */
     private void executeDraw(@Nullable Event event,
                              boolean ignoreRegEndConstraint,
                              boolean updateStatusInFirestore) {
@@ -323,6 +399,10 @@ public class FirebaseEventRepository implements EventRepository {
         }
     }
 
+    /**
+     * Delete an event from Firestore
+     * @param eventId unique ID of the event
+     */
     @Override
     public void deleteEvent(String eventId) {
         // Remove event document from Firestore
@@ -331,6 +411,10 @@ public class FirebaseEventRepository implements EventRepository {
                 .addOnFailureListener(Throwable::printStackTrace);
     }
 
+    /**
+     * Remove the poster URL from Firestore
+     * @param eventId unique ID of the event
+     */
     @Override
     public void removeEventPoster(String eventId) {
         // Clear poster URL in Firestore
@@ -342,11 +426,31 @@ public class FirebaseEventRepository implements EventRepository {
     // ============================================================
     // UPLOAD EVENT
     // ============================================================
+
+    /**
+     * Callback interface for uploading events
+     */
     public interface UploadCallback {
         void onProgress(double progress); // 0.0 to 1.0
         void onComplete(boolean success, String message, String eventID);
     }
 
+    /**
+     * Upload an event to Firestore
+     * @param imageUri image URI
+     * @param title event title
+     * @param description event description
+     * @param location event location
+     * @param eventStartTimeMillis event start time
+     * @param regStartTimeMillis event registration start time
+     * @param regEndTimeMillis event registration end time
+     * @param capacity event capacity
+     * @param waitingListSpots event waiting list spots
+     * @param deviceId device ID
+     * @param tag event tag
+     * @param geolocationEnabled whether geolocation is enabled
+     * @param callback callback
+     */
     public void uploadEvent(
             Uri imageUri,
             String title,
@@ -422,6 +526,23 @@ public class FirebaseEventRepository implements EventRepository {
                 }).dispatch();
     }
 
+    /**
+     * Save event to Firestore
+     * @param eventId unique ID of the event
+     * @param title event title
+     * @param description event description
+     * @param location event location
+     * @param eventStartTimeMillis event start time
+     * @param regStartTimeMillis event registration start time
+     * @param regEndTimeMillis event registration end time
+     * @param capacity event capacity
+     * @param waitingListSpots event waiting list spots
+     * @param deviceId device ID
+     * @param posterUrl event poster URL
+     * @param tag event tag
+     * @param geolocationEnabled whether geolocation is enabled
+     * @param callback callback
+     */
     private void saveEventToFirestore(
             String eventId,
             String title,
@@ -459,6 +580,12 @@ public class FirebaseEventRepository implements EventRepository {
     // ============================================================
     // NEW: GET USER LOCATIONS
     // ============================================================
+
+    /**
+     * Get the list of user locations for an event
+     * @param eventID: unique ID of the event
+     * @param callback: returns list of Event.UserLocation
+     */
     @Override
     public void getEventUserLocations(String eventID, @NonNull EventRepository.EventUserLocationsCallback callback) {
         Event event = findEventById(eventID);

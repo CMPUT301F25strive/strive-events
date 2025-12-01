@@ -23,6 +23,11 @@ import com.example.eventlottery.model.PushNotificationService;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This is the main activity of the application.
+ * It sets up the UI and starts listening for notifications.
+ */
+
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
@@ -34,6 +39,14 @@ public class MainActivity extends AppCompatActivity {
     private static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 101;
     private String localDeviceId;
 
+    /**
+     * This method is called when the activity is first created.
+     * It sets up the UI and starts listening for notifications.
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in {@link #onSaveInstanceState}.  <b><i>Note: Otherwise it is null.</i></b>
+     *
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -102,6 +115,15 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * This method is called when the user responds to the notification permission request.
+     * @param requestCode The request code passed in {@link #requestPermissions}.
+     * @param permissions The requested permissions. Never null.
+     * @param grantResults The grant results for the corresponding permissions which is either
+     *                     {@link android.content.pm.PackageManager#PERMISSION_GRANTED} or
+     *                     {@link android.content.pm.PackageManager#PERMISSION_DENIED}. Never null.
+     *
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -115,6 +137,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * This method is called when the user clicks the back button in the action bar.
+     * It navigates back to the previous fragment.
+     * @return True if the navigation was successful, false otherwise.
+     */
     @Override
     public boolean onSupportNavigateUp() {
         return navController != null && navController.navigateUp()

@@ -105,7 +105,7 @@ public class Event implements Serializable {
     }
 
     /**
-     * GETTERS
+     * GETTERS AND SETTERS
      */
 
     public String getId() {

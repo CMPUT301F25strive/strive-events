@@ -29,6 +29,10 @@ public class InvitationService {
         this(RepositoryProvider.getEventRepository());
     }
 
+    /**
+     * Constructor
+     * @param eventRepository
+     */
     public InvitationService(EventRepository eventRepository) {
         this.eventRepository = eventRepository;
         this.firestore = FirebaseFirestore.getInstance();

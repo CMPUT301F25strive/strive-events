@@ -22,6 +22,11 @@ public class EntrantEventListViewModel extends ViewModel {
     private final MediatorLiveData<EventListUiState> stateLiveData = new MediatorLiveData<>();
     private final MutableLiveData<Boolean> loadingLiveData = new MutableLiveData<>(true);
 
+    /**
+     * Constructor for EntrantEventListViewModel.
+     * @param repository
+     * @throws IllegalArgumentException if repository is null
+     */
     public EntrantEventListViewModel(@NonNull EventRepository repository) {
         this.repository = repository;
         stateLiveData.setValue(EventListUiState.loading());
@@ -33,17 +38,29 @@ public class EntrantEventListViewModel extends ViewModel {
         refresh();
     }
 
+    /**
+     * Getter for loadingLiveData state.
+     * @return LiveData<Boolean>
+     */
+
     @NonNull
     public LiveData<EventListUiState> getState() {
         return stateLiveData;
     }
 
+    /**
+     * this methods refresh the page with live data.
+     */
     public void refresh() {
         loadingLiveData.setValue(true);
         stateLiveData.setValue(new EventListUiState(true, getCurrentEvents(), null));
         repository.refresh();
     }
 
+    /**
+     * Getter for the event list
+     * @return a list of events
+     */
     @NonNull
     public List<Event> getCurrentEvents() {
         EventListUiState value = stateLiveData.getValue();

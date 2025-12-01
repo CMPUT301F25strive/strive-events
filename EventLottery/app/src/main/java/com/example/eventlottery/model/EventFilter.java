@@ -4,6 +4,9 @@ import androidx.annotation.Nullable;
 
 import java.io.Serializable;
 
+/**
+ * Event filter domain model.
+ */
 public class EventFilter implements Serializable {
     @Nullable
     private Long filterStartTimeMillis;
@@ -14,16 +17,30 @@ public class EventFilter implements Serializable {
     @Nullable
     private Event.Tag filterTag;
 
+    /**
+     * Constructor
+     * @param filterStartTimeMillis
+     * @param filterEndTimeMillis
+     * @param filterTag
+     */
     public EventFilter(@Nullable Long filterStartTimeMillis, @Nullable Long filterEndTimeMillis, @Nullable Event.Tag filterTag) {
         this.filterStartTimeMillis = filterStartTimeMillis;
         this.filterEndTimeMillis = filterEndTimeMillis;
         this.filterTag = filterTag;
     }
 
+    /**
+     * Default constructor
+     */
     public EventFilter() {
         this(null, null, null);
     }
 
+    /**
+     * Check if the given event matches the filter
+     * @param event The event to check
+     * @return True if the event matches the filter, false otherwise
+     */
     public boolean match(Event event) {
         long eventStart = event.getEventStartTimeMillis();
         Event.Tag eventTag = event.getTag();
@@ -47,6 +64,10 @@ public class EventFilter implements Serializable {
         return true;
     }
 
+    /**
+     * Getters and setters
+     * @return The filter values
+     */
     @Nullable
     public Long getFilterStartTimeMillis() {
         return filterStartTimeMillis;

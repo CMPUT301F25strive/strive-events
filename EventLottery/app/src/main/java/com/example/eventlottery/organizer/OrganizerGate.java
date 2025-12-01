@@ -17,6 +17,11 @@ public final class OrganizerGate {
 
     private OrganizerGate() {}
 
+    /**
+     * Determine whether the current device has organizer capabilities.
+     * @param context
+     * @return
+     */
     public static boolean hasOrganizerAccess(Context context) {
         String deviceId = fetchDeviceId(context);
         if (TextUtils.isEmpty(deviceId)) {
@@ -32,6 +37,11 @@ public final class OrganizerGate {
         return OrganizerAccessCache.isAllowed(deviceId);
     }
 
+    /**
+     * Fetch the device id.
+     * @param context
+     * @return
+     */
     @Nullable
     private static String fetchDeviceId(Context context) {
         return Settings.Secure.getString(

@@ -26,6 +26,11 @@ public class MockEventRepository implements EventRepository {
         eventsLiveData.postValue(new ArrayList<>(events));
     }
 
+    /**
+     * This method updates the list of user locations for an event.
+     * @param eventID event ID
+     * @param userLocations list of Event.UserLocation
+     */
     @Override
     public void updateUserLocations(String eventID, List<Event.UserLocation> userLocations) {
         Event event = findEventById(eventID);
@@ -35,6 +40,11 @@ public class MockEventRepository implements EventRepository {
         }
     }
 
+    /**
+     * This method finds an event by its ID
+     * @param eventID : unique ID of the event
+     * @return
+     */
     @Override
     public Event findEventById(String eventID) {
         for (Event e : events) {
@@ -45,11 +55,20 @@ public class MockEventRepository implements EventRepository {
         return null;
     }
 
+    /**
+     * This method adds an event to the list of events
+     * @param e : event object
+     */
     public void add(Event e) {
         events.add(e);
         refresh();
     }
 
+    /**
+     * This method deletes an event from the list of events
+     * @param eventID
+     * @return
+     */
     public Event getEvent(String eventID) {
         for (Event e : events) {
             if (Objects.equals(e.getId(), eventID)) {
@@ -59,12 +78,20 @@ public class MockEventRepository implements EventRepository {
         throw new IllegalArgumentException("Event not found: " + eventID);
     }
 
+    /**
+     * This method deletes an event from the list of events
+     * @param eventID : unique ID of the event
+     */
     @Override
     public void deleteEvent(String eventID) {
         events.removeIf(e -> Objects.equals(e.getId(), eventID));
         refresh();
     }
 
+    /**
+     * This method sets the poster URL for an event
+     * @param eventId : unique ID of the event
+     */
     @Override
     public void removeEventPoster(String eventId) {
         Event event = findEventById(eventId);
@@ -74,19 +101,40 @@ public class MockEventRepository implements EventRepository {
         }
     }
 
+    /**
+     * This method sets the poster URL for an event
+     * @param eventId : unique ID of the event
+     * @return
+     */
     public int getSize() {
         return events.size();
     }
 
+    /**
+     * This method gets the list of events
+     *
+     * @return : list of events
+     */
     public List<Event> getEvents() {
         return new ArrayList<>(events);
     }
 
+    /**
+     * This method gets the list of events
+     *
+     * @return : list of events
+     */
     @Override
     public LiveData<List<Event>> observeEvents() {
         return eventsLiveData;
     }
 
+    /**
+     * This method updates the list of waiting entrants for an event.
+     *
+     * @param eventID : unique ID of the event
+     * @param waitingList  the waiting list
+     */
     @Override
     public void updateWaitingList(String eventID, List<String> waitingList) {
         Event event = findEventById(eventID);
@@ -111,6 +159,12 @@ public class MockEventRepository implements EventRepository {
         }
     }
 
+    /**
+     * This method updates the list of attendees for an event.
+     *
+     * @param eventID
+     * @param attendeesList
+     */
     @Override
     public void updateAttendeesList(String eventID, List<String> attendeesList) {
         Event event = findEventById(eventID);
@@ -120,6 +174,12 @@ public class MockEventRepository implements EventRepository {
         }
     }
 
+    /**
+     * This method updates the list of canceled entrants for an event.
+     *
+     * @param eventID
+     * @param canceledList
+     */
     @Override
     public void updateCanceledList(String eventID, List<String> canceledList) {
         Event event = findEventById(eventID);
@@ -129,6 +189,12 @@ public class MockEventRepository implements EventRepository {
         }
     }
 
+    /**
+     * This method updates the list of waiting entrants for an event.
+     *
+     * @param eventId
+     * @param deviceId
+     */
     @Override
     public void markInvitationAccepted(String eventId, String deviceId) {
         Event event = findEventById(eventId);
