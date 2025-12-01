@@ -336,6 +336,27 @@
                     android:textColor="?attr/colorOnSurface"
                     tools:text="Status: TBD" />
             </LinearLayout>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/lotteryOutcomeCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:visibility="gone"
+                app:cardBackgroundColor="@color/error_container"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/error"
+                app:strokeWidth="1dp">
+
+                <TextView
+                    android:id="@+id/lotteryOutcomeText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="12dp"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:textColor="@color/error"
+                    tools:text="Lottery has been drawn and you were not selected." />
+            </com.google.android.material.card.MaterialCardView>
             <!-- fragment_event_detail.xml -->
             <FrameLayout
                 android:id="@+id/mapContainer"

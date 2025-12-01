@@ -28,6 +28,7 @@
     <string name="event_detail_reg_period_format">Registration: %1$s – %2$s</string>
     <string name="event_detail_tag_format">Category: %1$s</string>
     <string name="event_detail_status_format">Status: %1$s</string>
+    <string name="lottery_outcome_not_selected">The lottery has been drawn and you were not selected this time.</string>
     <string name="unknown">N/A</string>
     <string name="profile_picture">Profile picture</string>
     <string name="event_detail_description_placeholder">Description: %1$s</string>

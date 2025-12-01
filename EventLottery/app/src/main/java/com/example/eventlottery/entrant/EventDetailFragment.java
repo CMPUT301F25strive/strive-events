@@ -198,6 +198,7 @@ public class EventDetailFragment extends Fragment {
 
         bindEvent(event);
         setupActionButtons(event, deviceId);
+        updateLotteryOutcomeMessage(event);
         setupRsvpUI();
         configAdminButtons(event);
 
@@ -582,6 +583,29 @@ public class EventDetailFragment extends Fragment {
         }
     }
 
+    private void updateLotteryOutcomeMessage(@NonNull Event event) {
+        if (binding == null || TextUtils.isEmpty(deviceId)) return;
+
+        View outcomeCard = binding.lotteryOutcomeCard;
+        if (outcomeCard == null) return;
+
+        boolean showMessage = false;
+
+        if (event.isDrawn() || event.isFinalized()) {
+            boolean stillWaiting = event.isOnWaitingList(deviceId);
+            boolean invited = event.isOnInvitedList(deviceId);
+            boolean attending = event.isOnAttendeesList(deviceId);
+            boolean canceled = event.isOnCanceledList(deviceId);
+
+            if (stillWaiting && !invited && !attending && !canceled) {
+                binding.lotteryOutcomeText.setText(R.string.lottery_outcome_not_selected);
+                showMessage = true;
+            }
+        }
+
+        outcomeCard.setVisibility(showMessage ? View.VISIBLE : View.GONE);
+    }
+
     private void configAdminButtons(@NonNull Event event){
         // Delete: admin or event owner
         boolean canDeleteEvent = isAdmin || isOwner;
@@ -873,11 +897,14 @@ public class EventDetailFragment extends Fragment {
         boolean isAttending = attendees != null && attendees.contains(deviceId);
         boolean isCanceled = canceled != null  && canceled.contains(deviceId);
 
-        // Can RSVP only when user is invited and hasn't responded to that
+        // Entrants can respond after the draw happens (status DRAWN) or once registration officially ends.
+        boolean canRespondNow = currentEvent.isRegEnd() || currentEvent.isDrawn();
+
+        // Can RSVP only when user is invited and hasn't responded yet
         boolean canRsvp = isInvited
                 && !isAttending
                 && !isCanceled
-                && currentEvent.isRegEnd()
+                && canRespondNow
                 && !currentEvent.isEventStarted();
 
         if (!canRsvp) {
