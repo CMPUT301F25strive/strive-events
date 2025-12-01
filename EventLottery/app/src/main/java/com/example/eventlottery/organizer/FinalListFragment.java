@@ -1,7 +1,12 @@
 package com.example.eventlottery.organizer;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +28,7 @@ import com.example.eventlottery.model.Profile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -226,26 +232,66 @@ public class FinalListFragment extends Fragment {
                     .append('\n');
         }
 
-        File directory = requireContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
-        if (directory == null) {
-            android.widget.Toast.makeText(requireContext(),
-                    R.string.export_final_list_empty, android.widget.Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (!directory.exists() && !directory.mkdirs()) {
-            android.widget.Toast.makeText(requireContext(),
-                    R.string.export_final_list_empty, android.widget.Toast.LENGTH_SHORT).show();
-            return;
-        }
-
         String sanitizedTitle = TextUtils.isEmpty(eventTitle) ? "event" : eventTitle.replaceAll("[^a-zA-Z0-9_-]", "_");
-        File file = new File(directory, "final_list_" + sanitizedTitle + ".csv");
-        try (FileOutputStream outputStream = new FileOutputStream(file)) {
-            outputStream.write(builder.toString().getBytes(StandardCharsets.UTF_8));
-            android.widget.Toast.makeText(requireContext(),
-                    R.string.export_final_list_success, android.widget.Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
-            android.widget.Toast.makeText(requireContext(), e.getMessage(), android.widget.Toast.LENGTH_SHORT).show();
+        String fileName = "final_list_" + sanitizedTitle + ".csv";
+        String csvContent = builder.toString();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            ContentResolver resolver = requireContext().getContentResolver();
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.Downloads.DISPLAY_NAME, fileName);
+            values.put(MediaStore.Downloads.MIME_TYPE, "text/csv");
+            values.put(MediaStore.Downloads.IS_PENDING, 1);
+
+            Uri collection = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
+            Uri item = resolver.insert(collection, values);
+            if (item == null) {
+                android.widget.Toast.makeText(requireContext(),
+                        R.string.export_final_list_error, android.widget.Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            boolean success = false;
+            try (OutputStream outputStream = resolver.openOutputStream(item)) {
+                if (outputStream != null) {
+                    outputStream.write(csvContent.getBytes(StandardCharsets.UTF_8));
+                    success = true;
+                }
+            } catch (IOException e) {
+                resolver.delete(item, null, null);
+                android.widget.Toast.makeText(requireContext(), e.getMessage(), android.widget.Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            values.clear();
+            values.put(MediaStore.Downloads.IS_PENDING, 0);
+            resolver.update(item, values, null, null);
+
+            if (success) {
+                android.widget.Toast.makeText(requireContext(),
+                        R.string.export_final_list_success, android.widget.Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            if (directory == null) {
+                android.widget.Toast.makeText(requireContext(),
+                        R.string.export_final_list_error, android.widget.Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (!directory.exists() && !directory.mkdirs()) {
+                android.widget.Toast.makeText(requireContext(),
+                        R.string.export_final_list_error, android.widget.Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            File file = new File(directory, fileName);
+            try (FileOutputStream outputStream = new FileOutputStream(file)) {
+                outputStream.write(csvContent.getBytes(StandardCharsets.UTF_8));
+                android.widget.Toast.makeText(requireContext(),
+                        R.string.export_final_list_success, android.widget.Toast.LENGTH_SHORT).show();
+            } catch (IOException e) {
+                android.widget.Toast.makeText(requireContext(), e.getMessage(), android.widget.Toast.LENGTH_SHORT).show();
+            }
         }
     }
 

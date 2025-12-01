@@ -3,6 +3,7 @@ package com.example.eventlottery.entrant;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.location.Location;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.TextUtils;
@@ -11,7 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
-import android.location.Location;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
@@ -675,7 +676,7 @@ public class EventDetailFragment extends Fragment {
                 } else {
                     waitingListController.joinWaitingList(event.getId(), userID);
                     Toast.makeText(requireContext(), "Joined waiting list", Toast.LENGTH_SHORT).show();
-                    updateJoinButton(true);
+            updateJoinButton(true);
                 }
             }
         });
