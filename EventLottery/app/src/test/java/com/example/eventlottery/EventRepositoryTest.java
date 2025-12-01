@@ -86,7 +86,9 @@ public class EventRepositoryTest {
         assertEquals(0, eventRepo.getSize());
     }
 
-
+    /**
+     * This tests the system will successfully draw the first round when it's due.
+     */
     @Test
     public void testAutoDraw_InitialDraw() {
         long now = System.currentTimeMillis();
@@ -126,6 +128,9 @@ public class EventRepositoryTest {
         assertEquals(Event.Status.DRAWN, event.getStatus());
     }
 
+    /**
+     * This tests that after decline, the system will successfully draw the replacement applicant.
+     */
     @Test
     public void testAutoDraw_AfterDecline() {
         long now = System.currentTimeMillis();
@@ -165,6 +170,9 @@ public class EventRepositoryTest {
         assertTrue(Arrays.asList("D", "E").contains(newInvites.get(0)));
     }
 
+    /**
+     * This tests that when organizers manually draw the pool, it will ignore the registration end constraint.
+     */
     @Test
     public void testManualDraw_IgnoresRegEndConstraint() {
         long now = System.currentTimeMillis();

@@ -42,8 +42,8 @@
     <string name="guidelines_title">Lottery Guidelines</string>
     <string name="guidelines_body">Lottery slots are distributed as fairly as possible:\n\nSign up for a waiting list during the entry window. ONE entry per event. \nWhen the window closes, the system randomly selects the available spots. \nWinners will be notified and must confirm.\n \nIf someone declines or times out, the system draws again. </string>
     <string name="guidelines_back_content_description">Go back to profile</string>
-    <string name="join_waiting_list">Join the waiting list</string>
-    <string name="leave_waiting_list">Leave the waiting list</string>
+    <string name="join_waiting_list">Join waitlist</string>
+    <string name="leave_waiting_list">Leave waitlist</string>
     <string name="delete_event">Delete event</string>
     <string name="delete_event_confirm_title">Delete this event?</string>
     <string name="delete_event_confirm_body">This removes the event for all entrants. This action cannot be undone.</string>
@@ -86,6 +86,7 @@
     <string name="export_final_list_label">Generate CSV</string>
     <string name="export_final_list_success">Final list exported to Downloads.</string>
     <string name="export_final_list_empty">No confirmed entrants to export yet.</string>
+    <string name="export_final_list_error">Failed to export final list.</string>
     <string name="profile_role_label">Role</string>
     <string name="admin_profile_organizer_label">Organizer access</string>
     <string name="admin_profile_organizer_toggle">Allow this device to create events</string>
@@ -120,7 +121,7 @@
     <string name="final_confirmed_header">Confirmed attendees (%1$d)</string>
     <string name="device_id_label">Device: %1$s</string>
     <string name="tab_summary">Summary</string>
-    <string name="tab_waiting_list">Waiting list</string>
+    <string name="tab_waiting_list">Waitlist</string>
     <string name="tab_invited">Invited</string>
     <string name="tab_final_list">Final list</string>
     <string name="final_list_placeholder_title">No confirmed attendees yet</string>

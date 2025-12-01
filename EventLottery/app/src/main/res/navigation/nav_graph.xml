@@ -82,6 +82,9 @@
         <action
             android:id="@+id/action_profileFragment_to_adminEntrantsFragment"
             app:destination="@id/adminEntrantsFragment" />
+        <action
+            android:id="@+id/action_profileFragment_to_adminAllEventsFragment"
+            app:destination="@id/adminAllEventsFragment" />
 
         <action
             android:id="@+id/action_profileFragment_to_adminNotificationsFragment"
@@ -238,6 +241,16 @@
             app:argType="string"
             android:defaultValue="" />
     </fragment>
+
+    <fragment
+        android:id="@+id/adminAllEventsFragment"
+        android:name="com.example.eventlottery.admin.AdminAllEventsFragment"
+        android:label="All Events" >
+        <action
+            android:id="@+id/action_adminAllEventsFragment_to_eventDetailFragment"
+            app:destination="@id/eventDetailFragment" />
+    </fragment>
+
 
 
 </navigation>

@@ -37,11 +37,24 @@ public class ChosenEntrantAdapter
         this(null);
     }
 
+    /**
+     * Constructor for ChosenEntrantAdapter.
+     * @param listener
+     */
     public ChosenEntrantAdapter(@Nullable Listener listener) {
         super(DIFF_CALLBACK);
         this.listener = listener;
     }
 
+    /**
+     * Called when RecyclerView needs a new iewHolder of the given type to represent an item
+     *
+     *
+     * @param parent   The ViewGroup into which the new View will be added after it is bound to
+     *                 an adapter position.
+     * @param viewType The view type of the new View.
+     * @return A new ViewHolder that holds a View of the given view type.
+     */
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -53,6 +66,12 @@ public class ChosenEntrantAdapter
         return new ViewHolder(binding, listener);
     }
 
+    /**
+     * Called by RecyclerView to display the data at the specified position.
+     *
+     * @param holder
+     * @param position
+     */
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.bind(getItem(position));
@@ -60,6 +79,10 @@ public class ChosenEntrantAdapter
 
     // -----------------------------------------------------------------------------------------
 
+    /**
+     * ViewHolder for ChosenEntrantAdapter.
+     *
+     */
     static class ViewHolder extends RecyclerView.ViewHolder {
 
         private final ItemChosenEntrantBinding binding;
@@ -137,6 +160,9 @@ public class ChosenEntrantAdapter
 
     // -----------------------------------------------------------------------------------------
 
+    /**
+     * Display row of invited entrants for ChosenEntrantAdapter.
+     */
     public static class Row {
         public enum Status { PENDING, ACCEPTED, DECLINED }
 
@@ -176,6 +202,9 @@ public class ChosenEntrantAdapter
         }
     }
 
+    /**
+     * calculate the differences between two lists of data objects when the list content changes.
+     */
     private static final DiffUtil.ItemCallback<Row> DIFF_CALLBACK =
             new DiffUtil.ItemCallback<Row>() {
                 @Override

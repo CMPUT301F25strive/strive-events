@@ -24,6 +24,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * Fragment for showing the waiting list of an event
+ */
+
 public class WaitingListFragment extends Fragment {
 
     public static final String ARG_EVENT_ID = "event_id";
@@ -36,6 +40,18 @@ public class WaitingListFragment extends Fragment {
 
     private String eventId;
 
+    /**
+     * Called to have the fragment instantiate its user interface view.
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -45,6 +61,13 @@ public class WaitingListFragment extends Fragment {
         return binding.getRoot();
     }
 
+    /**
+     * Called immediately after {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}
+     * has returned, but before any saved state has been restored
+     * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -67,6 +90,9 @@ public class WaitingListFragment extends Fragment {
         observeEvent();
     }
 
+    /**
+     * Observe the event and load the profiles
+     */
     private void observeEvent() {
         if (eventId == null) {
             showMessage("No users in the waiting list");
@@ -96,6 +122,10 @@ public class WaitingListFragment extends Fragment {
         });
     }
 
+    /**
+     * Load profiles from the repository
+     * @param userIds
+     */
     private void loadProfiles(List<String> userIds) {
         if (userIds.isEmpty()) {
             showMessage("No users in the waiting list");
@@ -144,11 +174,19 @@ public class WaitingListFragment extends Fragment {
         }
     }
 
+    /**
+     * Show a message to the user
+     *
+     * @param message
+     */
     private void showMessage(@NonNull String message) {
         binding.errorMessage.setText(message);
         binding.errorMessage.setVisibility(View.VISIBLE);
     }
 
+    /**
+     * Called when the fragment is no longer in use.
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();

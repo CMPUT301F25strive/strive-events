@@ -40,6 +40,10 @@ import com.google.zxing.qrcode.QRCodeWriter;
 import java.util.Calendar;
 import java.util.Locale;
 
+/**
+ * This is the activity of create events
+ *
+ */
 public class CreateEventFragment extends Fragment {
 
     // Request code for opening the gallery
@@ -70,6 +74,18 @@ public class CreateEventFragment extends Fragment {
 
     public CreateEventFragment() {}
 
+    /**
+     * Inflate the layout for this fragment
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -77,6 +93,13 @@ public class CreateEventFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_create_event, container, false);
     }
 
+    /**
+     * Called immediately after {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}
+     * has returned,
+     * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         // Security check: Only organizers can access this screen

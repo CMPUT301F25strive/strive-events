@@ -7,7 +7,7 @@
     app:cardUseCompatPadding="true"
     app:cardCornerRadius="20dp"
     app:strokeWidth="0dp"
-    app:cardBackgroundColor="#F8FFFFFF">
+    app:cardBackgroundColor="#6AFFFFFF">
 
     <LinearLayout
         android:layout_width="match_parent"

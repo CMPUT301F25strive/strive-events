@@ -6,10 +6,17 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
+/**
+ * This is the view model factory for MyEventsViewModel.
+ */
 public class MyEventsViewModelFactory implements ViewModelProvider.Factory {
 
     private final Context context;
 
+    /**
+     * Constructor for MyEventsViewModelFactory.
+     * @param context
+     */
     public MyEventsViewModelFactory(Context context) {
         this.context = context;
     }

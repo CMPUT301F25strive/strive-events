@@ -105,7 +105,7 @@ public class Event implements Serializable {
     }
 
     /**
-     * GETTERS
+     * GETTERS AND SETTERS
      */
 
     public String getId() {
@@ -363,7 +363,9 @@ public class Event implements Serializable {
     /**
      * Nested class for storing a device's lat/lon
      */
-    public static class UserLocation {
+    public static class UserLocation implements Serializable {
+        private static final long serialVersionUID = 1L;
+
         public String deviceId;
         public Double latitude;
         public Double longitude;

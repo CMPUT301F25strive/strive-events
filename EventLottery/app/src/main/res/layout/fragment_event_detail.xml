@@ -43,22 +43,22 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.material.button.MaterialButtonToggleGroup
         android:id="@+id/eventDetailToggleGroup"
         android:layout_width="0dp"
         android:layout_height="48dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="8dp"
-        android:visibility="visible"
+        android:layout_marginTop="12dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        app:singleSelection="true"
+        app:selectionRequired="true"
         app:layout_constraintTop_toBottomOf="@id/topBarLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:shapeAppearanceOverlay="@style/RoundedToggleGroup"
-        app:singleSelection="true"
-        app:selectionRequired="true">
+        app:shapeAppearanceOverlay="@style/RoundedToggleGroup">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/tabSummaryButton"
@@ -132,6 +132,19 @@
                     android:rotation="-45"
                     android:gravity="center"
                     android:layout_gravity="center"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/watermarkText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Click To Select Poster"
+                    android:textColor="#50FFFFFF"
+                    android:textSize="48sp"
+                    android:textStyle="bold"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:letterSpacing="0.1"
                     android:visibility="gone" />
 
                 <ImageButton

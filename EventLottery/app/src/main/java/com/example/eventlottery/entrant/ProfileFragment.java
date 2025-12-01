@@ -33,6 +33,10 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+/**
+ * Profile fragment
+ */
+
 public class ProfileFragment extends Fragment {
 
     private FragmentProfileBinding binding;
@@ -42,6 +46,18 @@ public class ProfileFragment extends Fragment {
     private String deviceId;
 
 
+    /**
+     * Called to have the fragment instantiate its user interface view.
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return
+     */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
@@ -50,6 +66,13 @@ public class ProfileFragment extends Fragment {
         return binding.getRoot();
     }
 
+    /**
+     * Called immediately after {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}
+     * has returned, but before any saved state has been restored
+     * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     */
     @Override
     public void onViewCreated(@NonNull View view,
                               @Nullable Bundle savedInstanceState) {
@@ -84,6 +107,7 @@ public class ProfileFragment extends Fragment {
                 binding.profileEmail.setText(profile.getEmail());
                 binding.profilePhone.setText(profile.getPhone());
                 binding.menuAdminEntrants.setVisibility(profile.isAdmin() ? View.VISIBLE : View.GONE);
+                binding.menuAdminEvents.setVisibility(profile.isAdmin() ? View.VISIBLE : View.GONE);
                 binding.menuAdminNotifications.setVisibility(profile.isAdmin() ? View.VISIBLE : View.GONE);
                 binding.menuAdminImages.setVisibility(profile.isAdmin() ? View.VISIBLE : View.GONE);
                 binding.adminBadge.setVisibility(profile.isAdmin() ? View.VISIBLE : View.GONE);
@@ -91,6 +115,7 @@ public class ProfileFragment extends Fragment {
                 OrganizerAccessCache.setAllowed(profile.getDeviceID(), profile.isOrganizer());
             } else {
                 binding.menuAdminEntrants.setVisibility(View.GONE);
+                binding.menuAdminEvents.setVisibility(View.GONE);
                 binding.menuAdminNotifications.setVisibility(View.GONE);
                 binding.menuAdminImages.setVisibility(View.GONE);
                 binding.adminBadge.setVisibility(View.GONE);
@@ -105,6 +130,11 @@ public class ProfileFragment extends Fragment {
         binding.menuAdminEntrants.setOnClickListener(v ->
                 NavHostFragment.findNavController(this)
                         .navigate(R.id.action_profileFragment_to_adminEntrantsFragment)
+        );
+
+        binding.menuAdminEvents.setOnClickListener(v ->
+                NavHostFragment.findNavController(this)
+                        .navigate(R.id.action_profileFragment_to_adminAllEventsFragment)
         );
 
         binding.menuAdminNotifications.setOnClickListener(v ->
@@ -160,6 +190,9 @@ public class ProfileFragment extends Fragment {
         setupBottomNav();
     }
 
+    /**
+     * Setup bottom navigation
+     */
     private void setupBottomNav() {
         binding.bottomNavigation.setSelectedItemId(R.id.nav_profile);
         binding.bottomNavigation.setOnItemSelectedListener(item -> {
@@ -178,13 +211,26 @@ public class ProfileFragment extends Fragment {
         });
     }
 
+    /**
+     * Called when the fragment is no longer in use.
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
     }
 
-    //QR Code activity after a scan
+    /**
+     * QR Code activity after a scan
+     * @param requestCode The integer request code originally supplied to
+     *                    startActivityForResult(), allowing you to identify who this
+     *                    result came from.
+     * @param resultCode The integer result code returned by the child activity
+     *                   through its setResult().
+     * @param data An Intent, which can return result data to the caller
+     *               (various data can be attached to Intent "extras").
+     *
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

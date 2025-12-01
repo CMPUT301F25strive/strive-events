@@ -41,6 +41,10 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
     private final List<Event> allEvents = new ArrayList<>();
     private QRScanner qrScanner;
 
+    /**
+     * Called when the fragment is visible to the user and actively running.
+     *
+     */
     @Override
     public void onResume() {
         super.onResume();
@@ -57,6 +61,14 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
         return binding.getRoot();
     }
 
+    /**
+     * Called immediately after {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}
+     * has returned,
+     *
+     * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -96,11 +108,18 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
         });
     }
 
+    /**
+     * This method updates the visibility of the organizer actions button
+     */
     private void updateOrganizerActions() {
         if (binding == null) return;
         boolean canOrganize = OrganizerGate.hasOrganizerAccess(requireContext());
         binding.fabAddEvent.setVisibility(canOrganize ? View.VISIBLE : View.GONE);
     }
+
+    /**
+     * This method sets up the recycler view
+     */
     private void setupRecycler() {
         adapter = new EventListAdapter(this);
         binding.eventRecycler.setAdapter(adapter);
@@ -126,6 +145,11 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
             return false;
         });
     }
+
+    /**
+     * This method renders the state of the view
+     * @param state the state of the view
+     */
     private void renderState(@NonNull EventListUiState state) {
         binding.loadingIndicator.setVisibility(state.loading ? View.VISIBLE : View.GONE);
         binding.eventRefresh.setRefreshing(false);
@@ -152,17 +176,29 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
         }
     }
 
+    /**
+     * This method shows an error message
+     * @param message the error message
+     */
     private void showMessage(@NonNull String message) {
         binding.errorMessage.setText(message);
         binding.errorMessage.setVisibility(View.VISIBLE);
     }
 
+    /**
+     * Called when the fragment is no longer in use.  This is called
+     *
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
     }
 
+    /**
+     * This method is called when an event is selected
+     * @param event
+     */
     @Override
     public void onEventSelected(@NonNull Event event) {
         Bundle args = new Bundle();
@@ -171,12 +207,19 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
                 .navigate(R.id.action_entrantEventListFragment_to_eventDetailFragment, args);
     }
 
+    /**
+     * This method is called when the filter is changed
+     * @param newFilter the new filter
+     */
     @Override
     public void onFilterChanged(@NonNull EventFilter newFilter) {
         this.filter = newFilter;
         applyFilter();  // Re-filter as the filter changes
     }
 
+    /**
+     * This method applies the filter to the list of events
+     */
     private void applyFilter() {
         // Fetch all events and pass them one by one for filtering
         List<Event> filtered = new ArrayList<>();
@@ -197,6 +240,18 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
     }
 
 
+    /**
+     * This method is called when the activity result is received
+     *
+     * @param requestCode The integer request code originally supplied to
+     *                    startActivityForResult(), allowing you to identify who this
+     *                    result came from.
+     * @param resultCode The integer result code returned by the child activity
+     *                   through its setResult().
+     * @param data An Intent, which can return result data to the caller
+     *               (various data can be attached to Intent "extras").
+     *
+     */
     //QR Code activity after a scan
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
