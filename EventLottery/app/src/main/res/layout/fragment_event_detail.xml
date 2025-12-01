@@ -373,6 +373,38 @@
                     app:icon="@drawable/ic_delete_24"
                     app:iconGravity="textStart"
                     app:iconPadding="6dp" />
+                <!-- Accept/Decline Buttons -->
+                <LinearLayout
+                    android:id="@+id/layout_rsvp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="end"
+                    android:paddingTop="8dp"
+                    android:visibility="gone">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/button_decline"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Decline"
+                        style="@style/Widget.MaterialComponents.Button"
+                        android:textColor="@android:color/white"
+                        android:backgroundTint="@color/red" />
+
+                    <Space
+                        android:layout_width="16dp"
+                        android:layout_height="wrap_content" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/button_accept"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Accept"
+                        style="@style/Widget.MaterialComponents.Button"
+                        android:textColor="@android:color/white"
+                        android:backgroundTint="#4CAF50" /> />
+                </LinearLayout>
             </LinearLayout>
 
         </LinearLayout>

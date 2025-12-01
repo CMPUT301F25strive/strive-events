@@ -2,6 +2,7 @@ package com.example.eventlottery.entrant;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.example.eventlottery.R;
 import com.example.eventlottery.databinding.FragmentMyEventsBinding;
 import com.example.eventlottery.model.Event;
+import com.example.eventlottery.model.PushNotificationService;
 import com.example.eventlottery.model.QRScanner;
 import com.example.eventlottery.organizer.OrganizerGate;
 import com.example.eventlottery.viewmodel.MyEventsViewModel;
@@ -78,6 +80,12 @@ public class MyEventsFragment extends Fragment implements EventListAdapter.Liste
                 qrScanner.startScanner(MyEventsFragment.this);
             }
         });
+
+        String deviceId = Settings.Secure.getString(requireContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+
+        // Notification services
+        PushNotificationService pushService = new PushNotificationService(requireContext());
+        pushService.listenForNotifications(deviceId);
     }
 
     @Override

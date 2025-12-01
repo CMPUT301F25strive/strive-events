@@ -129,6 +129,24 @@ public class MockEventRepository implements EventRepository {
         }
     }
 
+    @Override
+    public void markInvitationAccepted(String eventId, String deviceId) {
+        Event event = findEventById(eventId);
+        List<String> attendeesList = event.getAttendeesList();
+        if (!attendeesList.contains(deviceId)) {
+            attendeesList.add(deviceId);
+        }
+    }
+
+    @Override
+    public void markInvitationDeclined(String eventId, String deviceId) {
+        Event event = findEventById(eventId);
+        List<String> canceledList = event.getCanceledList();
+        if (!canceledList.contains(deviceId)) {
+            canceledList.add(deviceId);
+        }
+    }
+
     /**
      * This method uses the Lottery System to draw automatically
      *

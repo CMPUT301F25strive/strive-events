@@ -5,6 +5,7 @@ import android.content.Context;
 
 import com.example.eventlottery.data.EventRepository;
 import com.example.eventlottery.data.ProfileRepository;
+import com.example.eventlottery.data.RepositoryProvider;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.checkerframework.common.returnsreceiver.qual.This;
@@ -20,12 +21,18 @@ import java.util.NoSuchElementException;
 
 public class InvitationService {
 
+    private final EventRepository eventRepository;
     private final FirebaseFirestore firestore;
     private final PushNotificationService push;
 
-    public InvitationService(Context context) {
+    public InvitationService() {
+        this(RepositoryProvider.getEventRepository());
+    }
+
+    public InvitationService(EventRepository eventRepository) {
+        this.eventRepository = eventRepository;
         this.firestore = FirebaseFirestore.getInstance();
-        this.push = new PushNotificationService(context);
+        this.push = new PushNotificationService(AppContextProvider.getContext());
     }
 
     /**
@@ -41,5 +48,22 @@ public class InvitationService {
             push.sendNotification(senderId, deviceId, message, true);
         }
     }
-}
 
+    /**
+     * This methods calls the repository method for accepting the invitation.
+     * @param deviceId
+     * @param eventId
+     */
+    public void acceptInvitation(String deviceId, String eventId) {
+        eventRepository.markInvitationAccepted(eventId, deviceId);
+    }
+
+    /**
+     * This methods calls the repository for declining the invitation.
+     * @param deviceId
+     * @param eventId
+     */
+    public void declineInvitation(String deviceId, String eventId) {
+        eventRepository.markInvitationDeclined(eventId, deviceId);
+    }
+}

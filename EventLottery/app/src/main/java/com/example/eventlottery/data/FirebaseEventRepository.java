@@ -16,6 +16,7 @@ import com.example.eventlottery.model.InvitationService;
 import com.example.eventlottery.model.LotterySystem;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -140,6 +141,23 @@ public class FirebaseEventRepository implements EventRepository {
                 .addOnFailureListener(Throwable::printStackTrace);
     }
 
+    @Override
+    public void markInvitationAccepted(String eventId, String deviceId) {
+        eventsRef.document(eventId).update(
+                "attendeesList", FieldValue.arrayUnion(deviceId),
+                "canceledList", FieldValue.arrayRemove(deviceId)
+        );
+    }
+
+    @Override
+    public void markInvitationDeclined(String eventId, String deviceId) {
+        eventsRef.document(eventId).update(
+                "canceledList", FieldValue.arrayUnion(deviceId),
+                "attendeesList", FieldValue.arrayRemove(deviceId)
+        );
+    }
+
+
     public void joinWaitingListWithLocation(String eventId, String deviceId,
                                             @Nullable Double latitude,
                                             @Nullable Double longitude) {
@@ -254,7 +272,7 @@ public class FirebaseEventRepository implements EventRepository {
             newlyInvited.removeAll(originalInvited);
 
             // Send notifications only to the newly invited users
-            InvitationService invitationService = new InvitationService(AppContextProvider.getContext());
+            InvitationService invitationService = new InvitationService(this);
             invitationService.sendInvitations(
                     newlyInvited,
                     event.getOrganizerId(),

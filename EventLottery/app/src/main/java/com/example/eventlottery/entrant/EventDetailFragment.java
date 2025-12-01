@@ -27,6 +27,7 @@ import com.example.eventlottery.data.ProfileRepository;
 import com.example.eventlottery.data.RepositoryProvider;
 import com.example.eventlottery.databinding.FragmentEventDetailBinding;
 import com.example.eventlottery.model.Event;
+import com.example.eventlottery.model.InvitationService;
 import com.example.eventlottery.model.Profile;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -46,6 +47,7 @@ import com.google.zxing.qrcode.QRCodeWriter;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class EventDetailFragment extends Fragment {
@@ -63,6 +65,7 @@ public class EventDetailFragment extends Fragment {
     private EventRepository eventRepository;
     private ProfileRepository profileRepository;
     private WaitingListController waitingListController;
+    private InvitationService invitationService;
 
     private final SimpleDateFormat dateFormat =
             new SimpleDateFormat("EEE, MMM d yyyy", Locale.getDefault());
@@ -97,7 +100,7 @@ public class EventDetailFragment extends Fragment {
         eventRepository = RepositoryProvider.getEventRepository();
         profileRepository = RepositoryProvider.getProfileRepository();
         waitingListController = new WaitingListController(eventRepository, profileRepository);
-
+        invitationService = new InvitationService();
         binding.backButton.setOnClickListener(v ->
                 NavHostFragment.findNavController(this).popBackStack()
         );
@@ -140,6 +143,7 @@ public class EventDetailFragment extends Fragment {
 
         bindEvent(event);
         setupActionButtons(event, deviceId);
+        setupRsvpUI();
         configAdminButtons(event);
 
         final String eventId = event.getId();
@@ -647,6 +651,90 @@ public class EventDetailFragment extends Fragment {
                 .setView(image)
                 .setPositiveButton("Close", null)
                 .show();
+    }
+
+    /**
+     * This method sets the UI for RSVP with proper visibility and corresponding listeners.
+     */
+    private void setupRsvpUI() {
+        if (currentEvent == null) {
+            binding.layoutRsvp.setVisibility(View.GONE);
+            return;
+        }
+
+        // The event owner should not see RSVP UI
+        boolean isOwner = deviceId != null && deviceId.equals(currentEvent.getOrganizerId());
+        if (isOwner) {
+            binding.layoutRsvp.setVisibility(View.GONE);
+            return;
+        }
+
+        // Entrant lists
+        List<String> invited = currentEvent.getInvitedList();
+        List<String> attendees = currentEvent.getAttendeesList();
+        List<String> canceled = currentEvent.getCanceledList();
+
+        // Check conditions before the real RSVP action
+        boolean isInvited = invited != null && invited.contains(deviceId);
+        boolean isAttending = attendees != null && attendees.contains(deviceId);
+        boolean isCanceled = canceled != null  && canceled.contains(deviceId);
+
+        // Can RSVP only when user is invited and hasn't responded to that
+        boolean canRsvp = isInvited
+                && !isAttending
+                && !isCanceled
+                && currentEvent.isRegEnd()
+                && !currentEvent.isEventStarted();
+
+        if (!canRsvp) {
+            // If cannot RSVP, hide the RSVP UI
+            binding.layoutRsvp.setVisibility(View.GONE);
+            return;
+        }
+
+        // When user can RSVP:
+        binding.layoutRsvp.setVisibility(View.VISIBLE);
+
+        binding.buttonAccept.setOnClickListener(v -> {
+            handleAccept();
+        });
+        binding.buttonDecline.setOnClickListener(v -> {
+            handleDecline();
+        });
+    }
+
+    /**
+     * This method handles the situation when the invited entrant accepts the invitation.
+     */
+    private void handleAccept() {
+        if (currentEvent == null || deviceId == null) return;
+
+        binding.buttonAccept.setEnabled(false);
+        binding.buttonDecline.setEnabled(false);
+
+        invitationService.acceptInvitation(deviceId, currentEvent.getId());
+
+        Toast.makeText(requireContext(), "You have accepted this invitation.", Toast.LENGTH_SHORT).show();
+
+        // Hide the whole RSVP UI after responding
+        binding.layoutRsvp.setVisibility(View.GONE);
+    }
+
+    /**
+     * This method handles the situation when the invited entrant accepts the invitation.
+     */
+    private void handleDecline() {
+        if (currentEvent == null || deviceId == null) return;
+
+        binding.buttonAccept.setEnabled(false);
+        binding.buttonDecline.setEnabled(false);
+
+        invitationService.declineInvitation(deviceId, currentEvent.getId());
+
+        Toast.makeText(requireContext(), "You have declined this invitation.", Toast.LENGTH_SHORT).show();
+
+        // Hide the whole RSVP UI after responding
+        binding.layoutRsvp.setVisibility(View.GONE);
     }
     // ------------------------------------------------------
     @Override
