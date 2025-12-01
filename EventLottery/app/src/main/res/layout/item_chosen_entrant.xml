@@ -5,15 +5,17 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="12dp"
-    android:layout_marginBottom="4dp"
-    android:padding="16dp"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="2dp">
+    android:layout_marginBottom="-16dp"
+    app:cardCornerRadius="36dp"
+    app:cardUseCompatPadding="true"
+    app:strokeWidth="0dp"
+    app:cardBackgroundColor="#6AFFFFFF">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="18dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -53,11 +55,11 @@
                 android:layout_height="32dp"
                 android:layout_marginStart="8dp"
                 android:background="@drawable/circle_bg"
-                android:padding="6dp"
+                android:padding="4dp"
                 android:src="@drawable/ic_close_24"
                 android:contentDescription="@string/chosen_cancel_content_description"
                 android:visibility="gone"
-                app:tint="@color/white" />
+                app:tint="@color/error" />
         </LinearLayout>
 
         <TextView
@@ -78,15 +80,6 @@
             android:textColor="@color/dark_gray"
             android:text="(555) 010-1234" />
 
-        <TextView
-            android:id="@+id/deviceIdLabel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:textAppearance="?attr/textAppearanceLabelSmall"
-            android:textColor="@color/gray_dark"
-            android:text="Device: --"
-            android:alpha="0.7" />
     </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>

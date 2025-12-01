@@ -83,7 +83,9 @@ public class PushNotificationService {
 
                     for (DocumentSnapshot doc : snapshots.getDocuments()) {
                         String message = doc.getString("message");
-                        if (profileRepository.findUserById(deviceId).getNotificationSettings()) {
+                        Profile profile = profileRepository.findUserById(deviceId);
+                        boolean notificationsEnabled = profile == null || profile.getNotificationSettings();
+                        if (notificationsEnabled) {
                             showNotification(message);
                             doc.getReference().update("delivered", true);
                         } else {

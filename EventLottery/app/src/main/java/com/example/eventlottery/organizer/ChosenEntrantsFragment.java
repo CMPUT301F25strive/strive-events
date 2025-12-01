@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.eventlottery.R;
 import com.example.eventlottery.data.EventRepository;
@@ -73,6 +74,8 @@ public class ChosenEntrantsFragment extends Fragment {
         }
 
         adapter = new ChosenEntrantAdapter(canManage ? this::confirmCancelEntrant : null);
+        binding.chosenEntrantsRecycler.setLayoutManager(
+                new LinearLayoutManager(requireContext()));
         binding.chosenEntrantsRecycler.setAdapter(adapter);
         binding.chosenEntrantsRecycler.setHasFixedSize(true);
 

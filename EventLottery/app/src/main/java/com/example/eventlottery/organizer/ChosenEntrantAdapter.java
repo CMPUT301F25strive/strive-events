@@ -92,11 +92,6 @@ public class ChosenEntrantAdapter
                 binding.entrantPhone.setText(row.phone);
             }
 
-            String deviceDisplay = !TextUtils.isEmpty(row.deviceId) ? row.deviceId : "--";
-            binding.deviceIdLabel.setText(
-                    context.getString(R.string.device_id_label, deviceDisplay)
-            );
-
             binding.statusChip.setText(getStatusLabel(row.status, context));
             @ColorRes int chipColor = getStatusColor(row.status);
             ViewCompat.setBackgroundTintList(
