@@ -84,6 +84,7 @@ public class ProfileFragment extends Fragment {
                 binding.profileEmail.setText(profile.getEmail());
                 binding.profilePhone.setText(profile.getPhone());
                 binding.menuAdminEntrants.setVisibility(profile.isAdmin() ? View.VISIBLE : View.GONE);
+                binding.menuAdminEvents.setVisibility(profile.isAdmin() ? View.VISIBLE : View.GONE);
                 binding.menuAdminNotifications.setVisibility(profile.isAdmin() ? View.VISIBLE : View.GONE);
                 binding.menuAdminImages.setVisibility(profile.isAdmin() ? View.VISIBLE : View.GONE);
                 binding.adminBadge.setVisibility(profile.isAdmin() ? View.VISIBLE : View.GONE);
@@ -91,6 +92,7 @@ public class ProfileFragment extends Fragment {
                 OrganizerAccessCache.setAllowed(profile.getDeviceID(), profile.isOrganizer());
             } else {
                 binding.menuAdminEntrants.setVisibility(View.GONE);
+                binding.menuAdminEvents.setVisibility(View.GONE);
                 binding.menuAdminNotifications.setVisibility(View.GONE);
                 binding.menuAdminImages.setVisibility(View.GONE);
                 binding.adminBadge.setVisibility(View.GONE);
@@ -105,6 +107,11 @@ public class ProfileFragment extends Fragment {
         binding.menuAdminEntrants.setOnClickListener(v ->
                 NavHostFragment.findNavController(this)
                         .navigate(R.id.action_profileFragment_to_adminEntrantsFragment)
+        );
+
+        binding.menuAdminEvents.setOnClickListener(v ->
+                NavHostFragment.findNavController(this)
+                        .navigate(R.id.action_profileFragment_to_adminAllEventsFragment)
         );
 
         binding.menuAdminNotifications.setOnClickListener(v ->
