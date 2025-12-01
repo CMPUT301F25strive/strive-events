@@ -28,6 +28,8 @@ import com.example.eventlottery.data.RepositoryProvider;
 import com.example.eventlottery.databinding.FragmentEventDetailBinding;
 import com.example.eventlottery.model.Event;
 import com.example.eventlottery.model.Profile;
+import com.example.eventlottery.organizer.ChosenEntrantsFragment;
+import com.example.eventlottery.organizer.OrganizerWaitingListFragment;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -40,6 +42,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.tabs.TabLayout;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
@@ -49,6 +52,14 @@ import java.util.Date;
 import java.util.Locale;
 
 public class EventDetailFragment extends Fragment {
+
+    private static final int TAB_SUMMARY = 0;
+    private static final int TAB_WAITING = 1;
+    private static final int TAB_INVITED = 2;
+    private static final int TAB_FINAL = 3;
+    private static final String KEY_SELECTED_TAB = "event_detail_selected_tab";
+    private static final String CHILD_TAG_WAITING = "child_waiting_list";
+    private static final String CHILD_TAG_INVITED = "child_chosen_entrants";
 
     public static final String ARG_EVENT = "event";
 
@@ -63,6 +74,9 @@ public class EventDetailFragment extends Fragment {
     private EventRepository eventRepository;
     private ProfileRepository profileRepository;
     private WaitingListController waitingListController;
+    private int selectedTabIndex = TAB_SUMMARY;
+    private String invitedFragmentEventId;
+    private String waitingListFragmentEventId;
 
     private final SimpleDateFormat dateFormat =
             new SimpleDateFormat("EEE, MMM d yyyy", Locale.getDefault());
@@ -97,6 +111,12 @@ public class EventDetailFragment extends Fragment {
         eventRepository = RepositoryProvider.getEventRepository();
         profileRepository = RepositoryProvider.getProfileRepository();
         waitingListController = new WaitingListController(eventRepository, profileRepository);
+
+        if (savedInstanceState != null) {
+            selectedTabIndex = savedInstanceState.getInt(KEY_SELECTED_TAB, TAB_SUMMARY);
+        }
+
+        setupTabs();
 
         binding.backButton.setOnClickListener(v ->
                 NavHostFragment.findNavController(this).popBackStack()
@@ -141,6 +161,9 @@ public class EventDetailFragment extends Fragment {
         bindEvent(event);
         setupActionButtons(event, deviceId);
         configAdminButtons(event);
+        if (selectedTabIndex == TAB_INVITED) {
+            attachInvitedFragment();
+        }
 
         final String eventId = event.getId();
 
@@ -151,6 +174,9 @@ public class EventDetailFragment extends Fragment {
                 bindEvent(updated);
                 setupActionButtons(updated, deviceId);
                 configAdminButtons(updated);
+                if (selectedTabIndex == TAB_INVITED) {
+                    attachInvitedFragment();
+                }
             }
         });
         if (currentEvent != null && currentEvent.isGeolocationEnabled()) {
@@ -362,6 +388,119 @@ public class EventDetailFragment extends Fragment {
         }
     }
 
+    private void setupTabs() {
+        if (binding == null) return;
+
+        TabLayout tabs = binding.eventDetailTabs;
+        tabs.removeAllTabs();
+        tabs.addTab(tabs.newTab().setText(R.string.tab_summary));
+        tabs.addTab(tabs.newTab().setText(R.string.tab_waiting_list));
+        tabs.addTab(tabs.newTab().setText(R.string.tab_invited));
+        tabs.addTab(tabs.newTab().setText(R.string.tab_final_list));
+
+        tabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                showSelectedContainer(tab.getPosition());
+            }
+
+            @Override public void onTabUnselected(TabLayout.Tab tab) { }
+            @Override public void onTabReselected(TabLayout.Tab tab) { }
+        });
+
+        int clampedIndex = Math.min(selectedTabIndex, tabs.getTabCount() - 1);
+        TabLayout.Tab defaultTab = tabs.getTabAt(Math.max(clampedIndex, TAB_SUMMARY));
+        if (defaultTab != null) {
+            defaultTab.select();
+        } else {
+            showSelectedContainer(TAB_SUMMARY);
+        }
+    }
+
+    private void showSelectedContainer(int tabIndex) {
+        if (binding == null) return;
+        selectedTabIndex = tabIndex;
+        binding.summaryContainer.setVisibility(tabIndex == TAB_SUMMARY ? View.VISIBLE : View.GONE);
+        binding.waitingListContainer.setVisibility(tabIndex == TAB_WAITING ? View.VISIBLE : View.GONE);
+        binding.invitedContainer.setVisibility(tabIndex == TAB_INVITED ? View.VISIBLE : View.GONE);
+        binding.finalListContainer.setVisibility(tabIndex == TAB_FINAL ? View.VISIBLE : View.GONE);
+
+        if (tabIndex == TAB_WAITING) {
+            if (isOwner) {
+                binding.waitingListAccessMessage.setVisibility(View.GONE);
+                binding.waitingListFragmentContainer.setVisibility(View.VISIBLE);
+                attachWaitingListFragment();
+            } else {
+                binding.waitingListAccessMessage.setVisibility(View.VISIBLE);
+                binding.waitingListFragmentContainer.setVisibility(View.GONE);
+            }
+        }
+
+        if (tabIndex == TAB_INVITED) {
+            attachInvitedFragment();
+        }
+    }
+
+    private void selectTab(int tabIndex) {
+        if (binding == null) return;
+        TabLayout.Tab tab = binding.eventDetailTabs.getTabAt(tabIndex);
+        if (tab != null) {
+            tab.select();
+        }
+    }
+
+    private void attachInvitedFragment() {
+        if (binding == null || currentEvent == null || TextUtils.isEmpty(currentEvent.getId())) {
+            return;
+        }
+
+        if (TextUtils.equals(invitedFragmentEventId, currentEvent.getId()) &&
+                getChildFragmentManager().findFragmentByTag(CHILD_TAG_INVITED) != null) {
+            return;
+        }
+
+        invitedFragmentEventId = currentEvent.getId();
+
+        Bundle args = new Bundle();
+        args.putString(ChosenEntrantsFragment.ARG_EVENT_ID, currentEvent.getId());
+        args.putString(ChosenEntrantsFragment.ARG_EVENT_TITLE, currentEvent.getTitle());
+
+        ChosenEntrantsFragment fragment = new ChosenEntrantsFragment();
+        fragment.setArguments(args);
+
+        getChildFragmentManager().beginTransaction()
+                .replace(R.id.invitedFragmentContainer, fragment, CHILD_TAG_INVITED)
+                .commit();
+    }
+
+    private void attachWaitingListFragment() {
+        if (binding == null || currentEvent == null || TextUtils.isEmpty(currentEvent.getId())) {
+            return;
+        }
+
+        if (!isOwner) {
+            return;
+        }
+
+        if (TextUtils.equals(waitingListFragmentEventId, currentEvent.getId()) &&
+                getChildFragmentManager().findFragmentByTag(CHILD_TAG_WAITING) != null) {
+            return;
+        }
+
+        waitingListFragmentEventId = currentEvent.getId();
+
+        Bundle args = new Bundle();
+        args.putString(OrganizerWaitingListFragment.ARG_EVENT_ID, currentEvent.getId());
+        args.putString(OrganizerWaitingListFragment.ARG_EVENT_TITLE, currentEvent.getTitle());
+
+        OrganizerWaitingListFragment fragment = new OrganizerWaitingListFragment();
+        fragment.setArguments(args);
+
+        getChildFragmentManager().beginTransaction()
+                .replace(R.id.waitingListFragmentContainer, fragment, CHILD_TAG_WAITING)
+                .commit();
+    }
+
     // ------------------------------------------------------------------------------
 
     private void setupActionButtons(@NonNull Event event, String userID) {
@@ -384,26 +523,6 @@ public class EventDetailFragment extends Fragment {
         // Delete: admin or event owner
         boolean canDeleteEvent = isAdmin || isOwner;
         binding.adminDeleteButton.setVisibility(canDeleteEvent ? View.VISIBLE : View.GONE);
-
-        // Only the owner of the event can view the waiting list
-        binding.viewWaitingListButton.setVisibility(
-                isOwner ? View.VISIBLE : View.GONE
-        );
-
-        if (isOwner) {
-            binding.viewWaitingListButton.setOnClickListener(v -> {
-                if (currentEvent == null) return;
-
-                Bundle bundle = new Bundle();
-                bundle.putString(WaitingListFragment.ARG_EVENT_ID, currentEvent.getId());
-
-                NavHostFragment.findNavController(this)
-                        .navigate(R.id.action_eventDetailFragment_to_waitingListFragment, bundle);
-            });
-        } else {
-            // If not the owner, clear the listener
-            binding.viewWaitingListButton.setOnClickListener(null);
-        }
 
         if (canDeleteEvent) {
             binding.adminDeleteButton.setOnClickListener(v -> {
@@ -652,12 +771,16 @@ public class EventDetailFragment extends Fragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle out) {
         super.onSaveInstanceState(out);
-        if (currentEvent != null)
+        out.putInt(KEY_SELECTED_TAB, selectedTabIndex);
+        if (currentEvent != null) {
             out.putSerializable(ARG_EVENT, currentEvent);
+        }
     }
 
     @Override
     public void onDestroyView() {
+        invitedFragmentEventId = null;
+        waitingListFragmentEventId = null;
         binding = null;
         super.onDestroyView();
     }

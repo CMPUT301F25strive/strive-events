@@ -115,6 +115,14 @@
             android:id="@+id/action_eventDetailFragment_to_sendNotificationFragment"
             app:destination="@id/sendNotificationFragment" />
 
+        <action
+            android:id="@+id/action_eventDetailFragment_to_waitingListFragment"
+            app:destination="@id/waitingListFragment" />
+
+        <action
+            android:id="@+id/action_eventDetailFragment_to_chosenEntrantsFragment"
+            app:destination="@id/chosenEntrantsFragment" />
+
         <argument
             android:name="event"
             app:argType="com.example.eventlottery.model.Event"
@@ -191,10 +199,25 @@
     <fragment
         android:id="@+id/waitingListFragment"
         android:name="com.example.eventlottery.entrant.WaitingListFragment"
-        android:label="Waiting List" />
-    <action
-        android:id="@+id/action_eventDetailFragment_to_waitingListFragment"
-        app:destination="@id/waitingListFragment" />
+        android:label="Waiting List"
+        tools:layout="@layout/fragment_waiting_list" />
+
+    <fragment
+        android:id="@+id/chosenEntrantsFragment"
+        android:name="com.example.eventlottery.organizer.ChosenEntrantsFragment"
+        android:label="@string/title_chosen_entrants"
+        tools:layout="@layout/fragment_chosen_entrants">
+
+        <argument
+            android:name="chosen_event_id"
+            app:argType="string"
+            app:nullable="false" />
+
+        <argument
+            android:name="chosen_event_title"
+            app:argType="string"
+            android:defaultValue="" />
+    </fragment>
 
 
 </navigation>
