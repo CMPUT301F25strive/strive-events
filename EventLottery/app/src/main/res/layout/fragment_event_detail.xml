@@ -450,35 +450,22 @@
             android:layout_height="match_parent" />
     </FrameLayout>
 
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/finalListContainer"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:padding="32dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/eventDetailToggleGroup"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <TextView
-            android:id="@+id/finalListTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/final_list_placeholder_title"
-            android:textAppearance="?attr/textAppearanceHeadlineSmall"
-            android:textColor="@color/dark_gray" />
-
-        <TextView
-            android:id="@+id/finalListBody"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:gravity="center"
-            android:text="@string/final_list_placeholder_body"
-            android:textAppearance="?attr/textAppearanceBodyMedium"
-            android:textColor="@color/dark_gray" />
-    </LinearLayout>
+        <FrameLayout
+            android:id="@+id/finalListFragmentContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

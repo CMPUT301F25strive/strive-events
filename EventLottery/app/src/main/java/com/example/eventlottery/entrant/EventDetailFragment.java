@@ -29,6 +29,7 @@ import com.example.eventlottery.databinding.FragmentEventDetailBinding;
 import com.example.eventlottery.model.Event;
 import com.example.eventlottery.model.Profile;
 import com.example.eventlottery.organizer.ChosenEntrantsFragment;
+import com.example.eventlottery.organizer.FinalListFragment;
 import com.example.eventlottery.organizer.OrganizerWaitingListFragment;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -83,6 +84,7 @@ public class EventDetailFragment extends Fragment {
     private TabSection selectedTab = TabSection.SUMMARY;
     private String invitedFragmentEventId;
     private String waitingListFragmentEventId;
+    private String finalListFragmentEventId;
 
     private final MaterialButtonToggleGroup.OnButtonCheckedListener toggleListener =
             (group, checkedId, isChecked) -> {
@@ -461,7 +463,8 @@ public class EventDetailFragment extends Fragment {
         boolean showWaiting = section == TabSection.WAITING_LIST;
         binding.waitingListContainer.setVisibility(showWaiting ? View.VISIBLE : View.GONE);
         binding.invitedContainer.setVisibility(section == TabSection.INVITED ? View.VISIBLE : View.GONE);
-        binding.finalListContainer.setVisibility(section == TabSection.FINAL_LIST ? View.VISIBLE : View.GONE);
+        boolean showFinal = section == TabSection.FINAL_LIST;
+        binding.finalListContainer.setVisibility(showFinal ? View.VISIBLE : View.GONE);
 
         if (showWaiting) {
             attachWaitingListFragment();
@@ -469,6 +472,10 @@ public class EventDetailFragment extends Fragment {
 
         if (section == TabSection.INVITED) {
             attachInvitedFragment();
+        }
+
+        if (showFinal) {
+            attachFinalListFragment();
         }
     }
 
@@ -521,6 +528,30 @@ public class EventDetailFragment extends Fragment {
 
         getChildFragmentManager().beginTransaction()
                 .replace(R.id.waitingListFragmentContainer, fragment, CHILD_TAG_WAITING)
+                .commit();
+    }
+
+    private void attachFinalListFragment() {
+        if (binding == null || currentEvent == null || TextUtils.isEmpty(currentEvent.getId())) {
+            return;
+        }
+
+        if (TextUtils.equals(finalListFragmentEventId, currentEvent.getId()) &&
+                getChildFragmentManager().findFragmentByTag("child_final_list") != null) {
+            return;
+        }
+
+        finalListFragmentEventId = currentEvent.getId();
+
+        Bundle args = new Bundle();
+        args.putString(FinalListFragment.ARG_EVENT_ID, currentEvent.getId());
+        args.putString(FinalListFragment.ARG_EVENT_TITLE, currentEvent.getTitle());
+
+        FinalListFragment fragment = new FinalListFragment();
+        fragment.setArguments(args);
+
+        getChildFragmentManager().beginTransaction()
+                .replace(R.id.finalListFragmentContainer, fragment, "child_final_list")
                 .commit();
     }
 
