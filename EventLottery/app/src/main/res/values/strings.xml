@@ -62,6 +62,8 @@
     <string name="admin_profile_edit_error">Failed to update profile</string>
     <string name="admin_entrant_role_format">Role: %1$s</string>
     <string name="profile_role_label">Role</string>
+    <string name="admin_profile_organizer_label">Organizer access</string>
+    <string name="admin_profile_organizer_toggle">Allow this device to create events</string>
     <string name="organizer_feature_required">Organizer access required to create events.</string>
     <string name="admin_poster_delete_button">Remove Poster</string>
     <string name="admin_poster_delete_content_description">Remove event poster</string>

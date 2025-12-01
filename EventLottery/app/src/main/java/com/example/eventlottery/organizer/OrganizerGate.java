@@ -24,7 +24,12 @@ public final class OrganizerGate {
         }
         ProfileRepository repository = RepositoryProvider.getProfileRepository();
         Profile profile = repository.findUserById(deviceId);
-        return profile != null && profile.isOrganizer();
+        if (profile != null) {
+            boolean allowed = profile.isOrganizer();
+            OrganizerAccessCache.setAllowed(deviceId, allowed);
+            return allowed;
+        }
+        return OrganizerAccessCache.isAllowed(deviceId);
     }
 
     @Nullable

@@ -19,7 +19,8 @@ public class Profile {
     private String email;
     private String phone;
     private Role role = Role.ORGANIZER;        // Default role is ORGANIZER
-    private boolean getNotifications = true; //Default is true
+    private boolean organizerEnabled = true;   // Controls if organizing tools are enabled
+    private boolean getNotifications = true;   // Default is true
     private final List<Event> historyEvents = new ArrayList<>(); // For entrants
     private final List<Event> ownedEvents = new ArrayList<>();   // For organizers
     private final String preferences = "";      // Placeholder for user preferences
@@ -57,10 +58,19 @@ public class Profile {
      * @param getNotifications setting of if the user wants notifications or not
      */
     public Profile(String deviceID, String name, String email, String phone, Role role, boolean getNotifications) {
+        this(deviceID, name, email, phone, role, getNotifications, true);
+    }
+
+    /**
+     * Full constructor with role + organizer flag
+     */
+    public Profile(String deviceID, String name, String email, String phone,
+                   Role role, boolean getNotifications, boolean organizerEnabled) {
         this.deviceID = deviceID;   // From DeviceIdentityService
         this.name = name;
         this.email = email;
         this.phone = phone;
+        this.organizerEnabled = organizerEnabled;
         this.getNotifications = getNotifications;
         setRole(role);
     }
@@ -95,7 +105,24 @@ public class Profile {
      * @return true if the profile can access organizer capabilities
      */
     public boolean isOrganizer() {
-        return role == Role.ORGANIZER || role == Role.ADMIN;
+        if (role == Role.ADMIN) {
+            return true;
+        }
+        return role == Role.ORGANIZER && organizerEnabled;
+    }
+
+    /**
+     * @return true if organizer tools are enabled for this profile
+     */
+    public boolean isOrganizerEnabled() {
+        return organizerEnabled;
+    }
+
+    /**
+     * Enables or disables organizer tools for this profile.
+     */
+    public void setOrganizerEnabled(boolean enabled) {
+        this.organizerEnabled = enabled;
     }
 
     /**

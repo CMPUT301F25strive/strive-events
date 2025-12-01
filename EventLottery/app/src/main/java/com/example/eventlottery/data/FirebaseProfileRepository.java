@@ -63,8 +63,9 @@ public class FirebaseProfileRepository implements ProfileRepository {
                         boolean notificationSettings = Boolean.TRUE.equals(doc.getBoolean("notificationSettings"));
                         String roleString = doc.getString("role");
                         Profile.Role role = parseRole(roleString);
+                        boolean organizerEnabled = parseOrganizerEnabled(doc.getBoolean("organizerEnabled"));
 
-                        users.add(new Profile(userID, name, email, phone, role, notificationSettings));
+                        users.add(new Profile(userID, name, email, phone, role, notificationSettings, organizerEnabled));
                     }
                     profilesLiveData.postValue(new ArrayList<>(users));
                 }
@@ -106,7 +107,8 @@ public class FirebaseProfileRepository implements ProfileRepository {
                                 doc.getString("email"),
                                 doc.getString("phone"),
                                 parseRole(doc.getString("role")),
-                                Boolean.TRUE.equals(doc.getBoolean("notificationSettings"))
+                                Boolean.TRUE.equals(doc.getBoolean("notificationSettings")),
+                                parseOrganizerEnabled(doc.getBoolean("organizerEnabled"))
                         );
                         callback.onSuccess(profile);
                     } else {
@@ -458,6 +460,7 @@ public class FirebaseProfileRepository implements ProfileRepository {
             data.put("phone", phone);
             data.put("role", Profile.Role.USER.name());
             data.put("notificationSettings", true);
+            data.put("organizerEnabled", true);
 
             usersRef.document(deviceID)
                     .set(data)
@@ -494,6 +497,11 @@ public class FirebaseProfileRepository implements ProfileRepository {
         data.put("phone", profile.getPhone());
         data.put("role", profile.getRole().name());
         data.put("notificationSettings", profile.getNotificationSettings());
+        data.put("organizerEnabled", profile.isOrganizerEnabled());
         return data;
+    }
+
+    private boolean parseOrganizerEnabled(@Nullable Boolean value) {
+        return value == null || value;
     }
 }

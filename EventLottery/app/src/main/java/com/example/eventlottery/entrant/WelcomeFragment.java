@@ -18,6 +18,7 @@ import androidx.navigation.Navigation;
 import com.example.eventlottery.data.ProfileRepository;
 import com.example.eventlottery.data.RepositoryProvider;
 import com.example.eventlottery.model.Profile;
+import com.example.eventlottery.organizer.OrganizerAccessCache;
 
 /**
  * WelcomeFragment:
@@ -61,6 +62,7 @@ public class WelcomeFragment extends Fragment {
         profileRepo.findUserById(deviceID, new ProfileRepository.ProfileCallback() {
             @Override
             public void onSuccess(Profile profile) {
+                OrganizerAccessCache.setAllowed(deviceID, profile != null && profile.isOrganizer());
                 // Existing user → skip registration
                 navigateToDashboard(view);
             }
@@ -117,6 +119,7 @@ public class WelcomeFragment extends Fragment {
             @Override
             public void onSuccess(Profile profile) {
                 progressBar.setVisibility(View.GONE);
+                OrganizerAccessCache.setAllowed(deviceID, profile != null && profile.isOrganizer());
                 Toast.makeText(getContext(), "Registration successful", Toast.LENGTH_SHORT).show();
                 navigateToDashboard(view);
             }
