@@ -28,6 +28,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Fragment for sending notifications to entrants
+ */
+
 public class SendNotificationFragment extends Fragment implements EntrantAdapter.Listener {
 
     private RecyclerView entrantRecyclerView;
@@ -49,6 +53,18 @@ public class SendNotificationFragment extends Fragment implements EntrantAdapter
     private boolean cancelledToggled = false;
     private String activeFilter = null;
 
+    /**
+     * Called to have the fragment instantiate its user interface view.
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -57,6 +73,13 @@ public class SendNotificationFragment extends Fragment implements EntrantAdapter
         return inflater.inflate(R.layout.fragment_send_notifications, container, false);
     }
 
+    /**
+     * Called immediately after {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}
+     * has returned, but before any saved state has been restored
+     * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -106,6 +129,9 @@ public class SendNotificationFragment extends Fragment implements EntrantAdapter
         view.findViewById(R.id.sendButton).setOnClickListener(v -> sendNotifications());
     }
 
+    /**
+     * Refresh the waiting list display
+     */
     private void refreshWaitingListDisplay() {
         // Only show profiles in the waiting list, excluding self
         displayedProfiles = allProfiles.stream()
@@ -116,6 +142,11 @@ public class SendNotificationFragment extends Fragment implements EntrantAdapter
         adapter.submitList(displayedProfiles);
     }
 
+    /**
+     * Apply a toggle filter to the adapter
+     *
+     * @param filter
+     */
     private void applyToggleFilter(String filter) {
         if (displayedProfiles.isEmpty()) return;
 
@@ -181,6 +212,9 @@ public class SendNotificationFragment extends Fragment implements EntrantAdapter
         adapter.submitList(selectedAtTop);
     }
 
+    /**
+     * Send notifications to selected entrants
+     */
     private void sendNotifications() {
         String message = messageInput.getText().toString().trim();
         if (message.isEmpty()) {
@@ -219,6 +253,11 @@ public class SendNotificationFragment extends Fragment implements EntrantAdapter
         adapter.clearSelection();
     }
 
+    /**
+     * Get the name of the sender
+     *
+     * @return sender name
+     */
     private String getCurrentSenderName() {
         if (!allProfiles.isEmpty()) {
             for (Profile profile : allProfiles) {
