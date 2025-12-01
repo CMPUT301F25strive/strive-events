@@ -92,6 +92,8 @@ public class AdminEditProfileFragment extends Fragment {
                 if (index >= 0) {
                     binding.roleSelector.setSelection(index);
                 }
+                binding.organizerToggle.setChecked(profile.isOrganizerEnabled());
+                updateOrganizerToggleState(selectedRole);
             }
 
             @Override
@@ -131,6 +133,7 @@ public class AdminEditProfileFragment extends Fragment {
 
         targetProfile.updatePersonalInfo(name, email, phone);
         targetProfile.setRole(selectedRole);
+        targetProfile.setOrganizerEnabled(binding.organizerToggle.isChecked());
         profileRepository.saveUser(targetProfile, new ProfileRepository.ProfileCallback() {
             @Override
             public void onSuccess(Profile profile) {
@@ -151,6 +154,8 @@ public class AdminEditProfileFragment extends Fragment {
     private void setupRoleSelector() {
         binding.roleLabel.setVisibility(View.VISIBLE);
         binding.roleSelector.setVisibility(View.VISIBLE);
+        binding.organizerToggleLabel.setVisibility(View.VISIBLE);
+        binding.organizerToggle.setVisibility(View.VISIBLE);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
                 requireContext(),
                 R.array.profile_role_entries,
@@ -163,6 +168,7 @@ public class AdminEditProfileFragment extends Fragment {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (position >= 0 && position < roleOptions.length) {
                     selectedRole = roleOptions[position];
+                    updateOrganizerToggleState(selectedRole);
                 }
             }
 
@@ -178,6 +184,22 @@ public class AdminEditProfileFragment extends Fragment {
             }
         }
         return 0;
+    }
+
+    private void updateOrganizerToggleState(@NonNull Profile.Role role) {
+        if (binding == null) return;
+        if (role == Profile.Role.ORGANIZER) {
+            if (!binding.organizerToggle.isEnabled()) {
+                binding.organizerToggle.setChecked(true);
+            }
+            binding.organizerToggle.setEnabled(true);
+        } else if (role == Profile.Role.ADMIN) {
+            binding.organizerToggle.setChecked(true);
+            binding.organizerToggle.setEnabled(false);
+        } else {
+            binding.organizerToggle.setChecked(false);
+            binding.organizerToggle.setEnabled(false);
+        }
     }
 
     @Override

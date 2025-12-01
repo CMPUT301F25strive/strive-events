@@ -49,6 +49,11 @@ dependencies {
     implementation ("com.google.firebase:firebase-functions")
     implementation("com.google.firebase:firebase-functions:20.4.1")
     implementation(libs.firebase.functions)
+    implementation(libs.rules)
+    testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+
     testImplementation(libs.arch.core.testing)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

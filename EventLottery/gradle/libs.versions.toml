@@ -13,6 +13,7 @@ firebaseStorage = "22.0.1"
 qrScanner = "4.3.0"
 firebaseMessaging = "25.0.1"
 firebaseFunctions = "22.1.0"
+rules = "1.7.0"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -28,6 +29,7 @@ firebase-storage = { group = "com.google.firebase", name = "firebase-storage", v
 qr-scanner = {group = "com.journeyapps", name = "zxing-android-embedded", version.ref = "qrScanner"}
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebaseMessaging" }
 firebase-functions = { group = "com.google.firebase", name = "firebase-functions", version.ref = "firebaseFunctions" }
+rules = { group = "androidx.test", name = "rules", version.ref = "rules" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

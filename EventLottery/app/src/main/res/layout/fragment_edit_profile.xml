@@ -156,6 +156,23 @@
                 android:visibility="gone"
                 android:spinnerMode="dropdown"/>
 
+            <TextView
+                android:id="@+id/organizerToggleLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/admin_profile_organizer_label"
+                android:textStyle="bold"
+                android:layout_marginTop="20dp"
+                android:visibility="gone"/>
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/organizerToggle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/admin_profile_organizer_toggle"
+                android:layout_marginTop="8dp"
+                android:visibility="gone"/>
+
             <!-- Save button -->
             <Button
                 android:id="@+id/buttonSave"
