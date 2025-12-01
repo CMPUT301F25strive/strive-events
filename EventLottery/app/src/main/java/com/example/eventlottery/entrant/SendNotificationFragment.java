@@ -46,6 +46,7 @@ public class SendNotificationFragment extends Fragment implements EntrantAdapter
     private boolean allToggled = false;
     private boolean chosenToggled = false;
     private boolean cancelledToggled = false;
+    private String activeFilter = null;
 
     @Nullable
     @Override
@@ -117,58 +118,66 @@ public class SendNotificationFragment extends Fragment implements EntrantAdapter
     private void applyToggleFilter(String filter) {
         if (displayedProfiles.isEmpty()) return;
 
-        List<Profile> reordered = new ArrayList<>();
-        List<Profile> remainder = new ArrayList<>();
         boolean toggleState;
 
-        // Determine toggle state once per click
-        switch (filter) {
-            case "all":
-                allToggled = !allToggled;        // flips state of toggle
-                toggleState = allToggled;
-                break;
-            case "chosen":
-                chosenToggled = !chosenToggled;
-                toggleState = chosenToggled;
-                break;
-            case "cancelled":
-                cancelledToggled = !cancelledToggled;
-                toggleState = cancelledToggled;
-                break;
-            default:
-                return;
+        // Logic to reset selections if switching filters and clicking the same filter twice
+        if (filter.equals("all")) {
+            if (!allToggled) adapter.clearSelection();
+            allToggled = !allToggled;
+            toggleState = allToggled;
+            chosenToggled = false;
+            cancelledToggled = false;
+        } else if (filter.equals("chosen")) {
+            if (!chosenToggled) adapter.clearSelection();
+            chosenToggled = !chosenToggled;
+            toggleState = chosenToggled;
+            allToggled = false;
+            cancelledToggled = false;
+        } else if (filter.equals("cancelled")) {
+            if (!cancelledToggled) adapter.clearSelection();
+            cancelledToggled = !cancelledToggled;
+            toggleState = cancelledToggled;
+            allToggled = false;
+            chosenToggled = false;
+        } else {
+            return;
         }
 
+        // Apply the toggle to get the matching profiles to the toggle only
         for (Profile p : displayedProfiles) {
             boolean isChosen = currentEvent.getInvitedList().contains(p.getDeviceID());
             boolean isCancelled = currentEvent.getCanceledList().contains(p.getDeviceID());
 
+            boolean matchesFilter = false;
             switch (filter) {
                 case "all":
-                    adapter.checkProfile(p, toggleState); // apply same state to all
-                    reordered.add(p);
+                    matchesFilter = true;
                     break;
                 case "chosen":
-                    if (isChosen) {
-                        adapter.checkProfile(p, toggleState);
-                        reordered.add(p);
-                    } else {
-                        remainder.add(p);
-                    }
+                    matchesFilter = isChosen;
                     break;
                 case "cancelled":
-                    if (isCancelled) {
-                        adapter.checkProfile(p, toggleState);
-                        reordered.add(p);
-                    } else {
-                        remainder.add(p);
-                    }
+                    matchesFilter = isCancelled;
                     break;
+            }
+
+            if (matchesFilter) {
+                adapter.checkProfile(p, toggleState);
             }
         }
 
-        reordered.addAll(remainder);
-        adapter.submitList(reordered);
+        // Move selected profiles to the top, keep everyone else below them
+        List<Profile> selectedAtTop = new ArrayList<>();
+        List<Profile> notSelected = new ArrayList<>();
+        for (Profile p : displayedProfiles) {
+            if (adapter.getSelectedProfiles().contains(p)) {
+                selectedAtTop.add(p);
+            } else {
+                notSelected.add(p);
+            }
+        }
+        selectedAtTop.addAll(notSelected);
+        adapter.submitList(selectedAtTop);
     }
 
     private void sendNotifications() {
