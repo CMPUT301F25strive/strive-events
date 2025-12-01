@@ -56,4 +56,10 @@
     <color name="chosen_status_pending">#F9A825</color>
     <color name="chosen_status_accepted">#2E7D32</color>
     <color name="chosen_status_declined">#C62828</color>
+
+    <!-- Admin notifications -->
+    <color name="notification_banner_bg">#EEF5FF</color>
+    <color name="notification_indicator_normal">#B0BEC5</color>
+    <color name="notification_indicator_flagged">#FF8A80</color>
+    <color name="notification_avatar_bg">#E3F2FD</color>
 </resources>

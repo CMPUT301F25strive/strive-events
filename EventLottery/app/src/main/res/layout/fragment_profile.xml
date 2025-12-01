@@ -197,6 +197,18 @@
                 android:visibility="gone"/>
 
             <TextView
+                android:id="@+id/menuAdminImages"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:padding="12dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:text="@string/profile_menu_admin_images"
+                android:layout_marginTop="8dp"
+                android:visibility="gone"/>
+
+            <TextView
                 android:id="@+id/menuDeleteAccount"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

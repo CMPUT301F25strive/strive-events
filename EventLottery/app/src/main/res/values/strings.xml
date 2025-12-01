@@ -36,6 +36,7 @@
     <string name="event_detail_spots_placeholder">Spots remaining: --</string>
     <string name="profile_menu_admin_entrants">Entrants</string>
     <string name="profile_menu_admin_notifications">Notifications</string>
+    <string name="profile_menu_admin_images">Images</string>
     <string name="admin_banner_label">Admin Dashboard</string>
     <string name="admin_welcome_snackbar">Admin access granted</string>
     <string name="guidelines_title">Lottery Guidelines</string>
@@ -75,6 +76,13 @@
     <string name="admin_notification_flag_body">Flagged notifications highlight organizers who send repeated inappropriate messages.</string>
     <string name="admin_notification_unflag_title">Remove flag?</string>
     <string name="admin_notification_unflag_body">This will remove the warning for this message.</string>
+    <string name="admin_event_images_title">Uploaded Images</string>
+    <string name="admin_event_images_empty">No event images to review.</string>
+    <string name="admin_event_images_remove_title">Remove image?</string>
+    <string name="admin_event_images_remove_body">Remove the poster for %1$s? Entrants will see the default placeholder.</string>
+    <string name="admin_event_images_remove_confirm">Remove</string>
+    <string name="admin_event_images_remove_success">Image removed</string>
+    <string name="admin_event_images_no_poster">This event does not have a poster.</string>
     <string name="profile_role_label">Role</string>
     <string name="admin_profile_organizer_label">Organizer access</string>
     <string name="admin_profile_organizer_toggle">Allow this device to create events</string>
