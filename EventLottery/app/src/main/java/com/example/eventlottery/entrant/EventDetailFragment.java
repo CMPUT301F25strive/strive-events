@@ -494,6 +494,7 @@ public class EventDetailFragment extends Fragment {
         Bundle args = new Bundle();
         args.putString(ChosenEntrantsFragment.ARG_EVENT_ID, currentEvent.getId());
         args.putString(ChosenEntrantsFragment.ARG_EVENT_TITLE, currentEvent.getTitle());
+        args.putBoolean(ChosenEntrantsFragment.ARG_CAN_MANAGE, isOwner || isAdmin);
 
         ChosenEntrantsFragment fragment = new ChosenEntrantsFragment();
         fragment.setArguments(args);

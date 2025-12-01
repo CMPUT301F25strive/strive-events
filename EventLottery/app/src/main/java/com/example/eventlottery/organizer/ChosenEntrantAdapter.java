@@ -6,7 +6,10 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.ColorRes;
+import android.view.View;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.DiffUtil;
@@ -24,8 +27,19 @@ import java.util.Objects;
 public class ChosenEntrantAdapter
         extends ListAdapter<ChosenEntrantAdapter.Row, ChosenEntrantAdapter.ViewHolder> {
 
+    public interface Listener {
+        void onCancelEntrant(@NonNull Row row);
+    }
+
+    private final Listener listener;
+
     public ChosenEntrantAdapter() {
+        this(null);
+    }
+
+    public ChosenEntrantAdapter(@Nullable Listener listener) {
         super(DIFF_CALLBACK);
+        this.listener = listener;
     }
 
     @NonNull
@@ -36,7 +50,7 @@ public class ChosenEntrantAdapter
                 parent,
                 false
         );
-        return new ViewHolder(binding);
+        return new ViewHolder(binding, listener);
     }
 
     @Override
@@ -49,10 +63,12 @@ public class ChosenEntrantAdapter
     static class ViewHolder extends RecyclerView.ViewHolder {
 
         private final ItemChosenEntrantBinding binding;
+        private final Listener listener;
 
-        ViewHolder(@NonNull ItemChosenEntrantBinding binding) {
+        ViewHolder(@NonNull ItemChosenEntrantBinding binding, @Nullable Listener listener) {
             super(binding.getRoot());
             this.binding = binding;
+            this.listener = listener;
         }
 
         void bind(@NonNull Row row) {
@@ -87,6 +103,14 @@ public class ChosenEntrantAdapter
                     binding.statusChip,
                     ContextCompat.getColorStateList(context, chipColor)
             );
+
+            if (listener != null && row.status == Row.Status.PENDING) {
+                binding.cancelButton.setVisibility(View.VISIBLE);
+                binding.cancelButton.setOnClickListener(v -> listener.onCancelEntrant(row));
+            } else {
+                binding.cancelButton.setVisibility(View.GONE);
+                binding.cancelButton.setOnClickListener(null);
+            }
         }
 
         @NonNull

@@ -17,6 +17,8 @@ import com.example.eventlottery.data.RepositoryProvider;
 import com.example.eventlottery.databinding.FragmentChosenEntrantsBinding;
 import com.example.eventlottery.model.Event;
 import com.example.eventlottery.model.Profile;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,6 +36,7 @@ public class ChosenEntrantsFragment extends Fragment {
 
     public static final String ARG_EVENT_ID = "chosen_event_id";
     public static final String ARG_EVENT_TITLE = "chosen_event_title";
+    public static final String ARG_CAN_MANAGE = "chosen_can_manage";
 
     private FragmentChosenEntrantsBinding binding;
     private EventRepository eventRepository;
@@ -45,6 +48,7 @@ public class ChosenEntrantsFragment extends Fragment {
     private String eventId;
     private String initialTitle;
     private Event currentEvent;
+    private boolean canManage;
 
     @Nullable
     @Override
@@ -65,9 +69,10 @@ public class ChosenEntrantsFragment extends Fragment {
         if (getArguments() != null) {
             eventId = getArguments().getString(ARG_EVENT_ID);
             initialTitle = getArguments().getString(ARG_EVENT_TITLE);
+            canManage = getArguments().getBoolean(ARG_CAN_MANAGE, false);
         }
 
-        adapter = new ChosenEntrantAdapter();
+        adapter = new ChosenEntrantAdapter(canManage ? this::confirmCancelEntrant : null);
         binding.chosenEntrantsRecycler.setAdapter(adapter);
         binding.chosenEntrantsRecycler.setHasFixedSize(true);
 
@@ -207,6 +212,36 @@ public class ChosenEntrantsFragment extends Fragment {
         showLoading(false);
         binding.swipeRefresh.setRefreshing(false);
         applyFilter();
+    }
+
+    private void confirmCancelEntrant(@NonNull ChosenEntrantAdapter.Row row) {
+        if (!canManage || currentEvent == null || row.status != ChosenEntrantAdapter.Row.Status.PENDING) {
+            return;
+        }
+
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.chosen_cancel_confirm_title)
+                .setMessage(getString(R.string.chosen_cancel_confirm_body,
+                        row.displayName != null ? row.displayName : row.deviceId))
+                .setNegativeButton(android.R.string.cancel, null)
+                .setPositiveButton(R.string.chosen_cancel_confirm_button,
+                        (dialog, which) -> performCancel(row.deviceId))
+                .show();
+    }
+
+    private void performCancel(@NonNull String deviceId) {
+        if (currentEvent == null || TextUtils.isEmpty(deviceId) || binding == null) return;
+
+        List<String> canceledList = new ArrayList<>(currentEvent.getCanceledList());
+        if (canceledList.contains(deviceId)) {
+            return;
+        }
+
+        canceledList.add(deviceId);
+        currentEvent.setCanceledList(canceledList);
+        eventRepository.updateCanceledList(currentEvent.getId(), canceledList);
+        Snackbar.make(binding.getRoot(), R.string.chosen_cancel_success, Snackbar.LENGTH_SHORT).show();
+        loadChosenEntrants(currentEvent);
     }
 
     private void showLoading(boolean show) {

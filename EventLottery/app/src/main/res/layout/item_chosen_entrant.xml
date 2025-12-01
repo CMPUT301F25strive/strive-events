@@ -46,6 +46,18 @@
                 android:textAllCaps="true"
                 android:textAppearance="?attr/textAppearanceLabelSmall"
                 android:textColor="@color/white" />
+
+            <ImageButton
+                android:id="@+id/cancelButton"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/circle_bg"
+                android:padding="6dp"
+                android:src="@drawable/ic_close_24"
+                android:contentDescription="@string/chosen_cancel_content_description"
+                android:visibility="gone"
+                app:tint="@color/white" />
         </LinearLayout>
 
         <TextView

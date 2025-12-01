@@ -67,7 +67,7 @@ public class FinalListFragment extends Fragment {
         eventRepository = RepositoryProvider.getEventRepository();
         profileRepository = RepositoryProvider.getProfileRepository();
 
-        adapter = new ChosenEntrantAdapter();
+        adapter = new ChosenEntrantAdapter(null);
         binding.finalRecycler.setAdapter(adapter);
         binding.finalRecycler.setHasFixedSize(true);
 

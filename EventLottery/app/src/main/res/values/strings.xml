@@ -83,6 +83,11 @@
     <string name="chosen_filter_all">All</string>
     <string name="chosen_filter_cancelled">Cancelled</string>
     <string name="chosen_filter_cancelled_with_count">Cancelled (%1$d)</string>
+    <string name="chosen_cancel_content_description">Cancel entrant</string>
+    <string name="chosen_cancel_confirm_title">Cancel invitation?</string>
+    <string name="chosen_cancel_confirm_body">Remove %1$s from the invited list? They will no longer be considered.</string>
+    <string name="chosen_cancel_confirm_button">Cancel entrant</string>
+    <string name="chosen_cancel_success">Entrant cancelled</string>
     <string name="final_filter_enrolled">Enrolled</string>
     <string name="final_filter_enrolled_with_count">Enrolled (%1$d)</string>
     <string name="device_id_label">Device: %1$s</string>
