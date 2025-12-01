@@ -34,7 +34,6 @@ public class AdminEditProfileFragment extends Fragment {
     private Profile targetProfile;
     private Profile.Role[] roleOptions = new Profile.Role[]{
             Profile.Role.USER,
-            Profile.Role.ORGANIZER,
             Profile.Role.ADMIN
     };
     private Profile.Role selectedRole = Profile.Role.USER;
@@ -188,17 +187,11 @@ public class AdminEditProfileFragment extends Fragment {
 
     private void updateOrganizerToggleState(@NonNull Profile.Role role) {
         if (binding == null) return;
-        if (role == Profile.Role.ORGANIZER) {
-            if (!binding.organizerToggle.isEnabled()) {
-                binding.organizerToggle.setChecked(true);
-            }
-            binding.organizerToggle.setEnabled(true);
-        } else if (role == Profile.Role.ADMIN) {
+        if (role == Profile.Role.ADMIN) {
             binding.organizerToggle.setChecked(true);
             binding.organizerToggle.setEnabled(false);
         } else {
-            binding.organizerToggle.setChecked(false);
-            binding.organizerToggle.setEnabled(false);
+            binding.organizerToggle.setEnabled(true);
         }
     }
 
