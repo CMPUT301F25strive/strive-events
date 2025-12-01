@@ -223,11 +223,21 @@ public class MockEventRepository implements EventRepository {
         executeDraw(event, false);
     }
 
+    /**
+     * This method uses the Lottery System to draw manually
+     *
+     * @param event : event object
+     */
     @Override
     public void manualDraw(Event event) {
         executeDraw(event, true);
     }
 
+    /**
+     * This method uses the Lottery System to draw automatically
+     *
+     * @param event : event object
+     */
     private void executeDraw(Event event, boolean ignoreRegEndConstraint) {
         if (event == null || event.getId() == null) return;
 
@@ -253,6 +263,12 @@ public class MockEventRepository implements EventRepository {
         runAutoDrawLogic(event, false);
     }
 
+    /**
+     * This method uses the Lottery System to draw automatically
+     *
+     * @param event
+     * @param ignoreRegEndConstraint
+     */
     public static void runAutoDrawLogic(Event event, boolean ignoreRegEndConstraint) {
         if (event == null) return;
 
