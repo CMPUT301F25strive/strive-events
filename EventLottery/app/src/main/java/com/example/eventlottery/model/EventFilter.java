@@ -29,7 +29,6 @@ public class EventFilter implements Serializable {
         Event.Tag eventTag = event.getTag();
 
         // Filter time range
-        // TODO: should reflect the status of events rather than the time of events
         // If start time of filter is set, event must be on/after it
         if (filterStartTimeMillis != null && eventStart < filterStartTimeMillis) {
             return false;
