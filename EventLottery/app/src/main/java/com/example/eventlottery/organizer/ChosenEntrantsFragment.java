@@ -39,6 +39,8 @@ public class ChosenEntrantsFragment extends Fragment {
     private EventRepository eventRepository;
     private ProfileRepository profileRepository;
     private ChosenEntrantAdapter adapter;
+    private final List<ChosenEntrantAdapter.Row> fullRows = new ArrayList<>();
+    private FilterMode currentFilter = FilterMode.ALL;
 
     private String eventId;
     private String initialTitle;
@@ -68,6 +70,18 @@ public class ChosenEntrantsFragment extends Fragment {
         adapter = new ChosenEntrantAdapter();
         binding.chosenEntrantsRecycler.setAdapter(adapter);
         binding.chosenEntrantsRecycler.setHasFixedSize(true);
+
+        binding.filterToggleGroup.check(binding.filterAllButton.getId());
+        binding.filterToggleGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            if (!isChecked) return;
+            FilterMode newMode = checkedId == binding.filterCancelledButton.getId()
+                    ? FilterMode.CANCELLED
+                    : FilterMode.ALL;
+            if (newMode != currentFilter) {
+                currentFilter = newMode;
+                applyFilter();
+            }
+        });
 
         if (!TextUtils.isEmpty(initialTitle)) {
             binding.summaryEventTitle.setText(initialTitle);
@@ -116,6 +130,7 @@ public class ChosenEntrantsFragment extends Fragment {
         binding.invitedCountValue.setText(String.format(Locale.getDefault(), "%d", counts.invited));
         binding.acceptedCountValue.setText(String.format(Locale.getDefault(), "%d", counts.accepted));
         binding.pendingCountValue.setText(String.format(Locale.getDefault(), "%d", counts.pending));
+        updateFilterSummary(counts);
     }
 
     private void loadChosenEntrants(@NonNull Event event) {
@@ -131,6 +146,7 @@ public class ChosenEntrantsFragment extends Fragment {
         }
 
         if (invitedUnique.isEmpty()) {
+            fullRows.clear();
             adapter.submitList(Collections.emptyList());
             showLoading(false);
             binding.swipeRefresh.setRefreshing(false);
@@ -186,10 +202,11 @@ public class ChosenEntrantsFragment extends Fragment {
             return leftName.compareToIgnoreCase(rightName);
         });
 
-        adapter.submitList(new ArrayList<>(rows));
+        fullRows.clear();
+        fullRows.addAll(rows);
         showLoading(false);
         binding.swipeRefresh.setRefreshing(false);
-        showEmptyState(rows.isEmpty());
+        applyFilter();
     }
 
     private void showLoading(boolean show) {
@@ -253,6 +270,31 @@ public class ChosenEntrantsFragment extends Fragment {
         return counts;
     }
 
+    private void updateFilterSummary(@NonNull SummaryCounts counts) {
+        if (binding == null) return;
+        String cancelledLabel = counts.declined > 0
+                ? getString(R.string.chosen_filter_cancelled_with_count, counts.declined)
+                : getString(R.string.chosen_filter_cancelled);
+        binding.filterCancelledButton.setText(cancelledLabel);
+    }
+
+    private void applyFilter() {
+        if (binding == null) return;
+        List<ChosenEntrantAdapter.Row> display = new ArrayList<>();
+        if (currentFilter == FilterMode.CANCELLED) {
+            for (ChosenEntrantAdapter.Row row : fullRows) {
+                if (row.status == ChosenEntrantAdapter.Row.Status.DECLINED) {
+                    display.add(row);
+                }
+            }
+        } else {
+            display.addAll(fullRows);
+        }
+
+        adapter.submitList(new ArrayList<>(display));
+        showEmptyState(display.isEmpty());
+    }
+
     private String getDisplayStatus(@NonNull Event event) {
         Event.Status status = event.getStatus();
         if (status == null) return getString(R.string.unknown);
@@ -276,6 +318,8 @@ public class ChosenEntrantsFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
+
+    private enum FilterMode { ALL, CANCELLED }
 
     private static class SummaryCounts {
         int invited;

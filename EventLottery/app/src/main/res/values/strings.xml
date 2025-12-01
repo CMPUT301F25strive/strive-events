@@ -80,6 +80,9 @@
     <string name="chosen_status_pending">Pending response</string>
     <string name="chosen_status_accepted">Accepted</string>
     <string name="chosen_status_declined">Declined</string>
+    <string name="chosen_filter_all">All</string>
+    <string name="chosen_filter_cancelled">Cancelled</string>
+    <string name="chosen_filter_cancelled_with_count">Cancelled (%1$d)</string>
     <string name="device_id_label">Device: %1$s</string>
     <string name="tab_summary">Summary</string>
     <string name="tab_waiting_list">Waiting list</string>
