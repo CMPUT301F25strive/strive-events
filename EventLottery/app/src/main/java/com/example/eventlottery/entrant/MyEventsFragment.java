@@ -31,6 +31,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Event list fragment
+ */
+
+
 public class MyEventsFragment extends Fragment implements EventListAdapter.Listener {
 
     private FragmentMyEventsBinding binding;
@@ -38,6 +43,18 @@ public class MyEventsFragment extends Fragment implements EventListAdapter.Liste
     private EventListAdapter adapter;
     private QRScanner qrScanner;
 
+    /**
+     * Called to have the fragment instantiate its user interface view.
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -46,6 +63,13 @@ public class MyEventsFragment extends Fragment implements EventListAdapter.Liste
         return binding.getRoot();
     }
 
+    /**
+     * Called immediately after {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}
+     * has returned, but before any saved state has been restored
+     * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -80,18 +104,28 @@ public class MyEventsFragment extends Fragment implements EventListAdapter.Liste
         });
     }
 
+    /**
+     * Called when the fragment is visible to the user and actively running.
+     *
+     */
     @Override
     public void onResume() {
         super.onResume();
         updateOrganizerActions();
     }
 
+    /**
+     * Setup recycler view
+     */
     private void setupRecycler() {
         adapter = new EventListAdapter(this);
         binding.eventRecycler.setAdapter(adapter);
         binding.eventRecycler.setHasFixedSize(true);
     }
 
+    /**
+     * Setup toggle group
+     */
     private void setupToggleGroup() {
         List<MaterialButton> buttons = Arrays.asList(
                 binding.menuWaitingList,
@@ -124,6 +158,10 @@ public class MyEventsFragment extends Fragment implements EventListAdapter.Liste
         });
     }
 
+    /**
+     * Update toggle buttons
+     * @param segment current segment
+     */
     private void updateToggleButtons(MyEventsViewModel.EventSegment segment) {
         List<MaterialButton> buttons = Arrays.asList(
                 binding.menuWaitingList,
@@ -146,6 +184,9 @@ public class MyEventsFragment extends Fragment implements EventListAdapter.Liste
         }
     }
 
+    /**
+     * Setup bottom navigation
+     */
     private void setupBottomNav() {
         binding.bottomNavigation.setSelectedItemId(R.id.nav_my_events);
 
@@ -168,6 +209,11 @@ public class MyEventsFragment extends Fragment implements EventListAdapter.Liste
         });
     }
 
+    /**
+     * Render state
+
+     * @param state current state
+     */
     private void renderState(@NonNull EventListUiState state) {
         binding.loadingIndicator.setVisibility(state.loading ? View.VISIBLE : View.GONE);
         binding.eventRefresh.setRefreshing(false);
@@ -186,6 +232,9 @@ public class MyEventsFragment extends Fragment implements EventListAdapter.Liste
         }
     }
 
+    /**
+     * Show empty state message
+     */
     private void showEmptyStateMessage() {
         MyEventsViewModel.EventSegment segment = viewModel.getCurrentSegment().getValue();
         String message = "";
@@ -203,18 +252,28 @@ public class MyEventsFragment extends Fragment implements EventListAdapter.Liste
         binding.errorMessage.setVisibility(View.VISIBLE);
     }
 
+    /**
+     * Update organizer actions
+     */
     private void updateOrganizerActions() {
         if (binding == null) return;
         boolean canOrganize = OrganizerGate.hasOrganizerAccess(requireContext());
         binding.fabAddEvent.setVisibility(canOrganize ? View.VISIBLE : View.GONE);
     }
 
+    /**
+     * Called when the fragment is no longer in use.
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
     }
 
+    /**
+     * Event selected
+     * @param event
+     */
     @Override
     public void onEventSelected(@NonNull Event event) {
         Bundle args = new Bundle();
@@ -224,7 +283,17 @@ public class MyEventsFragment extends Fragment implements EventListAdapter.Liste
                 .navigate(R.id.action_myEventsFragment_to_eventDetailFragment, args);
     }
 
-    //QR Code activity after a scan
+    /**
+     * QR Code activity after a scan
+     * @param requestCode The integer request code originally supplied to
+     *                    startActivityForResult(), allowing you to identify who this
+     *                    result came from.
+     * @param resultCode The integer result code returned by the child activity
+     *                   through its setResult().
+     * @param data An Intent, which can return result data to the caller
+     *               (various data can be attached to Intent "extras").
+     *
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

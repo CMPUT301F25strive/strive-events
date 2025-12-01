@@ -28,6 +28,9 @@ import com.google.android.material.chip.ChipGroup;
 import java.util.Calendar;
 import java.util.Locale;
 
+/**
+ * Event filter fragment
+ */
 
 public class EventFilterFragment extends DialogFragment {
     private static final String ARG_FILTER = "arg_filter";  // Constant key for the EventFilter arg Bundle.
@@ -54,6 +57,11 @@ public class EventFilterFragment extends DialogFragment {
     @Nullable
     private EventFilter initialFilter;
 
+    /**
+     * Create a new instance of EventFilterFragment
+     * @param filter
+     * @return
+     */
     public static EventFilterFragment newInstance(@Nullable EventFilter filter) {
         EventFilterFragment fragment = new EventFilterFragment();
         Bundle args = new Bundle();
@@ -62,6 +70,10 @@ public class EventFilterFragment extends DialogFragment {
         return fragment;
     }
 
+    /**
+     * Called when the fragment is first attached to its context.
+     * @param context
+     */
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -72,6 +84,12 @@ public class EventFilterFragment extends DialogFragment {
         }
     }
 
+    /**
+     * Called when the fragment is no longer attached to its context.
+     *
+     * @param savedInstanceState If the fragment is being re-created from
+     * a previous saved state, this is the state.
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,6 +103,10 @@ public class EventFilterFragment extends DialogFragment {
         }
     }
 
+    /**
+     * Called to have the fragment instantiate its user interface view.
+     *
+     */
     @Override
     public void onStart() {
         super.onStart();
@@ -102,6 +124,18 @@ public class EventFilterFragment extends DialogFragment {
         window.setAttributes(params);
     }
 
+    /**
+     * Called to have the fragment instantiate its user interface view.
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -129,6 +163,9 @@ public class EventFilterFragment extends DialogFragment {
         return view;
     }
 
+    /**
+     * Setup the chips
+     */
     // Event tag listener
     private void setupChips() {
         chipGroup.setOnCheckedStateChangeListener((group, checkedIds) -> {
@@ -166,6 +203,10 @@ public class EventFilterFragment extends DialogFragment {
         endDateBtn.setOnClickListener(v -> showDatePicker(false));
     }
 
+    /**
+     * Show date picker
+     * @param isStart
+     */
     private void showDatePicker(boolean isStart) {
         final Calendar now = Calendar.getInstance();
 
@@ -210,10 +251,20 @@ public class EventFilterFragment extends DialogFragment {
         dialog.show();
     }
 
+    /**
+     * Format date to yyyy-mm-dd
+     * @param y
+     * @param m
+     * @param d
+     * @return formatted date
+     */
     private String format(int y, int m, int d) {
         return String.format(Locale.US, "%04d-%02d-%02d", y, m + 1, d);
     }
 
+    /**
+     * Send filter to parent
+     */
     private void sendFilter() {
         if (listener == null) return;
 
@@ -221,6 +272,9 @@ public class EventFilterFragment extends DialogFragment {
         listener.onFilterChanged(filter);
     }
 
+    /**
+     * Bind initial state to UI
+     */
     private void bindInitialStateToUI() {
         // Tag selection
         if (selectedTag != null && chipGroup != null) {
@@ -269,6 +323,9 @@ public class EventFilterFragment extends DialogFragment {
         }
     }
 
+    /**
+     * Reset filter
+     */
     private void resetFilter() {
         // Clear filter state
         startTime = null;

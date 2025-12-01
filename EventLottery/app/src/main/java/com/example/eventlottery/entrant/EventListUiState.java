@@ -19,6 +19,12 @@ public class EventListUiState {
     @Nullable
     public final String errorMessage;
 
+    /**
+     * Constructor
+     * @param loading true if loading
+     * @param events list of events
+     * @param errorMessage error message
+     */
     public EventListUiState(boolean loading, @NonNull List<Event> events, @Nullable String errorMessage) {
         this.loading = loading;
         this.events = Collections.unmodifiableList(events);

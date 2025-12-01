@@ -24,6 +24,10 @@ import java.util.Locale;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Event list adapter
+ */
+
 public class EventListAdapter extends ListAdapter<Event, EventListAdapter.EventViewHolder> {
 
     public interface Listener {
@@ -43,6 +47,15 @@ public class EventListAdapter extends ListAdapter<Event, EventListAdapter.EventV
         this.profileRepository = RepositoryProvider.getProfileRepository();
     }
 
+    /**
+     * Called when RecyclerView needs a new {@link EventViewHolder} of the given type to represent
+     * an item.
+     *
+     * @param parent   The ViewGroup into which the new View will be added after it is bound to
+     *                 an adapter position.
+     * @param viewType The view type of the new View.
+     * @return
+     */
     @NonNull
     @Override
     public EventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -54,10 +67,20 @@ public class EventListAdapter extends ListAdapter<Event, EventListAdapter.EventV
         return new EventViewHolder(binding);
     }
 
+    /**
+     * Called by RecyclerView to display the data at the specified position. This method should
+     * update the contents
+     * @param holder
+     * @param position
+     */
     @Override
     public void onBindViewHolder(@NonNull EventViewHolder holder, int position) {
         holder.bind(getItem(position));
     }
+
+    /**
+     * Event view holder
+     */
 
     class EventViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
@@ -136,6 +159,9 @@ public class EventListAdapter extends ListAdapter<Event, EventListAdapter.EventV
         }
     }
 
+    /**
+     * Diff util callback
+     */
     private static final DiffUtil.ItemCallback<Event> DIFF_CALLBACK = new DiffUtil.ItemCallback<Event>() {
         @Override
         public boolean areItemsTheSame(@NonNull Event oldItem, @NonNull Event newItem) {

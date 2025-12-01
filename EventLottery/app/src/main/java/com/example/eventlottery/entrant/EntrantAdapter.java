@@ -18,6 +18,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * This is the adapter for the list of entrants
+ */
+
 public class EntrantAdapter extends ListAdapter<Profile, EntrantAdapter.EntrantViewHolder> {
 
     interface Listener {
@@ -32,6 +36,15 @@ public class EntrantAdapter extends ListAdapter<Profile, EntrantAdapter.EntrantV
         this.listener = listener;
     }
 
+    /**
+     * Called when RecyclerView needs a new {@link EntrantViewHolder} of the given type to represent
+     * an item.
+     *
+     * @param parent   The ViewGroup into which the new View will be added after it is bound to
+     *                 an adapter position.
+     * @param viewType The view type of the new View.
+     * @return
+     */
     @NonNull
     @Override
     public EntrantViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -40,6 +53,12 @@ public class EntrantAdapter extends ListAdapter<Profile, EntrantAdapter.EntrantV
         return new EntrantViewHolder(view);
     }
 
+    /**
+     * Called by RecyclerView to display the data at the specified position. This method should
+     * update the contents
+     * @param holder
+     * @param position
+     */
     @Override
     public void onBindViewHolder(@NonNull EntrantViewHolder holder, int position) {
         holder.bind(getItem(position));
@@ -84,6 +103,9 @@ public class EntrantAdapter extends ListAdapter<Profile, EntrantAdapter.EntrantV
         notifyDataSetChanged();
     }
 
+    /**
+     * This is the view holder for the entrants
+     */
     class EntrantViewHolder extends RecyclerView.ViewHolder {
         TextView nameText;
         CheckBox checkBox;
@@ -117,6 +139,9 @@ public class EntrantAdapter extends ListAdapter<Profile, EntrantAdapter.EntrantV
         }
     }
 
+    /**
+     * This is the callback for the adapter
+     */
     private static final DiffUtil.ItemCallback<Profile> DIFF_CALLBACK = new DiffUtil.ItemCallback<Profile>() {
         @Override
         public boolean areItemsTheSame(@NonNull Profile oldItem, @NonNull Profile newItem) {

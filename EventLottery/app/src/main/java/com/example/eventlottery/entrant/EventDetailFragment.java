@@ -60,6 +60,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+/**
+ * Activity of Event detail page
+ *
+ */
+
 public class EventDetailFragment extends Fragment {
 
     private enum TabSection { SUMMARY, WAITING_LIST, INVITED, FINAL_LIST }
@@ -108,6 +113,18 @@ public class EventDetailFragment extends Fragment {
 
     // ------------------------------------------------------------------------------
 
+    /**
+     * Called to have the fragment instantiate its user interface view.
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -120,6 +137,13 @@ public class EventDetailFragment extends Fragment {
 
     // ------------------------------------------------------------------------------
 
+    /**
+     * Called immediately after {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}
+     * has returned,
+     * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     */
     @Override
     public void onViewCreated(@NonNull View view,
                               @Nullable Bundle savedInstanceState) {
@@ -244,6 +268,9 @@ public class EventDetailFragment extends Fragment {
 
     // ------------------ MAP DISPLAY ------------------
 
+    /**
+     * Display map if eligible
+     */
     private void displayMapIfEligible() {
         if (currentEvent == null) return;
 
@@ -297,6 +324,10 @@ public class EventDetailFragment extends Fragment {
 
     // ------------------------------------------------------------------------------
 
+    /**
+     * Bind event data to the UI
+     * @param event
+     */
     private void bindEvent(@NonNull Event event) {
         if (!TextUtils.isEmpty(event.getPosterUrl())) {
             binding.posterWatermark.setVisibility(View.GONE);
@@ -466,6 +497,10 @@ public class EventDetailFragment extends Fragment {
         }
     }
 
+    /**
+     * Show the selected container
+     * @param section The section to show
+     */
     private void showSelectedContainer(@NonNull TabSection section) {
         if (binding == null) return;
         selectedTab = section;
@@ -489,6 +524,9 @@ public class EventDetailFragment extends Fragment {
         }
     }
 
+    /**
+     * Attach the invited fragment
+     */
     private void attachInvitedFragment() {
         if (binding == null || currentEvent == null || TextUtils.isEmpty(currentEvent.getId())) {
             return;
@@ -514,6 +552,9 @@ public class EventDetailFragment extends Fragment {
                 .commit();
     }
 
+    /**
+     * Attach the waiting list fragment
+     */
     private void attachWaitingListFragment() {
         if (binding == null || currentEvent == null || TextUtils.isEmpty(currentEvent.getId())) {
             return;
@@ -569,6 +610,11 @@ public class EventDetailFragment extends Fragment {
 
     // ------------------------------------------------------------------------------
 
+    /**
+     * Setup the action buttons
+     * @param event The event
+     * @param userID The user ID
+     */
     private void setupActionButtons(@NonNull Event event, String userID) {
         binding.buttonContainer.setVisibility(View.VISIBLE);
         setupJoinButton(event, userID);
@@ -585,6 +631,10 @@ public class EventDetailFragment extends Fragment {
         }
     }
 
+    /**
+     * Update the lottery outcome message
+     * @param event The event
+     */
     private void updateLotteryOutcomeMessage(@NonNull Event event) {
         if (binding == null || TextUtils.isEmpty(deviceId)) return;
 
@@ -608,6 +658,10 @@ public class EventDetailFragment extends Fragment {
         outcomeCard.setVisibility(showMessage ? View.VISIBLE : View.GONE);
     }
 
+    /**
+     * Setup the admin buttons
+     * @param event The event
+     */
     private void configAdminButtons(@NonNull Event event){
         // Delete: admin or event owner
         boolean canDeleteEvent = isAdmin || isOwner;
@@ -634,6 +688,9 @@ public class EventDetailFragment extends Fragment {
         }
     }
 
+    /**
+     * Perform the run lottery
+     */
     private void confirmRunLottery() {
         if (currentEvent == null || (!isAdmin && !isOwner)) return;
         new MaterialAlertDialogBuilder(requireContext())
@@ -644,12 +701,20 @@ public class EventDetailFragment extends Fragment {
                 .show();
     }
 
+    /**
+     * Perform the run lottery
+     */
     private void performRunLottery() {
         if (currentEvent == null) return;
         eventRepository.manualDraw(currentEvent);
         Snackbar.make(binding.getRoot(), R.string.run_lottery_success, Snackbar.LENGTH_SHORT).show();
     }
 
+    /**
+     * Setup the join button
+     * @param event
+     * @param userID
+     */
     private void setupJoinButton(@NonNull Event event, String userID) {
         final MaterialButton joinButton = binding.joinEventButton;
 
@@ -682,6 +747,10 @@ public class EventDetailFragment extends Fragment {
         });
     }
 
+    /**
+     * Update the join button
+     * @param onList
+     */
     private void updateJoinButton(boolean onList) {
         if (binding == null) return;
 
@@ -700,6 +769,9 @@ public class EventDetailFragment extends Fragment {
 
     // ------------------------------------------------------------------------------
 
+    /**
+     * Perform the delete event
+     */
     private void performDelete() {
         if (!isAdmin && !isOwner) return;
 
@@ -713,6 +785,9 @@ public class EventDetailFragment extends Fragment {
         }
     }
 
+    /**
+     * Confirm the removal of the poster
+     */
     private void confirmPosterRemoval() {
         if (!isAdmin || currentEvent == null) return;
         new MaterialAlertDialogBuilder(requireContext())
@@ -723,6 +798,9 @@ public class EventDetailFragment extends Fragment {
                 .show();
     }
 
+    /**
+     * Perform the removal of the poster
+     */
     private void performPosterRemoval() {
         if (currentEvent == null) return;
         try {
@@ -736,6 +814,10 @@ public class EventDetailFragment extends Fragment {
 
     // ------------------------------------------------------------------------------
 
+    /**
+     * Fetch and display the organizer name
+     * @param organizerId The organizer ID
+     */
     private void fetchAndDisplayOrganizerName(String organizerId) {
         if (organizerId == null || organizerId.isEmpty()) {
             binding.eventDetailOrganizer.setText("Organizer: Unknown");
@@ -772,6 +854,11 @@ public class EventDetailFragment extends Fragment {
 
     // ------------------ GEOLOCATION HANDLING ------------------
 
+    /**
+     * Check if location permission is granted and join the waiting list
+     * @param event
+     * @param userID
+     */
     private void checkLocationPermissionAndJoin(Event event, String userID) {
         if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -799,6 +886,12 @@ public class EventDetailFragment extends Fragment {
             }
         }
     }
+
+    /**
+     * Get device location and join the waiting list
+     * @param event
+     * @param userID
+     */
     private void getDeviceLocationAndJoin(Event event, String userID) {
         FusedLocationProviderClient fusedLocationClient =
                 LocationServices.getFusedLocationProviderClient(requireActivity());
