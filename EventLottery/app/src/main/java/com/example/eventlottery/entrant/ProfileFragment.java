@@ -26,6 +26,7 @@ import com.example.eventlottery.databinding.FragmentProfileBinding;
 import com.example.eventlottery.model.Event;
 import com.example.eventlottery.model.Profile;
 import com.example.eventlottery.model.QRScanner;
+import com.example.eventlottery.organizer.OrganizerAccessCache;
 import com.example.eventlottery.viewmodel.ProfileViewModel;
 import com.example.eventlottery.viewmodel.ProfileViewModelFactory;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -38,6 +39,7 @@ public class ProfileFragment extends Fragment {
     private ProfileViewModel viewModel;
     private Switch notificationSwitch;
     private QRScanner qrScanner;
+    private String deviceId;
 
 
     @Override
@@ -59,16 +61,17 @@ public class ProfileFragment extends Fragment {
         qrScanner = new QRScanner();
 
         // Get device ID
-        String deviceID = Secure.getString(requireContext().getContentResolver(), Secure.ANDROID_ID);
-        Log.d("Device ID", "Direct get(): " + deviceID);
+        deviceId = Secure.getString(requireContext().getContentResolver(), Secure.ANDROID_ID);
+        Log.d("Device ID", "Direct get(): " + deviceId);
 
-        viewModel.loadProfile(deviceID);
+        viewModel.loadProfile(deviceId);
 
         // Observe profile state
         viewModel.getUiState().observe(getViewLifecycleOwner(), state -> {
             if (state == null) return;
 
             if (state.isDeleted()) {
+                OrganizerAccessCache.clear(deviceId);
                 Toast.makeText(requireContext(), state.getErrorMessage(), Toast.LENGTH_SHORT).show();
                 NavHostFragment.findNavController(this)
                         .navigate(R.id.action_profileFragment_to_welcomeFragment);
@@ -83,6 +86,7 @@ public class ProfileFragment extends Fragment {
                 binding.menuAdminEntrants.setVisibility(profile.isAdmin() ? View.VISIBLE : View.GONE);
                 binding.adminBadge.setVisibility(profile.isAdmin() ? View.VISIBLE : View.GONE);
                 notificationSwitch.setChecked(profile.getNotificationSettings());
+                OrganizerAccessCache.setAllowed(profile.getDeviceID(), profile.isOrganizer());
             } else {
                 binding.menuAdminEntrants.setVisibility(View.GONE);
                 binding.adminBadge.setVisibility(View.GONE);

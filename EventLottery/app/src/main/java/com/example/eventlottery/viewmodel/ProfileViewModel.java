@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel;
 import com.example.eventlottery.data.ProfileRepository;
 import com.example.eventlottery.entrant.ProfileUiState;
 import com.example.eventlottery.model.Profile;
+import com.example.eventlottery.organizer.OrganizerAccessCache;
 
 /**
  * ViewModel for managing profile operations: load, update, delete.
@@ -136,6 +137,7 @@ public class ProfileViewModel extends ViewModel {
             @Override
             public void onDeleted() {
                 Log.d("ProfileViewModel", "Profile deleted successfully: " + deviceId);
+                OrganizerAccessCache.clear(deviceId);
                 uiState.postValue(ProfileUiState.deleted());
             }
 
