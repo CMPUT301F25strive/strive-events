@@ -37,4 +37,19 @@ public final class RepositoryProvider {
         }
         return profileRepository;
     }
+
+    /**
+     * Test-only helper to inject a custom implementation.
+     */
+    public static synchronized void setProfileRepositoryForTesting(ProfileRepository repository) {
+        profileRepository = repository;
+    }
+
+    /**
+     * Resets cached repositories (useful for tests).
+     */
+    public static synchronized void resetForTesting() {
+        eventRepository = null;
+        profileRepository = null;
+    }
 }
