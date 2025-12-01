@@ -87,8 +87,6 @@
     <string name="tab_final_list">Final list</string>
     <string name="final_list_placeholder_title">Final list coming soon</string>
     <string name="final_list_placeholder_body">Confirmed entrants will show here, along with export options, once finalized.</string>
-    <string name="waiting_list_access_title">Organizer access only</string>
-    <string name="waiting_list_access_body">Only the event organizer can review the waiting list.</string>
     <string-array name="event_tags">
         <item>Art</item>
         <item>Music</item>

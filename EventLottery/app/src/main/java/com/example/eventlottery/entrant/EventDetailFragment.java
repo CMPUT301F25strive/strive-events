@@ -41,22 +41,25 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.tabs.TabLayout;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class EventDetailFragment extends Fragment {
 
-    private static final int TAB_SUMMARY = 0;
-    private static final int TAB_WAITING = 1;
-    private static final int TAB_INVITED = 2;
-    private static final int TAB_FINAL = 3;
+    private enum TabSection { SUMMARY, WAITING_LIST, INVITED, FINAL_LIST }
+
     private static final String KEY_SELECTED_TAB = "event_detail_selected_tab";
     private static final String CHILD_TAG_WAITING = "child_waiting_list";
     private static final String CHILD_TAG_INVITED = "child_chosen_entrants";
@@ -74,9 +77,21 @@ public class EventDetailFragment extends Fragment {
     private EventRepository eventRepository;
     private ProfileRepository profileRepository;
     private WaitingListController waitingListController;
-    private int selectedTabIndex = TAB_SUMMARY;
+    private final List<TabSection> visibleTabs = new ArrayList<>();
+    private final EnumMap<TabSection, MaterialButton> tabButtonMap = new EnumMap<>(TabSection.class);
+    private final Map<Integer, TabSection> buttonIdToSection = new HashMap<>();
+    private TabSection selectedTab = TabSection.SUMMARY;
     private String invitedFragmentEventId;
     private String waitingListFragmentEventId;
+
+    private final MaterialButtonToggleGroup.OnButtonCheckedListener toggleListener =
+            (group, checkedId, isChecked) -> {
+                if (!isChecked) return;
+                TabSection section = buttonIdToSection.get(checkedId);
+                if (section != null) {
+                    showSelectedContainer(section);
+                }
+            };
 
     private final SimpleDateFormat dateFormat =
             new SimpleDateFormat("EEE, MMM d yyyy", Locale.getDefault());
@@ -104,6 +119,16 @@ public class EventDetailFragment extends Fragment {
                               @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        tabButtonMap.put(TabSection.SUMMARY, binding.tabSummaryButton);
+        tabButtonMap.put(TabSection.WAITING_LIST, binding.tabWaitingButton);
+        tabButtonMap.put(TabSection.INVITED, binding.tabInvitedButton);
+        tabButtonMap.put(TabSection.FINAL_LIST, binding.tabFinalButton);
+
+        buttonIdToSection.put(binding.tabSummaryButton.getId(), TabSection.SUMMARY);
+        buttonIdToSection.put(binding.tabWaitingButton.getId(), TabSection.WAITING_LIST);
+        buttonIdToSection.put(binding.tabInvitedButton.getId(), TabSection.INVITED);
+        buttonIdToSection.put(binding.tabFinalButton.getId(), TabSection.FINAL_LIST);
+
         deviceId = Settings.Secure.getString(
                 requireContext().getContentResolver(),
                 Settings.Secure.ANDROID_ID);
@@ -113,10 +138,15 @@ public class EventDetailFragment extends Fragment {
         waitingListController = new WaitingListController(eventRepository, profileRepository);
 
         if (savedInstanceState != null) {
-            selectedTabIndex = savedInstanceState.getInt(KEY_SELECTED_TAB, TAB_SUMMARY);
+            String savedTabName = savedInstanceState.getString(KEY_SELECTED_TAB);
+            if (savedTabName != null) {
+                try {
+                    selectedTab = TabSection.valueOf(savedTabName);
+                } catch (IllegalArgumentException ignored) {
+                    selectedTab = TabSection.SUMMARY;
+                }
+            }
         }
-
-        setupTabs();
 
         binding.backButton.setOnClickListener(v ->
                 NavHostFragment.findNavController(this).popBackStack()
@@ -140,6 +170,7 @@ public class EventDetailFragment extends Fragment {
         // Set flags FIRST ------------------------------------------------------------------
         isOwner = deviceId.equals(event.getOrganizerId());
         isAdmin = AdminGate.isAdmin(requireContext());
+        buildTabs();
 
         // Re-check admin using profile data (updates if needed)
         profileRepository.findUserById(deviceId, new ProfileRepository.ProfileCallback() {
@@ -148,6 +179,7 @@ public class EventDetailFragment extends Fragment {
                 boolean repoAdmin = profile != null && profile.isAdmin();
                 if (repoAdmin != isAdmin) {
                     isAdmin = repoAdmin;
+                    buildTabs();
                 }
 
                 // Check for map display AFTER admin/organizer flags are determined
@@ -161,9 +193,6 @@ public class EventDetailFragment extends Fragment {
         bindEvent(event);
         setupActionButtons(event, deviceId);
         configAdminButtons(event);
-        if (selectedTabIndex == TAB_INVITED) {
-            attachInvitedFragment();
-        }
 
         final String eventId = event.getId();
 
@@ -174,9 +203,6 @@ public class EventDetailFragment extends Fragment {
                 bindEvent(updated);
                 setupActionButtons(updated, deviceId);
                 configAdminButtons(updated);
-                if (selectedTabIndex == TAB_INVITED) {
-                    attachInvitedFragment();
-                }
             }
         });
         if (currentEvent != null && currentEvent.isGeolocationEnabled()) {
@@ -388,64 +414,61 @@ public class EventDetailFragment extends Fragment {
         }
     }
 
-    private void setupTabs() {
+    private void buildTabs() {
         if (binding == null) return;
 
-        TabLayout tabs = binding.eventDetailTabs;
-        tabs.removeAllTabs();
-        tabs.addTab(tabs.newTab().setText(R.string.tab_summary));
-        tabs.addTab(tabs.newTab().setText(R.string.tab_waiting_list));
-        tabs.addTab(tabs.newTab().setText(R.string.tab_invited));
-        tabs.addTab(tabs.newTab().setText(R.string.tab_final_list));
+        MaterialButtonToggleGroup group = binding.eventDetailToggleGroup;
+        group.removeOnButtonCheckedListener(toggleListener);
 
-        tabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                showSelectedContainer(tab.getPosition());
+        visibleTabs.clear();
+        visibleTabs.add(TabSection.SUMMARY);
+        if (isOwner) {
+            visibleTabs.add(TabSection.WAITING_LIST);
+        }
+        if (isOwner || isAdmin) {
+            visibleTabs.add(TabSection.INVITED);
+            visibleTabs.add(TabSection.FINAL_LIST);
+        }
+
+        boolean showGroup = visibleTabs.size() > 1;
+        group.setVisibility(showGroup ? View.VISIBLE : View.GONE);
+
+        for (TabSection section : TabSection.values()) {
+            MaterialButton button = tabButtonMap.get(section);
+            if (button == null) continue;
+            button.setVisibility(showGroup && visibleTabs.contains(section) ? View.VISIBLE : View.GONE);
+        }
+
+        if (!visibleTabs.contains(selectedTab)) {
+            selectedTab = visibleTabs.get(0);
+        }
+
+        if (showGroup) {
+            group.addOnButtonCheckedListener(toggleListener);
+            MaterialButton targetButton = tabButtonMap.get(selectedTab);
+            if (targetButton != null) {
+                group.check(targetButton.getId());
             }
-
-            @Override public void onTabUnselected(TabLayout.Tab tab) { }
-            @Override public void onTabReselected(TabLayout.Tab tab) { }
-        });
-
-        int clampedIndex = Math.min(selectedTabIndex, tabs.getTabCount() - 1);
-        TabLayout.Tab defaultTab = tabs.getTabAt(Math.max(clampedIndex, TAB_SUMMARY));
-        if (defaultTab != null) {
-            defaultTab.select();
         } else {
-            showSelectedContainer(TAB_SUMMARY);
+            showSelectedContainer(selectedTab);
         }
     }
 
-    private void showSelectedContainer(int tabIndex) {
+    private void showSelectedContainer(@NonNull TabSection section) {
         if (binding == null) return;
-        selectedTabIndex = tabIndex;
-        binding.summaryContainer.setVisibility(tabIndex == TAB_SUMMARY ? View.VISIBLE : View.GONE);
-        binding.waitingListContainer.setVisibility(tabIndex == TAB_WAITING ? View.VISIBLE : View.GONE);
-        binding.invitedContainer.setVisibility(tabIndex == TAB_INVITED ? View.VISIBLE : View.GONE);
-        binding.finalListContainer.setVisibility(tabIndex == TAB_FINAL ? View.VISIBLE : View.GONE);
+        selectedTab = section;
+        binding.summaryContainer.setVisibility(section == TabSection.SUMMARY ? View.VISIBLE : View.GONE);
+        boolean showWaiting = section == TabSection.WAITING_LIST;
+        binding.waitingListContainer.setVisibility(showWaiting ? View.VISIBLE : View.GONE);
+        binding.invitedContainer.setVisibility(section == TabSection.INVITED ? View.VISIBLE : View.GONE);
+        binding.finalListContainer.setVisibility(section == TabSection.FINAL_LIST ? View.VISIBLE : View.GONE);
 
-        if (tabIndex == TAB_WAITING) {
-            if (isOwner) {
-                binding.waitingListAccessMessage.setVisibility(View.GONE);
-                binding.waitingListFragmentContainer.setVisibility(View.VISIBLE);
-                attachWaitingListFragment();
-            } else {
-                binding.waitingListAccessMessage.setVisibility(View.VISIBLE);
-                binding.waitingListFragmentContainer.setVisibility(View.GONE);
-            }
+        if (showWaiting) {
+            attachWaitingListFragment();
         }
 
-        if (tabIndex == TAB_INVITED) {
+        if (section == TabSection.INVITED) {
             attachInvitedFragment();
-        }
-    }
-
-    private void selectTab(int tabIndex) {
-        if (binding == null) return;
-        TabLayout.Tab tab = binding.eventDetailTabs.getTabAt(tabIndex);
-        if (tab != null) {
-            tab.select();
         }
     }
 
@@ -771,7 +794,7 @@ public class EventDetailFragment extends Fragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle out) {
         super.onSaveInstanceState(out);
-        out.putInt(KEY_SELECTED_TAB, selectedTabIndex);
+        out.putString(KEY_SELECTED_TAB, selectedTab.name());
         if (currentEvent != null) {
             out.putSerializable(ARG_EVENT, currentEvent);
         }
