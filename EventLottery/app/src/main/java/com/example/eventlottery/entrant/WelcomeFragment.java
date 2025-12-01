@@ -86,6 +86,9 @@ public class WelcomeFragment extends Fragment {
         btnMainAction.setOnClickListener(v -> registerUser(view));
     }
 
+    /**
+     * Hide the registration form and show the progress bar
+     */
     private void hideRegistrationForm() {
         etName.setVisibility(View.GONE);
         etEmail.setVisibility(View.GONE);
@@ -93,6 +96,9 @@ public class WelcomeFragment extends Fragment {
         btnMainAction.setVisibility(View.GONE);
     }
 
+    /**
+     * Show the registration form and hide the progress bar
+     */
     private void showRegistrationForm() {
         etName.setVisibility(View.VISIBLE);
         etEmail.setVisibility(View.VISIBLE);
@@ -100,6 +106,10 @@ public class WelcomeFragment extends Fragment {
         btnMainAction.setVisibility(View.VISIBLE);
     }
 
+    /**
+     * Register a new user
+     * @param view View
+     */
     private void registerUser(@NonNull View view) {
         String name = etName.getText().toString().trim();
         String email = etEmail.getText().toString().trim();
@@ -136,10 +146,20 @@ public class WelcomeFragment extends Fragment {
         });
     }
 
+    /**
+     * Get the device ID
+     *
+     * @return device ID
+     */
     private String getDeviceId() {
         return Settings.Secure.getString(requireContext().getContentResolver(), Settings.Secure.ANDROID_ID);
     }
 
+    /**
+     * Navigate to the dashboard
+     *
+     * @param view View
+     */
     private void navigateToDashboard(@NonNull View view) {
         Navigation.findNavController(view)
                 .navigate(R.id.action_welcomeFragment_to_entrantEventListFragment);
