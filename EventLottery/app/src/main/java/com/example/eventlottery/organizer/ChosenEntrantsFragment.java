@@ -51,6 +51,14 @@ public class ChosenEntrantsFragment extends Fragment {
     private Event currentEvent;
     private boolean canManage;
 
+    /**
+     * Called to have the fragment instantiate its user interface view.
+     * @param inflater The LayoutInflater object that can be used to inflate any views in the fragment
+     * @param container If non-null, this is the parent view that the fragment's UI should be attached to.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state as given here.
+     * @return Return the View for the fragment's UI, or null.
+     *
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -60,6 +68,11 @@ public class ChosenEntrantsFragment extends Fragment {
         return binding.getRoot();
     }
 
+    /**
+     * Called immediately after OnCreateView() to perform actions
+     * @param view The View returned by OnCreateView
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state as given here.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -107,6 +120,9 @@ public class ChosenEntrantsFragment extends Fragment {
         observeEvent();
     }
 
+    /**
+     * Find the event with its id and update the UI, show the summary of the given event.
+     */
     private void observeEvent() {
         if (TextUtils.isEmpty(eventId)) {
             showEmptyState(true);
@@ -129,6 +145,10 @@ public class ChosenEntrantsFragment extends Fragment {
         });
     }
 
+    /**
+     * This function binds the summary of the given event.
+     * @param event The event to bind the summary of.
+     */
     private void bindSummary(@NonNull Event event) {
         if (binding == null) return;
         binding.summaryEventTitle.setText(event.getTitle());
@@ -141,6 +161,10 @@ public class ChosenEntrantsFragment extends Fragment {
         updateFilterSummary(counts);
     }
 
+    /**
+     * Load the invited entrants of the given event.
+     * @param event the event to load the invited entrants of.
+     */
     private void loadChosenEntrants(@NonNull Event event) {
         if (binding == null) return;
         List<String> invitedRaw = event.getInvitedList();
@@ -202,6 +226,10 @@ public class ChosenEntrantsFragment extends Fragment {
         }
     }
 
+    /**
+     * Render the rows of invited entrants with the given list.
+     * @param rows the list of invited entrants
+     */
     private void renderRows(@NonNull List<ChosenEntrantAdapter.Row> rows) {
         if (binding == null) return;
         Collections.sort(rows, (left, right) -> {
@@ -217,6 +245,10 @@ public class ChosenEntrantsFragment extends Fragment {
         applyFilter();
     }
 
+    /**
+     * Confirm the cancellation of the given entrant.
+     * @param row the entrant that is to be cancelled
+     */
     private void confirmCancelEntrant(@NonNull ChosenEntrantAdapter.Row row) {
         if (!canManage || currentEvent == null || row.status != ChosenEntrantAdapter.Row.Status.PENDING) {
             return;
@@ -232,6 +264,10 @@ public class ChosenEntrantsFragment extends Fragment {
                 .show();
     }
 
+    /**
+     * This is the action to perform the cancellation of the given entrant.
+     * @param deviceId the id of the entrant to be cancelled
+     */
     private void performCancel(@NonNull String deviceId) {
         if (currentEvent == null || TextUtils.isEmpty(deviceId) || binding == null) return;
 
@@ -247,16 +283,32 @@ public class ChosenEntrantsFragment extends Fragment {
         loadChosenEntrants(currentEvent);
     }
 
+    /**
+     * Set the visibility of the loading indicator.
+     * @param show the visibility of the loading indicator
+     */
     private void showLoading(boolean show) {
         if (binding == null) return;
         binding.loadingIndicator.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
+    /**
+     * Set the visibility of the empty state.
+     * @param show the visibility of the empty state
+     */
     private void showEmptyState(boolean show) {
         if (binding == null) return;
         binding.emptyStateGroup.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
+    /**
+     * Build the row of invited entrants with the given parameters.
+     * @param deviceId the id of the entrant
+     * @param profile the profile of the entrant
+     * @param acceptedSet accpeted list of invited entrants
+     * @param cancelledSet cancelled list of invited entrants
+     * @return the row of invited entrants
+     */
     private ChosenEntrantAdapter.Row buildRow(@NonNull String deviceId,
                                               @Nullable Profile profile,
                                               @NonNull Set<String> acceptedSet,
@@ -277,6 +329,11 @@ public class ChosenEntrantsFragment extends Fragment {
         return new ChosenEntrantAdapter.Row(deviceId, name, email, phone, status);
     }
 
+    /**
+     * This function builds the counts of the given event of its invited, accepted, declined, and pending entrants.
+     * @param event
+     * @return
+     */
     private SummaryCounts buildSummaryCounts(@NonNull Event event) {
         SummaryCounts counts = new SummaryCounts();
 
@@ -308,6 +365,10 @@ public class ChosenEntrantsFragment extends Fragment {
         return counts;
     }
 
+    /**
+     * Update the filter summary of the given counts.
+     * @param counts the counts of the entrants of the given event
+     */
     private void updateFilterSummary(@NonNull SummaryCounts counts) {
         if (binding == null) return;
         String cancelledLabel = counts.declined > 0
@@ -316,6 +377,9 @@ public class ChosenEntrantsFragment extends Fragment {
         binding.filterCancelledButton.setText(cancelledLabel);
     }
 
+    /**
+     * Apply the filter of the given event.
+     */
     private void applyFilter() {
         if (binding == null) return;
         List<ChosenEntrantAdapter.Row> display = new ArrayList<>();
@@ -333,6 +397,11 @@ public class ChosenEntrantsFragment extends Fragment {
         showEmptyState(display.isEmpty());
     }
 
+    /**
+     * Get the display status of the given event.
+     * @param event the event to get the display status of
+     * @return the display status of the given event
+     */
     private String getDisplayStatus(@NonNull Event event) {
         Event.Status status = event.getStatus();
         if (status == null) return getString(R.string.unknown);
@@ -351,6 +420,9 @@ public class ChosenEntrantsFragment extends Fragment {
         }
     }
 
+    /**
+     * Called when the fragment is no longer in use.
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();

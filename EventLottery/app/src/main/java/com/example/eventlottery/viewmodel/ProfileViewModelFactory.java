@@ -6,9 +6,16 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.eventlottery.data.ProfileRepository;
 
+/**
+ * This is the view model factory for ProfileViewModel.
+ */
 public class ProfileViewModelFactory implements ViewModelProvider.Factory {
     private final ProfileRepository repository;
 
+    /**
+     * Constructor for ProfileViewModelFactory.
+     * @param repository
+     */
     public ProfileViewModelFactory(ProfileRepository repository) {
         this.repository = repository;
     }

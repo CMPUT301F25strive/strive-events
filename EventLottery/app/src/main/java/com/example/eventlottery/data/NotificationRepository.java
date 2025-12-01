@@ -36,6 +36,9 @@ public class NotificationRepository {
         attachListener();
     }
 
+    /**
+     * Attaches a listener to the notifications collection in Firestore.
+     */
     private void attachListener() {
         listenerRegistration = firestore.collection("notifications")
                 .whereEqualTo("isSystem", false)
@@ -58,6 +61,11 @@ public class NotificationRepository {
                 });
     }
 
+    /**
+     * Parses a Firestore document into a NotificationLogEntry object.
+     * @param doc
+     * @return NotificationLogEntry
+     */
     private NotificationLogEntry parseDocument(@NonNull QueryDocumentSnapshot doc) {
         String senderId = doc.getString("senderId");
         String receiverId = doc.getString("receiverId");
@@ -97,12 +105,20 @@ public class NotificationRepository {
         return notificationsLiveData;
     }
 
+    /**
+     * Sets the flag status of a notification.
+     * @param notificationId
+     * @param flagged
+     */
     public void setFlagStatus(@NonNull String notificationId, boolean flagged) {
         firestore.collection("notifications")
                 .document(notificationId)
                 .update("flagged", flagged);
     }
 
+    /**
+     * This method clears the listener
+     */
     public void clear() {
         if (listenerRegistration != null) {
             listenerRegistration.remove();

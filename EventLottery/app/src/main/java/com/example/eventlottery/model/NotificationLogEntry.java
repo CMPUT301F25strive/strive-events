@@ -20,6 +20,19 @@ public class NotificationLogEntry {
     private final boolean system;
     private final Date sentAt;
 
+    /**
+     * Constructor
+     * @param id notification id
+     * @param senderId sender device id
+     * @param senderName sender name
+     * @param receiverId receiver device id
+     * @param eventId event id
+     * @param eventTitle event title
+     * @param message notification message
+     * @param flagged notification flag
+     * @param system notification is system
+     * @param sentAt notification sent at
+     */
     public NotificationLogEntry(String id,
                                 String senderId,
                                 @Nullable String senderName,
@@ -42,6 +55,10 @@ public class NotificationLogEntry {
         this.sentAt = sentAt;
     }
 
+    /**
+     * Getters and setters for notification log
+     * @return notification log values
+     */
     public String getId() {
         return id;
     }

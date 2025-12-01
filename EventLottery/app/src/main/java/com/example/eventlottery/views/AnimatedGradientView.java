@@ -12,27 +12,52 @@ import android.view.View;
 
 import androidx.annotation.Nullable;
 
+/**
+ * This class functions as a custom Android view that displays a rectangle filled with a dynamically animated linear gradient
+ * The gradient cycles through a set of initial colors, continuously changing the color mix over time.
+ */
 public class AnimatedGradientView extends View {
 
     private Paint paint;
     private int[] colors;
     private ValueAnimator animator;
 
+    /**
+     * Constructs a new AnimatedGradientView instance.
+     * @param context The context for the View.
+     */
+
     public AnimatedGradientView(Context context) {
         super(context);
         init();
     }
+
+    /**
+     * Constructs a new AnimatedGradientView instance with attributes from an XML layout.
+     * @param context The context for the View.
+     * @param attrs The attributes passed from the XML layout file.
+     */
 
     public AnimatedGradientView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
+    /**
+     * Constructs a new AnimatedGradientView instance with attributes and a default style.
+     * @param context The context for the View.
+     * @param attrs The attributes passed from the XML layout file.
+     * @param defStyleAttr The default style to apply to this view.
+     */
+
     public AnimatedGradientView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
 
+    /**
+     * Initializes the view and sets up the gradient animation.
+     */
     private void init() {
         paint = new Paint();
 
@@ -67,11 +92,25 @@ public class AnimatedGradientView extends View {
         animator.start();
     }
 
+    /**
+     * Called when the view should render its content.
+     * @param canvas the canvas on which the background will be drawn
+     */
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        // Draw a filled rectangle covering the entire view bounds using the animated paint
         canvas.drawRect(0, 0, getWidth(), getHeight(), paint);
     }
+
+    /**
+     * Linearly interpolates (blends) two ARGB colors based on a ratio.
+     * @param color1 The starting ARGB color
+     * @param color2 The ending ARGB color
+     * @param ratio The interpolation fraction
+     * @return The resulting blended ARGB color.
+     */
 
     private int blendColors(int color1, int color2, float ratio) {
         return (Integer) new ArgbEvaluator().evaluate(ratio, color1, color2);

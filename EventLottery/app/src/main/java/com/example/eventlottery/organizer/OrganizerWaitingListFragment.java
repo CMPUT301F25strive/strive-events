@@ -75,6 +75,9 @@ public class OrganizerWaitingListFragment extends Fragment {
         observeEvent();
     }
 
+    /**
+     * Find the event with its id and update the UI, show the summary of the given event.
+     */
     private void observeEvent() {
         if (TextUtils.isEmpty(eventId)) {
             showEmptyState(true);
@@ -97,12 +100,20 @@ public class OrganizerWaitingListFragment extends Fragment {
         });
     }
 
+    /**
+     * This function binds the summary of the given event.
+     * @param event The event to bind the summary of.
+     */
     private void bindSummary(@NonNull Event event) {
         binding.waitingListEventTitle.setText(event.getTitle());
         int count = event.getWaitingList() != null ? event.getWaitingList().size() : 0;
         binding.waitingListCount.setText(count + " entrants waiting");
     }
 
+    /**
+     * Load the profiles of the given user ids.
+     * @param userIds the list of user ids
+     */
     private void loadProfiles(@Nullable List<String> userIds) {
         if (userIds == null || userIds.isEmpty()) {
             adapter.submitList(Collections.emptyList());
@@ -148,6 +159,10 @@ public class OrganizerWaitingListFragment extends Fragment {
         }
     }
 
+    /**
+     * Render the profiles with the given list.
+     * @param profiles the list of profiles
+     */
     private void renderProfiles(@NonNull List<Profile> profiles) {
         Collections.sort(profiles, (a, b) -> {
             String left = a.getName() != null ? a.getName() : "";
@@ -161,10 +176,17 @@ public class OrganizerWaitingListFragment extends Fragment {
         showEmptyState(profiles.isEmpty());
     }
 
+    /**
+     * Set the visibility of the empty state.
+     * @param show the visibility of the empty state
+     */
     private void showEmptyState(boolean show) {
         binding.waitingListEmptyState.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
+    /**
+     * Destroy the view.
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();

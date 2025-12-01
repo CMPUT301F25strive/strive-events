@@ -19,6 +19,10 @@ import com.example.eventlottery.model.Event;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This is the view model for MyEventsFragment.
+ */
+
 public class MyEventsViewModel extends ViewModel {
 
     private final EventRepository repository;
@@ -35,6 +39,10 @@ public class MyEventsViewModel extends ViewModel {
         HOSTED
     }
 
+    /**
+     * Constructor for MyEventsViewModel.
+     * @param context
+     */
     public MyEventsViewModel(@NonNull Context context) {
         repository = RepositoryProvider.getEventRepository();
         deviceId = Settings.Secure.getString(
@@ -50,15 +58,27 @@ public class MyEventsViewModel extends ViewModel {
         );
     }
 
+    /**
+     * Getter for state.
+     * @return LiveData<EventListUiState>
+     */
     @NonNull
     public LiveData<EventListUiState> getState() {
         return state;
     }
 
+    /**
+     * Getter for current segment.
+     * @return LiveData<EventSegment>
+     */
     public LiveData<EventSegment> getCurrentSegment() {
         return currentSegment;
     }
 
+    /**
+     * Switch for current segment.
+     * @param segment
+     */
     public void switchSegment(EventSegment segment) {
         currentSegment.setValue(segment);
     }
@@ -123,6 +143,9 @@ public class MyEventsViewModel extends ViewModel {
         return filteredEvents;
     }
 
+    /**
+     * Refresh the list of events.
+     */
     public void refresh() {
         repository.refresh();
     }
