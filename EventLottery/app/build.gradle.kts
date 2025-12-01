@@ -63,7 +63,6 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-storage")
-
     implementation("com.cloudinary:cloudinary-android:2.3.1")
     // Glide for image loading
 
