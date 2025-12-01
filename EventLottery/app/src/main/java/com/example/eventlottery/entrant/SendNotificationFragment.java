@@ -33,7 +33,7 @@ public class SendNotificationFragment extends Fragment implements EntrantAdapter
     private RecyclerView entrantRecyclerView;
     private EditText messageInput;
     private ImageButton backButton;
-    private ToggleButton toggleAll, toggleChosen, toggleCancelled;
+    private ToggleButton toggleAll, toggleCancelled;
 
     private ProfileRepository profileRepository;
     private EntrantAdapter adapter;
@@ -45,7 +45,6 @@ public class SendNotificationFragment extends Fragment implements EntrantAdapter
     private String localDeviceId;
 
     private boolean allToggled = false;
-    private boolean chosenToggled = false;
     private boolean cancelledToggled = false;
     private String activeFilter = null;
 
@@ -65,7 +64,6 @@ public class SendNotificationFragment extends Fragment implements EntrantAdapter
         messageInput = view.findViewById(R.id.messageInput);
         backButton = view.findViewById(R.id.backButton);
         toggleAll = view.findViewById(R.id.toggleAll);
-        toggleChosen = view.findViewById(R.id.toggleChosen);
         toggleCancelled = view.findViewById(R.id.toggleCancelled);
 
         profileRepository = new FirebaseProfileRepository();
@@ -100,7 +98,6 @@ public class SendNotificationFragment extends Fragment implements EntrantAdapter
         backButton.setOnClickListener(v -> requireActivity().onBackPressed());
 
         toggleAll.setOnClickListener(v -> applyToggleFilter("all"));
-        toggleChosen.setOnClickListener(v -> applyToggleFilter("chosen"));
         toggleCancelled.setOnClickListener(v -> applyToggleFilter("cancelled"));
 
         view.findViewById(R.id.sendButton).setOnClickListener(v -> sendNotifications());
@@ -126,41 +123,20 @@ public class SendNotificationFragment extends Fragment implements EntrantAdapter
             if (!allToggled) adapter.clearSelection();
             allToggled = !allToggled;
             toggleState = allToggled;
-            chosenToggled = false;
-            cancelledToggled = false;
-        } else if (filter.equals("chosen")) {
-            if (!chosenToggled) adapter.clearSelection();
-            chosenToggled = !chosenToggled;
-            toggleState = chosenToggled;
-            allToggled = false;
             cancelledToggled = false;
         } else if (filter.equals("cancelled")) {
             if (!cancelledToggled) adapter.clearSelection();
             cancelledToggled = !cancelledToggled;
             toggleState = cancelledToggled;
             allToggled = false;
-            chosenToggled = false;
         } else {
             return;
         }
 
         // Apply the toggle to get the matching profiles to the toggle only
         for (Profile p : displayedProfiles) {
-            boolean isChosen = currentEvent.getInvitedList().contains(p.getDeviceID());
             boolean isCancelled = currentEvent.getCanceledList().contains(p.getDeviceID());
-
-            boolean matchesFilter = false;
-            switch (filter) {
-                case "all":
-                    matchesFilter = true;
-                    break;
-                case "chosen":
-                    matchesFilter = isChosen;
-                    break;
-                case "cancelled":
-                    matchesFilter = isCancelled;
-                    break;
-            }
+            boolean matchesFilter = filter.equals("all") || isCancelled;
 
             if (matchesFilter) {
                 adapter.checkProfile(p, toggleState);

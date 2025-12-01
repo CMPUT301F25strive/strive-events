@@ -55,14 +55,6 @@
             android:textOff="All"/>
 
         <ToggleButton
-            android:id="@+id/toggleChosen"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textOn="Chosen"
-            android:textOff="Chosen"/>
-
-        <ToggleButton
             android:id="@+id/toggleCancelled"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

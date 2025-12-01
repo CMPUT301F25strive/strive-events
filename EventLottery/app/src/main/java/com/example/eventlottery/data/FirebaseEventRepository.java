@@ -55,14 +55,16 @@ public class FirebaseEventRepository implements EventRepository {
                     // Initialize empty lists if null
                     if (event.getWaitingList() == null) event.setWaitingList(new ArrayList<>());
                     if (event.getAttendeesList() == null) event.setAttendeesList(new ArrayList<>());
+                    if (event.getInvitedList() == null) event.setInvitedList(new ArrayList<>());
+                    if (event.getCanceledList() == null) event.setCanceledList(new ArrayList<>());
 
                     // Monitor event's status and lists to draw automatically
                     Event.Status oldStatus = event.getStatus();
                     event.refreshStatus();
                     // Checks if its the first time being drawn to draw entrants
-                    boolean firstTimeDraw = oldStatus != Event.Status.DRAWN && event.getStatus() == Event.Status.DRAWN;
+                    boolean firstTimeDraw = oldStatus != Event.Status.DRAWN && event.isRegEnd();
                     // Checks if the invited list has less than the capacity and can be filled up from the waiting list
-                    boolean refillSlots = event.getStatus() == Event.Status.DRAWN && event.getInvitedList().size() < event.getCapacity() && !event.getWaitingList().isEmpty();
+                    boolean refillSlots = isRefillSlots(event);
                     if (firstTimeDraw || refillSlots) {
                         autoDraw(event);
                     }
@@ -79,6 +81,24 @@ public class FirebaseEventRepository implements EventRepository {
             // Post updated list to LiveData
             eventsLiveData.postValue(updated);
         });
+    }
+
+    private static boolean isRefillSlots(Event event) {
+        List<String> invited = event.getInvitedList();
+        List<String> accepted = event.getAttendeesList();
+        List<String> cancelled = event.getCanceledList();
+
+        // Pending = invited - accepted - cancelled
+        List<String> pending = new ArrayList<>(invited);
+        pending.removeAll(accepted);
+        pending.removeAll(cancelled);
+
+        // Active occupied slots
+        int activeOccupied = accepted.size() + pending.size();
+        int openSlots = event.getCapacity() - activeOccupied;
+
+        // Refill only when the event is already DRAWN
+        return event.getStatus() == Event.Status.DRAWN && openSlots > 0 && !event.getWaitingList().isEmpty();
     }
 
     // ============================================================
@@ -282,7 +302,7 @@ public class FirebaseEventRepository implements EventRepository {
         runAutoDrawLogic(event, ignoreRegEndConstraint);
 
         List<String> newInvited = event.getInvitedList();
-        if (!originalInvited.equals(newInvited)) {
+        if (!newInvited.equals(originalInvited)) {
 
             // Detect newly invited users
             List<String> newlyInvited = new ArrayList<>(newInvited);
