@@ -88,6 +88,10 @@
     <string name="chosen_cancel_confirm_body">Remove %1$s from the invited list? They will no longer be considered.</string>
     <string name="chosen_cancel_confirm_button">Cancel entrant</string>
     <string name="chosen_cancel_success">Entrant cancelled</string>
+    <string name="run_lottery_now">Run lottery now</string>
+    <string name="run_lottery_confirm_title">Run lottery early?</string>
+    <string name="run_lottery_confirm_body">This will sample winners immediately and notify entrants. Continue?</string>
+    <string name="run_lottery_success">Lottery run successfully</string>
     <string name="final_filter_enrolled">Enrolled</string>
     <string name="final_filter_enrolled_with_count">Enrolled (%1$d)</string>
     <string name="device_id_label">Device: %1$s</string>

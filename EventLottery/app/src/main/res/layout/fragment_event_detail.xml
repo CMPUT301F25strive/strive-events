@@ -391,6 +391,17 @@
                     app:backgroundTint="@color/primary"
                     android:textColor="@android:color/white"
                     android:layout_marginTop="8dp" />
+                <!-- Run Lottery Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/runLotteryButton"
+                    style="@style/Widget.Material3.Button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/run_lottery_now"
+                    app:backgroundTint="@color/primary"
+                    android:textColor="@android:color/white"
+                    android:layout_marginTop="8dp"
+                    android:visibility="gone" />
                 <!-- Admin Delete Button -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/adminDeleteButton"

@@ -44,6 +44,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
@@ -225,9 +226,12 @@ public class EventDetailFragment extends Fragment {
             // Generate QR Code
             binding.generateQRButton.setVisibility(View.VISIBLE);
             binding.generateQRButton.setOnClickListener(v ->{generateQRCode(eventId);});
+            binding.runLotteryButton.setVisibility(View.VISIBLE);
+            binding.runLotteryButton.setOnClickListener(v -> confirmRunLottery());
         } else {
             binding.sendNotificationButton.setVisibility(View.GONE);
             binding.generateQRButton.setVisibility(View.GONE);
+            binding.runLotteryButton.setVisibility(View.GONE);
         }
     }
 
@@ -598,6 +602,22 @@ public class EventDetailFragment extends Fragment {
         } else {
             binding.posterRemoveButton.setOnClickListener(null);
         }
+    }
+
+    private void confirmRunLottery() {
+        if (currentEvent == null || (!isAdmin && !isOwner)) return;
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.run_lottery_confirm_title)
+                .setMessage(R.string.run_lottery_confirm_body)
+                .setNegativeButton(android.R.string.cancel, null)
+                .setPositiveButton(R.string.run_lottery_now, (dialog, which) -> performRunLottery())
+                .show();
+    }
+
+    private void performRunLottery() {
+        if (currentEvent == null) return;
+        eventRepository.autoDraw(currentEvent);
+        Snackbar.make(binding.getRoot(), R.string.run_lottery_success, Snackbar.LENGTH_SHORT).show();
     }
 
     private void setupJoinButton(@NonNull Event event, String userID) {
