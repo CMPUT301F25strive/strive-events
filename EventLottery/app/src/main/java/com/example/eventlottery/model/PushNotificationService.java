@@ -13,6 +13,8 @@ import com.example.eventlottery.R;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.example.eventlottery.data.FirebaseProfileRepository;
+import com.example.eventlottery.data.ProfileRepository;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,11 +26,13 @@ public class PushNotificationService {
 
     private final Context context;
     private final FirebaseFirestore firestore;
+    private ProfileRepository profileRepository;
     private static final String CHANNEL_ID = "event_lottery_notifications";
 
     public PushNotificationService(Context context) {
         this.context = context;
         this.firestore = FirebaseFirestore.getInstance();
+        this.profileRepository = new FirebaseProfileRepository();
         createNotificationChannel();
     }
 
@@ -64,8 +68,12 @@ public class PushNotificationService {
 
                     for (DocumentSnapshot doc : snapshots.getDocuments()) {
                         String message = doc.getString("message");
-                        showNotification(message);
-                        doc.getReference().update("delivered", true);
+                        if (profileRepository.findUserById(deviceId).getNotificationSettings()) {
+                            showNotification(message);
+                            doc.getReference().update("delivered", true);
+                        } else {
+                            doc.getReference().update("delivered", true);
+                        }
                     }
                 });
     }
