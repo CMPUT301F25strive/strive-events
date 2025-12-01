@@ -134,12 +134,9 @@ public class EntrantEventListFragment extends Fragment implements EventListAdapt
 
         long now = System.currentTimeMillis();
 
-        // TODO: What do we display, open events only,
-        //  or + temporarily closed events (full),
-        //  or + future events (will open) as well?
-        // Now include all the above situations to display
+        // Only display OPEN events on home page
         for (Event e : state.events) {
-            if (e.isRegOpen() || e.isRegClosed()) {
+            if (e.isRegOpen()) {
                 allEvents.add(e);
             }
         }
