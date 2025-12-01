@@ -556,6 +556,7 @@ public class EventDetailFragment extends Fragment {
         Bundle args = new Bundle();
         args.putString(FinalListFragment.ARG_EVENT_ID, currentEvent.getId());
         args.putString(FinalListFragment.ARG_EVENT_TITLE, currentEvent.getTitle());
+        args.putBoolean(FinalListFragment.ARG_CAN_EXPORT, isOwner || isAdmin);
 
         FinalListFragment fragment = new FinalListFragment();
         fragment.setArguments(args);

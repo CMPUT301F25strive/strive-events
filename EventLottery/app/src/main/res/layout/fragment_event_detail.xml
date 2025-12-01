@@ -467,8 +467,9 @@
                         android:text="Accept"
                         style="@style/Widget.MaterialComponents.Button"
                         android:textColor="@android:color/white"
-                        android:backgroundTint="#4CAF50" /> />
+                        android:backgroundTint="#4CAF50" />
                 </LinearLayout>
+
             </LinearLayout>
 
         </LinearLayout>

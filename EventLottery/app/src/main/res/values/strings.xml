@@ -83,6 +83,9 @@
     <string name="admin_event_images_remove_confirm">Remove</string>
     <string name="admin_event_images_remove_success">Image removed</string>
     <string name="admin_event_images_no_poster">This event does not have a poster.</string>
+    <string name="export_final_list_label">Generate CSV</string>
+    <string name="export_final_list_success">Final list exported to Downloads.</string>
+    <string name="export_final_list_empty">No confirmed entrants to export yet.</string>
     <string name="profile_role_label">Role</string>
     <string name="admin_profile_organizer_label">Organizer access</string>
     <string name="admin_profile_organizer_toggle">Allow this device to create events</string>
