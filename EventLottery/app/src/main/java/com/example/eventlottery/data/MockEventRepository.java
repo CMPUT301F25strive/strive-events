@@ -154,18 +154,27 @@ public class MockEventRepository implements EventRepository {
      */
     @Override
     public void autoDraw(Event event) {
+        executeDraw(event, false);
+    }
+
+    @Override
+    public void manualDraw(Event event) {
+        executeDraw(event, true);
+    }
+
+    private void executeDraw(Event event, boolean ignoreRegEndConstraint) {
         if (event == null || event.getId() == null) return;
 
-        // Take a snapshot of the current invited list
         List<String> originalInvited = new ArrayList<>(event.getInvitedList());
+        Event.Status originalStatus = event.getStatus();
 
-        // Run the pure logic
-        runAutoDrawLogic(event);
+        runAutoDrawLogic(event, ignoreRegEndConstraint);
 
-        // Only update Firestore if invited list actually changed
         List<String> newInvited = event.getInvitedList();
         if (!originalInvited.equals(newInvited)) {
             updateInvitedList(event.getId(), newInvited);
+        } else if (originalStatus != event.getStatus()) {
+            refresh();
         }
     }
 
@@ -175,11 +184,16 @@ public class MockEventRepository implements EventRepository {
      * @param event: the event object
      */
     public static void runAutoDrawLogic(Event event) {
-        // Prevent the unknown event
+        runAutoDrawLogic(event, false);
+    }
+
+    public static void runAutoDrawLogic(Event event, boolean ignoreRegEndConstraint) {
         if (event == null) return;
 
-        // Only run between reg end and event start
-        if (!event.isRegEnd() || event.isEventStarted()) {
+        if (event.isEventStarted()) {
+            return;
+        }
+        if (!ignoreRegEndConstraint && !event.isRegEnd()) {
             return;
         }
 

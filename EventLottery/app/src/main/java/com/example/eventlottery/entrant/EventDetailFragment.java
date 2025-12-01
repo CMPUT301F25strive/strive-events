@@ -29,6 +29,9 @@ import com.example.eventlottery.databinding.FragmentEventDetailBinding;
 import com.example.eventlottery.model.Event;
 import com.example.eventlottery.model.InvitationService;
 import com.example.eventlottery.model.Profile;
+import com.example.eventlottery.organizer.ChosenEntrantsFragment;
+import com.example.eventlottery.organizer.FinalListFragment;
+import com.example.eventlottery.organizer.OrganizerWaitingListFragment;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -40,17 +43,29 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class EventDetailFragment extends Fragment {
+
+    private enum TabSection { SUMMARY, WAITING_LIST, INVITED, FINAL_LIST }
+
+    private static final String KEY_SELECTED_TAB = "event_detail_selected_tab";
+    private static final String CHILD_TAG_WAITING = "child_waiting_list";
+    private static final String CHILD_TAG_INVITED = "child_chosen_entrants";
 
     public static final String ARG_EVENT = "event";
 
@@ -65,6 +80,22 @@ public class EventDetailFragment extends Fragment {
     private EventRepository eventRepository;
     private ProfileRepository profileRepository;
     private WaitingListController waitingListController;
+    private final List<TabSection> visibleTabs = new ArrayList<>();
+    private final EnumMap<TabSection, MaterialButton> tabButtonMap = new EnumMap<>(TabSection.class);
+    private final Map<Integer, TabSection> buttonIdToSection = new HashMap<>();
+    private TabSection selectedTab = TabSection.SUMMARY;
+    private String invitedFragmentEventId;
+    private String waitingListFragmentEventId;
+    private String finalListFragmentEventId;
+
+    private final MaterialButtonToggleGroup.OnButtonCheckedListener toggleListener =
+            (group, checkedId, isChecked) -> {
+                if (!isChecked) return;
+                TabSection section = buttonIdToSection.get(checkedId);
+                if (section != null) {
+                    showSelectedContainer(section);
+                }
+            };
     private InvitationService invitationService;
 
     private final SimpleDateFormat dateFormat =
@@ -93,6 +124,16 @@ public class EventDetailFragment extends Fragment {
                               @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        tabButtonMap.put(TabSection.SUMMARY, binding.tabSummaryButton);
+        tabButtonMap.put(TabSection.WAITING_LIST, binding.tabWaitingButton);
+        tabButtonMap.put(TabSection.INVITED, binding.tabInvitedButton);
+        tabButtonMap.put(TabSection.FINAL_LIST, binding.tabFinalButton);
+
+        buttonIdToSection.put(binding.tabSummaryButton.getId(), TabSection.SUMMARY);
+        buttonIdToSection.put(binding.tabWaitingButton.getId(), TabSection.WAITING_LIST);
+        buttonIdToSection.put(binding.tabInvitedButton.getId(), TabSection.INVITED);
+        buttonIdToSection.put(binding.tabFinalButton.getId(), TabSection.FINAL_LIST);
+
         deviceId = Settings.Secure.getString(
                 requireContext().getContentResolver(),
                 Settings.Secure.ANDROID_ID);
@@ -100,6 +141,18 @@ public class EventDetailFragment extends Fragment {
         eventRepository = RepositoryProvider.getEventRepository();
         profileRepository = RepositoryProvider.getProfileRepository();
         waitingListController = new WaitingListController(eventRepository, profileRepository);
+
+        if (savedInstanceState != null) {
+            String savedTabName = savedInstanceState.getString(KEY_SELECTED_TAB);
+            if (savedTabName != null) {
+                try {
+                    selectedTab = TabSection.valueOf(savedTabName);
+                } catch (IllegalArgumentException ignored) {
+                    selectedTab = TabSection.SUMMARY;
+                }
+            }
+        }
+
         invitationService = new InvitationService();
         binding.backButton.setOnClickListener(v ->
                 NavHostFragment.findNavController(this).popBackStack()
@@ -123,6 +176,7 @@ public class EventDetailFragment extends Fragment {
         // Set flags FIRST ------------------------------------------------------------------
         isOwner = deviceId.equals(event.getOrganizerId());
         isAdmin = AdminGate.isAdmin(requireContext());
+        buildTabs();
 
         // Re-check admin using profile data (updates if needed)
         profileRepository.findUserById(deviceId, new ProfileRepository.ProfileCallback() {
@@ -131,6 +185,7 @@ public class EventDetailFragment extends Fragment {
                 boolean repoAdmin = profile != null && profile.isAdmin();
                 if (repoAdmin != isAdmin) {
                     isAdmin = repoAdmin;
+                    buildTabs();
                 }
 
                 // Check for map display AFTER admin/organizer flags are determined
@@ -175,9 +230,12 @@ public class EventDetailFragment extends Fragment {
             // Generate QR Code
             binding.generateQRButton.setVisibility(View.VISIBLE);
             binding.generateQRButton.setOnClickListener(v ->{generateQRCode(eventId);});
+            binding.runLotteryButton.setVisibility(View.VISIBLE);
+            binding.runLotteryButton.setOnClickListener(v -> confirmRunLottery());
         } else {
             binding.sendNotificationButton.setVisibility(View.GONE);
             binding.generateQRButton.setVisibility(View.GONE);
+            binding.runLotteryButton.setVisibility(View.GONE);
         }
     }
 
@@ -366,6 +424,146 @@ public class EventDetailFragment extends Fragment {
         }
     }
 
+    private void buildTabs() {
+        if (binding == null) return;
+
+        MaterialButtonToggleGroup group = binding.eventDetailToggleGroup;
+        group.removeOnButtonCheckedListener(toggleListener);
+
+        visibleTabs.clear();
+        visibleTabs.add(TabSection.SUMMARY);
+        if (isOwner) {
+            visibleTabs.add(TabSection.WAITING_LIST);
+        }
+        if (isOwner || isAdmin) {
+            visibleTabs.add(TabSection.INVITED);
+            visibleTabs.add(TabSection.FINAL_LIST);
+        }
+
+        boolean showGroup = visibleTabs.size() > 1;
+        group.setVisibility(showGroup ? View.VISIBLE : View.GONE);
+
+        for (TabSection section : TabSection.values()) {
+            MaterialButton button = tabButtonMap.get(section);
+            if (button == null) continue;
+            button.setVisibility(showGroup && visibleTabs.contains(section) ? View.VISIBLE : View.GONE);
+        }
+
+        if (!visibleTabs.contains(selectedTab)) {
+            selectedTab = visibleTabs.get(0);
+        }
+
+        if (showGroup) {
+            group.addOnButtonCheckedListener(toggleListener);
+            MaterialButton targetButton = tabButtonMap.get(selectedTab);
+            if (targetButton != null) {
+                group.check(targetButton.getId());
+            }
+        } else {
+            showSelectedContainer(selectedTab);
+        }
+    }
+
+    private void showSelectedContainer(@NonNull TabSection section) {
+        if (binding == null) return;
+        selectedTab = section;
+        binding.summaryContainer.setVisibility(section == TabSection.SUMMARY ? View.VISIBLE : View.GONE);
+        boolean showWaiting = section == TabSection.WAITING_LIST;
+        binding.waitingListContainer.setVisibility(showWaiting ? View.VISIBLE : View.GONE);
+        binding.invitedContainer.setVisibility(section == TabSection.INVITED ? View.VISIBLE : View.GONE);
+        boolean showFinal = section == TabSection.FINAL_LIST;
+        binding.finalListContainer.setVisibility(showFinal ? View.VISIBLE : View.GONE);
+
+        if (showWaiting) {
+            attachWaitingListFragment();
+        }
+
+        if (section == TabSection.INVITED) {
+            attachInvitedFragment();
+        }
+
+        if (showFinal) {
+            attachFinalListFragment();
+        }
+    }
+
+    private void attachInvitedFragment() {
+        if (binding == null || currentEvent == null || TextUtils.isEmpty(currentEvent.getId())) {
+            return;
+        }
+
+        if (TextUtils.equals(invitedFragmentEventId, currentEvent.getId()) &&
+                getChildFragmentManager().findFragmentByTag(CHILD_TAG_INVITED) != null) {
+            return;
+        }
+
+        invitedFragmentEventId = currentEvent.getId();
+
+        Bundle args = new Bundle();
+        args.putString(ChosenEntrantsFragment.ARG_EVENT_ID, currentEvent.getId());
+        args.putString(ChosenEntrantsFragment.ARG_EVENT_TITLE, currentEvent.getTitle());
+        args.putBoolean(ChosenEntrantsFragment.ARG_CAN_MANAGE, isOwner || isAdmin);
+
+        ChosenEntrantsFragment fragment = new ChosenEntrantsFragment();
+        fragment.setArguments(args);
+
+        getChildFragmentManager().beginTransaction()
+                .replace(R.id.invitedFragmentContainer, fragment, CHILD_TAG_INVITED)
+                .commit();
+    }
+
+    private void attachWaitingListFragment() {
+        if (binding == null || currentEvent == null || TextUtils.isEmpty(currentEvent.getId())) {
+            return;
+        }
+
+        if (!isOwner) {
+            return;
+        }
+
+        if (TextUtils.equals(waitingListFragmentEventId, currentEvent.getId()) &&
+                getChildFragmentManager().findFragmentByTag(CHILD_TAG_WAITING) != null) {
+            return;
+        }
+
+        waitingListFragmentEventId = currentEvent.getId();
+
+        Bundle args = new Bundle();
+        args.putString(OrganizerWaitingListFragment.ARG_EVENT_ID, currentEvent.getId());
+        args.putString(OrganizerWaitingListFragment.ARG_EVENT_TITLE, currentEvent.getTitle());
+
+        OrganizerWaitingListFragment fragment = new OrganizerWaitingListFragment();
+        fragment.setArguments(args);
+
+        getChildFragmentManager().beginTransaction()
+                .replace(R.id.waitingListFragmentContainer, fragment, CHILD_TAG_WAITING)
+                .commit();
+    }
+
+    private void attachFinalListFragment() {
+        if (binding == null || currentEvent == null || TextUtils.isEmpty(currentEvent.getId())) {
+            return;
+        }
+
+        if (TextUtils.equals(finalListFragmentEventId, currentEvent.getId()) &&
+                getChildFragmentManager().findFragmentByTag("child_final_list") != null) {
+            return;
+        }
+
+        finalListFragmentEventId = currentEvent.getId();
+
+        Bundle args = new Bundle();
+        args.putString(FinalListFragment.ARG_EVENT_ID, currentEvent.getId());
+        args.putString(FinalListFragment.ARG_EVENT_TITLE, currentEvent.getTitle());
+
+        FinalListFragment fragment = new FinalListFragment();
+        fragment.setArguments(args);
+
+        getChildFragmentManager().beginTransaction()
+                .replace(R.id.finalListFragmentContainer, fragment, "child_final_list")
+                .commit();
+    }
+
     // ------------------------------------------------------------------------------
 
     private void setupActionButtons(@NonNull Event event, String userID) {
@@ -389,26 +587,6 @@ public class EventDetailFragment extends Fragment {
         boolean canDeleteEvent = isAdmin || isOwner;
         binding.adminDeleteButton.setVisibility(canDeleteEvent ? View.VISIBLE : View.GONE);
 
-        // Only the owner of the event can view the waiting list
-        binding.viewWaitingListButton.setVisibility(
-                isOwner ? View.VISIBLE : View.GONE
-        );
-
-        if (isOwner) {
-            binding.viewWaitingListButton.setOnClickListener(v -> {
-                if (currentEvent == null) return;
-
-                Bundle bundle = new Bundle();
-                bundle.putString(WaitingListFragment.ARG_EVENT_ID, currentEvent.getId());
-
-                NavHostFragment.findNavController(this)
-                        .navigate(R.id.action_eventDetailFragment_to_waitingListFragment, bundle);
-            });
-        } else {
-            // If not the owner, clear the listener
-            binding.viewWaitingListButton.setOnClickListener(null);
-        }
-
         if (canDeleteEvent) {
             binding.adminDeleteButton.setOnClickListener(v -> {
                 if (currentEvent == null) return;
@@ -428,6 +606,22 @@ public class EventDetailFragment extends Fragment {
         } else {
             binding.posterRemoveButton.setOnClickListener(null);
         }
+    }
+
+    private void confirmRunLottery() {
+        if (currentEvent == null || (!isAdmin && !isOwner)) return;
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.run_lottery_confirm_title)
+                .setMessage(R.string.run_lottery_confirm_body)
+                .setNegativeButton(android.R.string.cancel, null)
+                .setPositiveButton(R.string.run_lottery_now, (dialog, which) -> performRunLottery())
+                .show();
+    }
+
+    private void performRunLottery() {
+        if (currentEvent == null) return;
+        eventRepository.manualDraw(currentEvent);
+        Snackbar.make(binding.getRoot(), R.string.run_lottery_success, Snackbar.LENGTH_SHORT).show();
     }
 
     private void setupJoinButton(@NonNull Event event, String userID) {
@@ -740,12 +934,16 @@ public class EventDetailFragment extends Fragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle out) {
         super.onSaveInstanceState(out);
-        if (currentEvent != null)
+        out.putString(KEY_SELECTED_TAB, selectedTab.name());
+        if (currentEvent != null) {
             out.putSerializable(ARG_EVENT, currentEvent);
+        }
     }
 
     @Override
     public void onDestroyView() {
+        invitedFragmentEventId = null;
+        waitingListFragmentEventId = null;
         binding = null;
         super.onDestroyView();
     }

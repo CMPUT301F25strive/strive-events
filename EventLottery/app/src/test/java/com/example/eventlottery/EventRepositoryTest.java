@@ -165,5 +165,36 @@ public class EventRepositoryTest {
         assertTrue(Arrays.asList("D", "E").contains(newInvites.get(0)));
     }
 
-}
+    @Test
+    public void testManualDraw_IgnoresRegEndConstraint() {
+        long now = System.currentTimeMillis();
+        Event event = new Event("force", "Manual Draw Event", "",
+                now + 500000,
+                now - 10000,
+                now + 10000,
+                "Loc",
+                2,
+                10,
+                REG_OPEN,
+                null,
+                "desc",
+                Event.Tag.PARTY);
 
+        event.setWaitingList(new ArrayList<>(Arrays.asList("A", "B", "C")));
+        event.setInvitedList(new ArrayList<>());
+        event.setAttendeesList(new ArrayList<>());
+        event.setCanceledList(new ArrayList<>());
+
+        // Registration has not ended yet
+        assertFalse(event.isRegEnd());
+
+        MockEventRepository repo = new MockEventRepository();
+        repo.add(event);
+
+        repo.manualDraw(event);
+
+        assertEquals(2, event.getInvitedList().size());
+        assertEquals(Event.Status.DRAWN, event.getStatus());
+    }
+
+}

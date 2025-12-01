@@ -205,12 +205,14 @@ public class FirebaseEventRepository implements EventRepository {
      * @param event: the event object
      */
     public static void runAutoDrawLogic(Event event) {
-        // Prevent the unknown event
-        if (event == null) return;
-        if (!event.isRegEnd() || event.isEventStarted()) return;
+        runAutoDrawLogic(event, false);
+    }
 
-        // Only run between reg end and event start
-        if (!event.isRegEnd() || event.isEventStarted()) {
+    public static void runAutoDrawLogic(Event event, boolean ignoreRegEndConstraint) {
+        if (event == null) return;
+
+        if (event.isEventStarted()) return;
+        if (!ignoreRegEndConstraint && !event.isRegEnd()) {
             return;
         }
 
@@ -261,15 +263,24 @@ public class FirebaseEventRepository implements EventRepository {
      * @param event : the event object
      */
     public void autoDraw(Event event) {
+        executeDraw(event, false, false);
+    }
+
+    @Override
+    public void manualDraw(Event event) {
+        executeDraw(event, true, true);
+    }
+
+    private void executeDraw(@Nullable Event event,
+                             boolean ignoreRegEndConstraint,
+                             boolean updateStatusInFirestore) {
         if (event == null || event.getId() == null) return;
 
-        // Take a snapshot of the current invited list
         List<String> originalInvited = new ArrayList<>(event.getInvitedList());
+        Event.Status originalStatus = event.getStatus();
 
-        // Run the pure logic (may or may not change invited list)
-        runAutoDrawLogic(event);
+        runAutoDrawLogic(event, ignoreRegEndConstraint);
 
-        // Only update Firestore if invited list actually changed
         List<String> newInvited = event.getInvitedList();
         if (!originalInvited.equals(newInvited)) {
 
@@ -303,6 +314,11 @@ public class FirebaseEventRepository implements EventRepository {
             updateInvitedList(event.getId(), newInvited);
         }
 
+        if (updateStatusInFirestore && originalStatus != event.getStatus()) {
+            eventsRef.document(event.getId())
+                    .update("status", event.getStatus())
+                    .addOnFailureListener(Throwable::printStackTrace);
+        }
     }
 
     @Override

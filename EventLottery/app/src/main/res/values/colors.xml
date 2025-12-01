@@ -51,4 +51,9 @@
     <color name="strive_segment_selected">#FFFFFFFF</color>   <!-- white for selected -->
     <color name="red">#FF0000</color> <!-- for selected segment -->
     <color name="segment_background">#FFFFFF</color>
+
+    <!-- Chosen entrants status colors -->
+    <color name="chosen_status_pending">#F9A825</color>
+    <color name="chosen_status_accepted">#2E7D32</color>
+    <color name="chosen_status_declined">#C62828</color>
 </resources>

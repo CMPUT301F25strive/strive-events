@@ -45,17 +45,59 @@
             app:layout_constraintBottom_toBottomOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- === MAIN CONTENT === -->
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="56dp"
-        android:paddingStart="20dp"
-        android:paddingTop="12dp"
-        android:paddingEnd="20dp"
-        android:paddingBottom="24dp"
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/eventDetailToggleGroup"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="8dp"
+        android:visibility="visible"
         app:layout_constraintTop_toBottomOf="@id/topBarLayout"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:shapeAppearanceOverlay="@style/RoundedToggleGroup"
+        app:singleSelection="true"
+        app:selectionRequired="true">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/tabSummaryButton"
+            style="@style/StriveSegmentButtonTextOnly"
+            android:text="@string/tab_summary" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/tabWaitingButton"
+            style="@style/StriveSegmentButtonTextOnly"
+            android:text="@string/tab_waiting_list" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/tabInvitedButton"
+            style="@style/StriveSegmentButtonTextOnly"
+            android:text="@string/tab_invited" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/tabFinalButton"
+            style="@style/StriveSegmentButtonTextOnly"
+            android:text="@string/tab_final_list" />
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    <!-- === MAIN CONTENT === -->
+    <FrameLayout
+        android:id="@+id/summaryContainer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/eventDetailToggleGroup"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingStart="20dp"
+            android:paddingTop="12dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="24dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -329,16 +371,6 @@
                     app:backgroundTint="@color/primary"
                     android:textColor="@android:color/white"
                     android:layout_marginTop="8dp" />
-                <!-- View Waiting List -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/viewWaitingListButton"
-                    style="@style/Widget.Material3.Button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="View Waiting List"
-                    app:backgroundTint="@color/primary"
-                    android:textColor="@android:color/white"
-                    android:layout_marginTop="8dp" />
                 <!-- Send Notification -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/sendNotificationButton"
@@ -359,6 +391,17 @@
                     app:backgroundTint="@color/primary"
                     android:textColor="@android:color/white"
                     android:layout_marginTop="8dp" />
+                <!-- Run Lottery Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/runLotteryButton"
+                    style="@style/Widget.Material3.Button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/run_lottery_now"
+                    app:backgroundTint="@color/primary"
+                    android:textColor="@android:color/white"
+                    android:layout_marginTop="8dp"
+                    android:visibility="gone" />
                 <!-- Admin Delete Button -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/adminDeleteButton"
@@ -409,5 +452,63 @@
 
         </LinearLayout>
 
-    </ScrollView>
+        </ScrollView>
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/waitingListContainer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/eventDetailToggleGroup"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <FrameLayout
+            android:id="@+id/waitingListFragmentContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/invitedContainer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/eventDetailToggleGroup"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <FrameLayout
+            android:id="@+id/invitedFragmentContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/finalListContainer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/eventDetailToggleGroup"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <FrameLayout
+            android:id="@+id/finalListFragmentContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
