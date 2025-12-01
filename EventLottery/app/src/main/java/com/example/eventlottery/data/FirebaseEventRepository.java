@@ -57,8 +57,14 @@ public class FirebaseEventRepository implements EventRepository {
 
                     // Monitor event's status and lists to draw automatically
                     Event.Status oldStatus = event.getStatus();
-                    autoDraw(event);
                     event.refreshStatus();
+                    // Checks if its the first time being drawn to draw entrants
+                    boolean firstTimeDraw = oldStatus != Event.Status.DRAWN && event.getStatus() == Event.Status.DRAWN;
+                    // Checks if the invited list has less than the capacity and can be filled up from the waiting list
+                    boolean refillSlots = event.getStatus() == Event.Status.DRAWN && event.getInvitedList().size() < event.getCapacity() && !event.getWaitingList().isEmpty();
+                    if (firstTimeDraw || refillSlots) {
+                        autoDraw(event);
+                    }
 
                     // Update Firestore if status changed
                     if (event.getStatus() != oldStatus) {
@@ -255,7 +261,11 @@ public class FirebaseEventRepository implements EventRepository {
 
             // Detect losers who did not make the invited list
             List<String> loserNonInvited = new ArrayList<>(event.getWaitingList());
+            List<String> cancelled = event.getCanceledList();
+            List<String> accepted = event.getAttendeesList();
             loserNonInvited.removeAll(newInvited);
+            loserNonInvited.removeAll(cancelled);
+            loserNonInvited.removeAll(accepted);
 
             // Send notifications only to the newly invited users
             InvitationService invitationService = new InvitationService(AppContextProvider.getContext());
