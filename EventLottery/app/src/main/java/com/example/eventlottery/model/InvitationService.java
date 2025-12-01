@@ -34,8 +34,22 @@ public class InvitationService {
      * @param senderId the event organizer
      * @param eventTitle the event title
      */
-    public void sendInvitations(List<String> deviceIds, String senderId, String eventTitle) {
-        String message = "You have been invited to " + eventTitle + "! Please accept or decline the invitation.";
+    public void sendWinnerInvitations(List<String> deviceIds, String senderId, String eventTitle) {
+        String message = "Congratulations! You have been invited to " + eventTitle + "! Please accept or decline the invitation.";
+
+        for (String deviceId : deviceIds) {
+            push.sendNotification(senderId, deviceId, message, true);
+        }
+    }
+
+    /**
+     * This methods sets up the automatic notification sent to users who got invited to their specific event
+     * @param deviceIds list of all invited device ids
+     * @param senderId the event organizer
+     * @param eventTitle the event title
+     */
+    public void sendLoserInvitations(List<String> deviceIds, String senderId, String eventTitle) {
+        String message = "Unfortunately, You didn't not get invited to " + eventTitle + "! Better luck next time!";
 
         for (String deviceId : deviceIds) {
             push.sendNotification(senderId, deviceId, message, true);

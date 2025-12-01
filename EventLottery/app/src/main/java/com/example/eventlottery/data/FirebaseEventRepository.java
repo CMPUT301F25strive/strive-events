@@ -253,10 +253,20 @@ public class FirebaseEventRepository implements EventRepository {
             List<String> newlyInvited = new ArrayList<>(newInvited);
             newlyInvited.removeAll(originalInvited);
 
+            // Detect losers who did not make the invited list
+            List<String> loserNonInvited = new ArrayList<>(event.getWaitingList());
+            loserNonInvited.removeAll(newInvited);
+
             // Send notifications only to the newly invited users
             InvitationService invitationService = new InvitationService(AppContextProvider.getContext());
-            invitationService.sendInvitations(
+            invitationService.sendWinnerInvitations(
                     newlyInvited,
+                    event.getOrganizerId(),
+                    event.getTitle()
+            );
+            // Send notifications only to the rest of the waiting list who did not get chosen
+            invitationService.sendLoserInvitations(
+                    loserNonInvited,
                     event.getOrganizerId(),
                     event.getTitle()
             );
