@@ -147,4 +147,5 @@ public class MainActivity extends AppCompatActivity {
         return navController != null && navController.navigateUp()
                 || super.onSupportNavigateUp();
     }
+
 }

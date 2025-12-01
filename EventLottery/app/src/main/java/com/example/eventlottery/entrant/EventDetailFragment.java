@@ -1,18 +1,21 @@
 package com.example.eventlottery.entrant;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.provider.Settings;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
-
+import android.location.Location;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
@@ -20,6 +23,9 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.bumptech.glide.Glide;
+import com.cloudinary.android.MediaManager;
+import com.cloudinary.android.callback.ErrorInfo;
+import com.cloudinary.android.callback.UploadCallback;
 import com.example.eventlottery.R;
 import com.example.eventlottery.WaitingListController;
 import com.example.eventlottery.admin.AdminGate;
@@ -47,12 +53,16 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -67,7 +77,7 @@ import java.util.Map;
 
 public class EventDetailFragment extends Fragment {
 
-    private enum TabSection { SUMMARY, WAITING_LIST, INVITED, FINAL_LIST }
+    private enum TabSection {SUMMARY, WAITING_LIST, INVITED, FINAL_LIST}
 
     private static final String KEY_SELECTED_TAB = "event_detail_selected_tab";
     private static final String CHILD_TAG_WAITING = "child_waiting_list";
@@ -77,7 +87,7 @@ public class EventDetailFragment extends Fragment {
 
     private FragmentEventDetailBinding binding;
     private Event currentEvent;
-
+    private boolean posterSelected = false;
     private boolean isAdmin = false;
     private boolean isOwner = false;
 
@@ -111,6 +121,8 @@ public class EventDetailFragment extends Fragment {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
 
+    private static final int PICK_IMAGE = 10;
+    private Uri imageUri; // Holds the URI of selected poster image
     // ------------------------------------------------------------------------------
 
     /**
@@ -217,8 +229,13 @@ public class EventDetailFragment extends Fragment {
                 displayMapIfEligible();
             }
 
-            @Override public void onDeleted() {}
-            @Override public void onError(String message) {}
+            @Override
+            public void onDeleted() {
+            }
+
+            @Override
+            public void onError(String message) {
+            }
         });
 
         bindEvent(event);
@@ -255,7 +272,9 @@ public class EventDetailFragment extends Fragment {
             });
             // Generate QR Code
             binding.generateQRButton.setVisibility(View.VISIBLE);
-            binding.generateQRButton.setOnClickListener(v ->{generateQRCode(eventId);});
+            binding.generateQRButton.setOnClickListener(v -> {
+                generateQRCode(eventId);
+            });
             binding.runLotteryButton.setVisibility(View.VISIBLE);
             binding.runLotteryButton.setOnClickListener(v -> confirmRunLottery());
         } else {
@@ -323,7 +342,22 @@ public class EventDetailFragment extends Fragment {
     }
 
     // ------------------------------------------------------------------------------
+    private void openGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, PICK_IMAGE);
+    }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE && data != null) {
+            imageUri = data.getData();          // Save selected image URI
+            if (binding != null && imageUri != null) {
+                binding.eventDetailPoster.setImageURI(imageUri);
+            }
+            uploadPosterToCloudinary(imageUri);
+        }
 
+    }
     /**
      * Bind event data to the UI
      * @param event
@@ -337,6 +371,7 @@ public class EventDetailFragment extends Fragment {
         } else {
             binding.eventDetailPoster.setImageResource(R.drawable.event_image_placeholder);
             binding.posterWatermark.setVisibility(View.VISIBLE);
+
         }
 
         binding.eventDetailTitle.setText(event.getTitle());
@@ -416,6 +451,7 @@ public class EventDetailFragment extends Fragment {
     /**
      * This method renders the tag of event from Event.Tag enum identifier
      * to its meaning as a String.
+     *
      * @param tag: the tag identifier of Event.Tag
      * @return the corresponding String format
      */
@@ -425,19 +461,26 @@ public class EventDetailFragment extends Fragment {
 
         // Render the given tag
         switch (tag) {
-            case ART:        return "Art";
-            case MUSIC:      return "Music";
-            case EDUCATION:  return "Education";
-            case SPORTS:     return "Sports";
-            case PARTY:      return "Party";
+            case ART:
+                return "Art";
+            case MUSIC:
+                return "Music";
+            case EDUCATION:
+                return "Education";
+            case SPORTS:
+                return "Sports";
+            case PARTY:
+                return "Party";
             // If mismatched, return the exact enum constant name as a String
-            default:         return tag.name();
+            default:
+                return tag.name();
         }
     }
 
     /**
      * This method renders the status of event from Event.Status enum identifier
      * to its corresponding meaning as a String.
+     *
      * @param event: the status identifier of Event.Status
      * @return the corresponding String format
      */
@@ -448,12 +491,17 @@ public class EventDetailFragment extends Fragment {
 
         // Render the given status
         switch (status) {
-            case REG_OPEN:      return "Registration open";
-            case REG_CLOSED:    return "Registration closed";
-            case DRAWN:         return "Lottery drawn";
-            case FINALIZED:     return "Finalized";
+            case REG_OPEN:
+                return "Registration open";
+            case REG_CLOSED:
+                return "Registration closed";
+            case DRAWN:
+                return "Lottery drawn";
+            case FINALIZED:
+                return "Finalized";
             // If mismatched, return the exact enum constant name as a String
-            default:            return status.name();
+            default:
+                return status.name();
         }
     }
 
@@ -521,6 +569,21 @@ public class EventDetailFragment extends Fragment {
 
         if (showFinal) {
             attachFinalListFragment();
+        }
+        updateTabBackgrounds();
+    }
+    private void updateTabBackgrounds() {
+        for (TabSection section : tabButtonMap.keySet()) {
+            MaterialButton button = tabButtonMap.get(section);
+            if (button == null) continue;
+
+            if (section == selectedTab) {
+                // Selected tab styling
+                button.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.strive_segment_selected));
+            } else {
+                // Unselected tab styling
+                button.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.strive_segment_unselected));
+            }
         }
     }
 
@@ -619,12 +682,23 @@ public class EventDetailFragment extends Fragment {
         binding.buttonContainer.setVisibility(View.VISIBLE);
         setupJoinButton(event, userID);
 
-        // Cannot join if the event is out of registration period, the waiting list is full, or it's their own event
-        if (!event.isRegOpen() || event.isWaitingListFull() || isOwner) {
-            binding.joinEventButton.setVisibility(View.GONE);
+        // Hide Join button if:
+        // 1. User is the event owner (always hidden)
+        // 2. For normal users (not admin/owner):
+        //    - Registration closed OR waiting list full
+        boolean hideJoinButton;
+
+        if (isOwner) {
+            hideJoinButton = true; // always hide for owner
+        } else if (!isAdmin) {
+            hideJoinButton = !event.isRegOpen() || event.isWaitingListFull();
+        } else {
+            hideJoinButton = false; // admin can always see
         }
 
-        // If already in the waiting list, we can always leave before status.DRAWN
+        binding.joinEventButton.setVisibility(hideJoinButton ? View.GONE : View.VISIBLE);
+
+        // If already in the waiting list, allow leaving before DRAWN
         if (event.isOnWaitingList(userID)
                 && (event.isRegOpen() || event.isRegClosed())) {
             binding.joinEventButton.setVisibility(View.VISIBLE);
@@ -668,6 +742,11 @@ public class EventDetailFragment extends Fragment {
         binding.adminDeleteButton.setVisibility(canDeleteEvent ? View.VISIBLE : View.GONE);
 
         if (canDeleteEvent) {
+
+            binding.watermarkText.setVisibility(View.VISIBLE);
+
+            binding.eventDetailPoster.setOnClickListener(v -> openGallery());
+
             binding.adminDeleteButton.setOnClickListener(v -> {
                 if (currentEvent == null) return;
                 new MaterialAlertDialogBuilder(requireContext())
@@ -679,7 +758,7 @@ public class EventDetailFragment extends Fragment {
             });
         }
 
-        boolean canRemovePoster = isAdmin && !TextUtils.isEmpty(event.getPosterUrl());
+        boolean canRemovePoster = (isAdmin || isOwner) && !TextUtils.isEmpty(event.getPosterUrl());
         binding.posterRemoveButton.setVisibility(canRemovePoster ? View.VISIBLE : View.GONE);
         if (canRemovePoster) {
             binding.posterRemoveButton.setOnClickListener(v -> confirmPosterRemoval());
@@ -741,7 +820,7 @@ public class EventDetailFragment extends Fragment {
                 } else {
                     waitingListController.joinWaitingList(event.getId(), userID);
                     Toast.makeText(requireContext(), "Joined waiting list", Toast.LENGTH_SHORT).show();
-            updateJoinButton(true);
+                    updateJoinButton(true);
                 }
             }
         });
@@ -789,7 +868,7 @@ public class EventDetailFragment extends Fragment {
      * Confirm the removal of the poster
      */
     private void confirmPosterRemoval() {
-        if (!isAdmin || currentEvent == null) return;
+        if ((!isAdmin && !isOwner) || currentEvent == null) return;
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.admin_poster_delete_confirm_title)
                 .setMessage(R.string.admin_poster_delete_confirm_body)
@@ -990,7 +1069,7 @@ public class EventDetailFragment extends Fragment {
         // Check conditions before the real RSVP action
         boolean isInvited = invited != null && invited.contains(deviceId);
         boolean isAttending = attendees != null && attendees.contains(deviceId);
-        boolean isCanceled = canceled != null  && canceled.contains(deviceId);
+        boolean isCanceled = canceled != null && canceled.contains(deviceId);
 
         // Entrants can respond after the draw happens (status DRAWN) or once registration officially ends.
         boolean canRespondNow = currentEvent.isRegEnd() || currentEvent.isDrawn();
@@ -1052,6 +1131,7 @@ public class EventDetailFragment extends Fragment {
         // Hide the whole RSVP UI after responding
         binding.layoutRsvp.setVisibility(View.GONE);
     }
+
     // ------------------------------------------------------
     @Override
     public void onSaveInstanceState(@NonNull Bundle out) {
@@ -1068,5 +1148,81 @@ public class EventDetailFragment extends Fragment {
         waitingListFragmentEventId = null;
         binding = null;
         super.onDestroyView();
+    }
+    private void updatePosterUrlInFirestore(String url) {
+        if (currentEvent == null || currentEvent.getId() == null || url == null) return;
+
+        FirebaseFirestore.getInstance()
+                .collection("events")
+                .document(currentEvent.getId())
+                .set(Collections.singletonMap("posterUrl", url), SetOptions.merge()) // safe for missing docs
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(requireContext(), "Poster updated!", Toast.LENGTH_SHORT).show();
+
+                    // Update UI immediately
+                    currentEvent.setPosterUrl(url);
+                    bindEvent(currentEvent);
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(requireContext(), "Failed to update Firestore", Toast.LENGTH_SHORT).show()
+                );
+    }
+    private void uploadPosterToCloudinary(Uri uri) {
+        if (uri == null) {
+            Toast.makeText(requireContext(), "No image selected", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+
+        MediaManager.get().upload(uri)
+                .unsigned("unsigned_preset")          // your preset
+                .option("resource_type", "image")
+                .callback(new UploadCallback() {
+                    @Override
+                    public void onStart(String requestId) {
+                        Log.d("Cloudinary Upload", "Result map: ");
+                        // optional: show progress start
+                    }
+
+                    @Override
+                    public void onProgress(String requestId, long bytes, long totalBytes) {
+                        // optional: update progress
+                    }
+
+                    @Override
+                    public void onSuccess(String requestId, Map resultData) {
+
+                        // Get the secure URL
+                        String url = (String) resultData.get("secure_url");
+                        if (url == null) {
+                            url = (String) resultData.get("url");
+                        }
+
+                        if (url == null) {
+                            Toast.makeText(requireContext(),
+                                    "Upload succeeded but no URL returned",
+                                    Toast.LENGTH_LONG
+                            ).show();
+                            return;
+                        }
+
+                        // Update Firestore with the poster URL
+                        updatePosterUrlInFirestore(url);
+                    }
+
+                    @Override
+                    public void onError(String requestId, ErrorInfo error) {
+                        Toast.makeText(requireContext(),
+                                "Cloudinary upload failed: " + error.getDescription(),
+                                Toast.LENGTH_LONG
+                        ).show();
+                    }
+
+                    @Override
+                    public void onReschedule(String requestId, ErrorInfo error) {
+                        // rarely happens
+                    }
+                })
+                .dispatch();
     }
 }

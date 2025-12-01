@@ -60,7 +60,7 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/menuWaitingList"
             style="@style/StriveSegmentButtonTextOnly"
-            android:text="Waitlist"/>
+            android:text="Waitlisted"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/menuAccepted"

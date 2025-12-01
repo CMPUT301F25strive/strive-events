@@ -2,51 +2,57 @@
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="12dp"
     android:layout_marginBottom="12dp"
     app:cardCornerRadius="36dp"
-    app:cardUseCompatPadding="true"
+    app:cardElevation="0dp"
     app:strokeWidth="0dp"
     app:cardBackgroundColor="#6AFFFFFF">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:layout_height="match_parent"
         android:padding="18dp">
 
         <!-- User Name -->
         <TextView
             android:id="@+id/waitingUserName"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:textStyle="bold"
             android:textColor="@color/black"
             android:textSize="16sp"
-            tools:text="John Doe" />
+            android:ellipsize="end"
+            android:maxLines="1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
 
         <!-- User Email -->
         <TextView
             android:id="@+id/waitingUserEmail"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:textColor="@color/gray_dark"
             android:textSize="14sp"
-            tools:text="john@example.com" />
+            app:layout_constraintTop_toBottomOf="@id/waitingUserName"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
+        <!-- User Phone / Role -->
         <TextView
             android:id="@+id/waitingUserPhone"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:textColor="@color/gray_dark"
             android:textSize="14sp"
-            tools:text="USER" />
+            app:layout_constraintTop_toBottomOf="@id/waitingUserEmail"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.google.android.material.card.MaterialCardView>
