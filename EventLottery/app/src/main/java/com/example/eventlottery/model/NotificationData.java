@@ -12,6 +12,10 @@ public class NotificationData {
     public boolean delivered;
     public boolean isSystem;
     public Object timestamp;
+    public String eventId;
+    public String eventTitle;
+    public String senderName;
+    public boolean flagged;
 
     public NotificationData() {}
 
@@ -28,5 +32,6 @@ public class NotificationData {
         this.delivered = false;
         this.isSystem = isSystem;
         this.timestamp = FieldValue.serverTimestamp();
+        this.flagged = false;
     }
 }

@@ -35,6 +35,7 @@
     <string name="profile_menu_guidelines">Lottery Guidelines</string>
     <string name="event_detail_spots_placeholder">Spots remaining: --</string>
     <string name="profile_menu_admin_entrants">Entrants</string>
+    <string name="profile_menu_admin_notifications">Notifications</string>
     <string name="admin_banner_label">Admin Dashboard</string>
     <string name="admin_welcome_snackbar">Admin access granted</string>
     <string name="guidelines_title">Lottery Guidelines</string>
@@ -62,6 +63,18 @@
     <string name="admin_profile_edit_success">Profile updated</string>
     <string name="admin_profile_edit_error">Failed to update profile</string>
     <string name="admin_entrant_role_format">Role: %1$s</string>
+    <string name="admin_notifications_title">Notifications</string>
+    <string name="admin_notifications_empty">No organizer notifications yet.</string>
+    <string name="admin_notification_event_format">Event: %1$s</string>
+    <string name="admin_notification_sent_format">Sent on %1$s</string>
+    <string name="admin_notification_flagged">Flagged</string>
+    <string name="admin_notification_repeated">Repeated</string>
+    <string name="admin_notification_flag">Flag</string>
+    <string name="admin_notification_unflag">Unflag</string>
+    <string name="admin_notification_flag_title">Flag notification?</string>
+    <string name="admin_notification_flag_body">Flagged notifications highlight organizers who send repeated inappropriate messages.</string>
+    <string name="admin_notification_unflag_title">Remove flag?</string>
+    <string name="admin_notification_unflag_body">This will remove the warning for this message.</string>
     <string name="profile_role_label">Role</string>
     <string name="admin_profile_organizer_label">Organizer access</string>
     <string name="admin_profile_organizer_toggle">Allow this device to create events</string>

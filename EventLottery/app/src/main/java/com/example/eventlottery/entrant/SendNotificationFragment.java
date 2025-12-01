@@ -2,6 +2,7 @@ package com.example.eventlottery.entrant;
 
 import android.os.Bundle;
 import android.provider.Settings;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -194,17 +195,42 @@ public class SendNotificationFragment extends Fragment implements EntrantAdapter
         }
 
         PushNotificationService service = new PushNotificationService(requireContext());
+        String eventId = currentEvent.getId();
+        String eventTitle = currentEvent.getTitle();
+        String senderName = getCurrentSenderName();
 
         for (Profile profile : selected) {
             String receiverId = profile.getDeviceID();
             if (receiverId != null && !receiverId.isEmpty()) {
-                service.sendNotification(localDeviceId, receiverId, message, false);
+                service.sendNotification(
+                        localDeviceId,
+                        receiverId,
+                        message,
+                        false,
+                        eventId,
+                        eventTitle,
+                        senderName
+                );
             }
         }
 
         Toast.makeText(requireContext(), "Notifications sent!", Toast.LENGTH_SHORT).show();
         messageInput.setText("");
         adapter.clearSelection();
+    }
+
+    private String getCurrentSenderName() {
+        if (!allProfiles.isEmpty()) {
+            for (Profile profile : allProfiles) {
+                if (TextUtils.equals(profile.getDeviceID(), localDeviceId)) {
+                    return profile.getName();
+                }
+            }
+        }
+        if (currentEvent != null && !TextUtils.isEmpty(currentEvent.getOrganizerName())) {
+            return currentEvent.getOrganizerName();
+        }
+        return null;
     }
 
     @Override

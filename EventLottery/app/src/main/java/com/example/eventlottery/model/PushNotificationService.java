@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
@@ -44,6 +45,16 @@ public class PushNotificationService {
      * @param isSystem boolean to see if notification is from system or not
      */
     public void sendNotification(String senderId, String receiverId, String message, boolean isSystem) {
+        sendNotification(senderId, receiverId, message, isSystem, null, null, null);
+    }
+
+    public void sendNotification(String senderId,
+                                 String receiverId,
+                                 String message,
+                                 boolean isSystem,
+                                 @Nullable String eventId,
+                                 @Nullable String eventTitle,
+                                 @Nullable String senderName) {
         Map<String, Object> data = new HashMap<>();
         data.put("senderId", senderId);
         data.put("receiverId", receiverId);
@@ -51,6 +62,10 @@ public class PushNotificationService {
         data.put("delivered", false);
         data.put("timestamp", FieldValue.serverTimestamp());
         data.put("isSystem", isSystem);
+        data.put("eventId", eventId);
+        data.put("eventTitle", eventTitle);
+        data.put("senderName", senderName);
+        data.put("flagged", false);
 
         firestore.collection("notifications").add(data);
     }

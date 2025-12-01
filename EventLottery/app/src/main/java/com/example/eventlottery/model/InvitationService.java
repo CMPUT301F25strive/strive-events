@@ -41,11 +41,14 @@ public class InvitationService {
      * @param senderId the event organizer
      * @param eventTitle the event title
      */
-    public void sendWinnerInvitations(List<String> deviceIds, String senderId, String eventTitle) {
+    public void sendWinnerInvitations(List<String> deviceIds,
+                                      String senderId,
+                                      String eventTitle,
+                                      String eventId) {
         String message = "Congratulations! You have been invited to " + eventTitle + "! Please accept or decline the invitation.";
 
         for (String deviceId : deviceIds) {
-            push.sendNotification(senderId, deviceId, message, true);
+            push.sendNotification(senderId, deviceId, message, true, eventId, eventTitle, null);
         }
     }
 
@@ -55,11 +58,14 @@ public class InvitationService {
      * @param senderId the event organizer
      * @param eventTitle the event title
      */
-    public void sendLoserInvitations(List<String> deviceIds, String senderId, String eventTitle) {
+    public void sendLoserInvitations(List<String> deviceIds,
+                                     String senderId,
+                                     String eventTitle,
+                                     String eventId) {
         String message = "Unfortunately, You didn't not get invited to " + eventTitle + "! Better luck next time!";
 
         for (String deviceId : deviceIds) {
-            push.sendNotification(senderId, deviceId, message, true);
+            push.sendNotification(senderId, deviceId, message, true, eventId, eventTitle, null);
         }
     }
 

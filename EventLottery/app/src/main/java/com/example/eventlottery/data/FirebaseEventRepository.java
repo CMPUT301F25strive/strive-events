@@ -301,13 +301,15 @@ public class FirebaseEventRepository implements EventRepository {
             invitationService.sendWinnerInvitations(
                     newlyInvited,
                     event.getOrganizerId(),
-                    event.getTitle()
+                    event.getTitle(),
+                    event.getId()
             );
             // Send notifications only to the rest of the waiting list who did not get chosen
             invitationService.sendLoserInvitations(
                     loserNonInvited,
                     event.getOrganizerId(),
-                    event.getTitle()
+                    event.getTitle(),
+                    event.getId()
             );
 
             // Update Firestore invited list in event
