@@ -61,6 +61,8 @@ public class OrganizerWaitingListFragment extends Fragment {
         }
 
         adapter = new WaitingListAdapter();
+        binding.waitingListRecycler.setLayoutManager(
+                new androidx.recyclerview.widget.LinearLayoutManager(requireContext()));
         binding.waitingListRecycler.setAdapter(adapter);
         binding.waitingListRecycler.setHasFixedSize(true);
 
