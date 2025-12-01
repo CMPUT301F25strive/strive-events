@@ -92,15 +92,14 @@
     <string name="run_lottery_confirm_title">Run lottery early?</string>
     <string name="run_lottery_confirm_body">This will sample winners immediately and notify entrants. Continue?</string>
     <string name="run_lottery_success">Lottery run successfully</string>
-    <string name="final_filter_enrolled">Enrolled</string>
-    <string name="final_filter_enrolled_with_count">Enrolled (%1$d)</string>
+    <string name="final_confirmed_header">Confirmed attendees (%1$d)</string>
     <string name="device_id_label">Device: %1$s</string>
     <string name="tab_summary">Summary</string>
     <string name="tab_waiting_list">Waiting list</string>
     <string name="tab_invited">Invited</string>
     <string name="tab_final_list">Final list</string>
-    <string name="final_list_placeholder_title">Final list coming soon</string>
-    <string name="final_list_placeholder_body">Confirmed entrants will show here, along with export options, once finalized.</string>
+    <string name="final_list_placeholder_title">No confirmed attendees yet</string>
+    <string name="final_list_placeholder_body">As entrants accept their invitations, they will appear here.</string>
     <string-array name="event_tags">
         <item>Art</item>
         <item>Music</item>

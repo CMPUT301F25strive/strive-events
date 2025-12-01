@@ -19,15 +19,12 @@ import com.example.eventlottery.model.Event;
 import com.example.eventlottery.model.Profile;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Displays the final list of invited entrants with an enrolled filter.
+ * Streamlined view that only displays confirmed attendees.
  */
 public class FinalListFragment extends Fragment {
 
@@ -41,10 +38,6 @@ public class FinalListFragment extends Fragment {
 
     private String eventId;
     private String eventTitle;
-    private final List<ChosenEntrantAdapter.Row> allRows = new ArrayList<>();
-    private Filter currentFilter = Filter.ALL;
-
-    private enum Filter { ALL, ENROLLED }
 
     @Nullable
     @Override
@@ -73,15 +66,9 @@ public class FinalListFragment extends Fragment {
 
         binding.finalEventTitle.setText(!TextUtils.isEmpty(eventTitle) ? eventTitle : "--");
 
-        binding.finalSwipeRefresh.setOnRefreshListener(eventRepository::refresh);
-
-        binding.finalFilterAll.setOnClickListener(v -> {
-            currentFilter = Filter.ALL;
-            applyFilter();
-        });
-        binding.finalFilterEnrolled.setOnClickListener(v -> {
-            currentFilter = Filter.ENROLLED;
-            applyFilter();
+        binding.finalSwipeRefresh.setOnRefreshListener(() -> {
+            eventRepository.refresh();
+            binding.finalSwipeRefresh.setRefreshing(false);
         });
 
         observeEvents();
@@ -102,73 +89,61 @@ public class FinalListFragment extends Fragment {
                 return;
             }
 
-            bindSummary(event);
-            fetchRows(event);
+            bindHeader(event);
+            loadConfirmedEntrants(event);
         });
     }
 
-    private void bindSummary(@NonNull Event event) {
-        List<String> invited = event.getInvitedList();
-        List<String> enrolledList = event.getAttendeesList();
-
-        int invitedCount = invited != null ? invited.size() : 0;
-        int enrolledCount = enrolledList != null ? enrolledList.size() : 0;
-        int pendingCount = invitedCount - enrolledCount;
-
-        binding.finalInvitedValue.setText(String.format(Locale.getDefault(), "%d", invitedCount));
-        binding.finalEnrolledValue.setText(String.format(Locale.getDefault(), "%d", enrolledCount));
-        binding.finalPendingValue.setText(String.format(Locale.getDefault(), "%d", Math.max(pendingCount, 0)));
-
-        binding.finalFilterEnrolled.setText(
-                getString(R.string.final_filter_enrolled_with_count, enrolledCount)
-        );
+    private void bindHeader(@NonNull Event event) {
+        if (binding == null) return;
+        binding.finalEventTitle.setText(event.getTitle());
+        int confirmed = event.getAttendeesList() != null ? event.getAttendeesList().size() : 0;
+        binding.finalConfirmedHeader.setText(
+                getString(R.string.final_confirmed_header, confirmed));
     }
 
-    private void fetchRows(@NonNull Event event) {
-        List<String> invitedRaw = event.getInvitedList();
-        LinkedHashSet<String> invitedUnique = new LinkedHashSet<>();
-        if (invitedRaw != null) {
-            for (String id : invitedRaw) {
+    private void loadConfirmedEntrants(@NonNull Event event) {
+        if (binding == null) return;
+        List<String> attendees = event.getAttendeesList();
+        LinkedHashSet<String> confirmed = new LinkedHashSet<>();
+        if (attendees != null) {
+            for (String id : attendees) {
                 if (!TextUtils.isEmpty(id)) {
-                    invitedUnique.add(id);
+                    confirmed.add(id);
                 }
             }
         }
 
-        if (invitedUnique.isEmpty()) {
-            allRows.clear();
+        if (confirmed.isEmpty()) {
             adapter.submitList(new ArrayList<>());
             showEmptyState(true);
+            binding.finalSwipeRefresh.setRefreshing(false);
+            binding.finalLoading.setVisibility(View.GONE);
             return;
         }
 
         showEmptyState(false);
         binding.finalLoading.setVisibility(View.VISIBLE);
 
-        Set<String> acceptedSet = new HashSet<>(event.getAttendeesList() != null
-                ? event.getAttendeesList() : new ArrayList<>());
-        Set<String> cancelledSet = new HashSet<>(event.getCanceledList() != null
-                ? event.getCanceledList() : new ArrayList<>());
-
         List<ChosenEntrantAdapter.Row> rows = new ArrayList<>();
-        int total = invitedUnique.size();
         AtomicInteger loadedCount = new AtomicInteger(0);
+        int total = confirmed.size();
 
-        for (String deviceId : invitedUnique) {
+        for (String deviceId : confirmed) {
             profileRepository.findUserById(deviceId, new ProfileRepository.ProfileCallback() {
                 @Override
                 public void onSuccess(Profile profile) {
-                    deliverRow(buildRow(deviceId, profile, acceptedSet, cancelledSet));
+                    deliverRow(buildRow(deviceId, profile));
                 }
 
                 @Override
                 public void onDeleted() {
-                    deliverRow(buildRow(deviceId, null, acceptedSet, cancelledSet));
+                    deliverRow(buildRow(deviceId, null));
                 }
 
                 @Override
                 public void onError(String message) {
-                    deliverRow(buildRow(deviceId, null, acceptedSet, cancelledSet));
+                    deliverRow(buildRow(deviceId, null));
                 }
 
                 private void deliverRow(ChosenEntrantAdapter.Row row) {
@@ -191,58 +166,30 @@ public class FinalListFragment extends Fragment {
             return leftName.compareToIgnoreCase(rightName);
         });
 
-        allRows.clear();
-        allRows.addAll(rows);
+        adapter.submitList(new ArrayList<>(rows));
         binding.finalLoading.setVisibility(View.GONE);
         binding.finalSwipeRefresh.setRefreshing(false);
-        applyFilter();
     }
 
     private ChosenEntrantAdapter.Row buildRow(@NonNull String deviceId,
-                                              @Nullable Profile profile,
-                                              @NonNull Set<String> accepted,
-                                              @NonNull Set<String> cancelled) {
+                                              @Nullable Profile profile) {
         String name = profile != null ? profile.getName() : null;
         String email = profile != null ? profile.getEmail() : null;
         String phone = profile != null ? profile.getPhone() : null;
 
-        ChosenEntrantAdapter.Row.Status status;
-        if (accepted.contains(deviceId)) {
-            status = ChosenEntrantAdapter.Row.Status.ACCEPTED;
-        } else if (cancelled.contains(deviceId)) {
-            status = ChosenEntrantAdapter.Row.Status.DECLINED;
-        } else {
-            status = ChosenEntrantAdapter.Row.Status.PENDING;
-        }
-
-        return new ChosenEntrantAdapter.Row(deviceId, name, email, phone, status);
+        return new ChosenEntrantAdapter.Row(
+                deviceId,
+                name,
+                email,
+                phone,
+                ChosenEntrantAdapter.Row.Status.ACCEPTED
+        );
     }
 
-    private void applyFilter() {
-        List<ChosenEntrantAdapter.Row> display = new ArrayList<>();
-
-        if (currentFilter == Filter.ENROLLED) {
-            for (ChosenEntrantAdapter.Row row : allRows) {
-                if (row.status == ChosenEntrantAdapter.Row.Status.ACCEPTED) {
-                    display.add(row);
-                }
-            }
-        } else {
-            display.addAll(allRows);
-        }
-
-        adapter.submitList(new ArrayList<>(display));
-        showEmptyState(display.isEmpty());
-    }
-
-    private void showEmptyState(boolean empty) {
+    private void showEmptyState(boolean show) {
         if (binding == null) return;
-        binding.finalEmptyState.setVisibility(empty ? View.VISIBLE : View.GONE);
-        binding.finalRecycler.setVisibility(empty ? View.GONE : View.VISIBLE);
-        if (empty) {
-            binding.finalLoading.setVisibility(View.GONE);
-        }
-        binding.finalSwipeRefresh.setRefreshing(false);
+        binding.finalEmptyState.setVisibility(show ? View.VISIBLE : View.GONE);
+        binding.finalRecycler.setVisibility(show ? View.GONE : View.VISIBLE);
     }
 
     @Override
