@@ -48,6 +48,10 @@ public interface EventRepository {
 
     void updateCanceledList(String eventID, List<String> canceledList);
 
+    void markInvitationAccepted(String eventId, String deviceId);
+
+    void markInvitationDeclined(String eventId, String deviceId);
+
     /**
      * Remove an event from the catalogue.
      */
