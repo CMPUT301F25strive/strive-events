@@ -60,6 +60,10 @@
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">16dp</item>
     </style>
+    <style name="RoundedCornerImage" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item> <!-- change radius as needed -->
+    </style>
     <string name="google_maps_key">YOUR_API_KEY_HERE</string>
 
 </resources>
